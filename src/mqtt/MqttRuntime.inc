@@ -37,8 +37,19 @@ static void markMqttWeatherUpdated() {
   lastMqttWeatherFetch = time(nullptr);
   lastWeatherFetch = lastMqttWeatherFetch;
   lastSyncTime = lastMqttWeatherFetch;
+  // Repaint weather widgets in place, without a full-screen redraw (fixed
+  // 1.0.1): the old pageDirty here forced drawCurrentPageFull() with a
+  // fillScreen on every incoming WeatherFlow observation - the visible
+  // top-to-bottom flicker every few seconds. Dropping pageDirty alone left
+  // the weather widgets with no repaint trigger (they stopped updating), so
+  // mirror the MQTT DataPoint path (see mqttCallback): invalidate the widget
+  // caches so the next 1 Hz updateCurrentPageDynamic() redraws the affected
+  // widgets via sprite push (no fillScreen, no flicker).
+  clearHomeSlotCaches();
+  for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+    for (int i = 0; i < TAB_WIDGET_COUNT; i++) cacheCustomTabSlots[t][i] = "";
+  }
   dataDirty = true;
-  pageDirty = true;
   InfoTermEventBusIntegration::publishWeatherUpdated("mqtt", "weather");
 }
 
@@ -245,7 +256,10 @@ void ensureMQTTVerbunden() {
   if (ok) {
     mqttWasVerbunden = true;
     mqttSubscribeWeatherTopics();
-    pageDirty = true;
+    // Only dataDirty (fixed 1.0.1): the MQTT status change is shown by the
+    // 1 Hz updateStatusDynamic(); a full redraw here flickered the screen on
+    // every MQTT (re)connect.
+    dataDirty = true;
     InfoTermEventBusIntegration::publishMQTTConnected("mqtt");
   } else {
     if (mqttWasVerbunden) {

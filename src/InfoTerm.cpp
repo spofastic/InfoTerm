@@ -1650,11 +1650,6 @@ void updateStatusDynamic() {
   String firmwareText = String(INFOTERM_APP_NAME) + " " + String(INFOTERM_APP_VERSION);
   String brokerText = mqttHost + ":" + String(mqttPort);
   String vpnText = vpnStatusText() + (vpnConnected ? (" (" + vpnName + ")") : "");
-  String combined = wifiText + "|" + signal + "|" + ip + "|" + uptime + "|" + sync + "|" + mqttText + "|" + firmwareText + "|" + brokerText + "|" + vpnText;
-
-  if (combined == lastIpText) return;
-  lastIpText = combined;
-
   StatusPageRow rows[] = {
     {TXT(L_STATUS_VERSION), firmwareText, COL_ACCENT},
     {TXT(L_STATUS_WIFI), wifiText, statusColor()},
@@ -1668,11 +1663,26 @@ void updateStatusDynamic() {
   };
   const int rowCount = sizeof(rows) / sizeof(rows[0]);
 
-  tft.fillRect(0, 0, SCREEN_W, SCREEN_H - NAV_H, COL_BG);
+  // Redraw ONLY the rows whose value/colour actually changed - never a
+  // full-area fillRect (fixed 1.0.1). The old code wiped the whole status
+  // area and repainted all nine rows whenever a single combined string
+  // changed, and that string included the WiFi signal in dBm, which
+  // fluctuates constantly - so the Info page rebuilt top-to-bottom every
+  // couple of seconds (the reported flicker; this is the Info page, not the
+  // widget pages the earlier fixes touched). drawSetupRow() already clears
+  // its own row. drawStatusPageFull() empties lastIpText to force a one-time
+  // full repaint of every row after a page switch.
+  static String statusRowCache[9];  // must be >= rowCount
+  bool fullRedraw = (lastIpText.length() == 0);
+  lastIpText = "x";
 
   int y = STATUS_ROWS_START_Y;
-  for (int i = 0; i < rowCount; i++) {
-    drawSetupRow(y, rows[i].label, rows[i].value, rows[i].color);
+  for (int i = 0; i < rowCount && i < 9; i++) {
+    String key = rows[i].value + "|" + String(rows[i].color);
+    if (fullRedraw || key != statusRowCache[i]) {
+      statusRowCache[i] = key;
+      drawSetupRow(y, rows[i].label, rows[i].value, rows[i].color);
+    }
     y += STATUS_ROW_HEIGHT;
   }
 }

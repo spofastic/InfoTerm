@@ -12,6 +12,8 @@ The current version is maintained centrally in `include/Version.h`; see
 ESP32 Touchscreen 2.8 inch TFT LCD display ESP-WROOM-32 ILI9341/ST7789
 compatible board, commonly sold as ESP32-2432S028R.
 
+https://a.aliexpress.com/_EQB88PY
+
 ## Features
 
 - Touchscreen dashboard with configurable pages, widgets and custom tabs

@@ -148,8 +148,12 @@ void updateWiFiConnectionState() {
     ensureSunTimesForToday();
     ensureWeather();
     ensureKpIndex();
+    // Only dataDirty (fixed 1.0.1): a reconnect is a status change shown by
+    // the 1 Hz updateStatusDynamic() (partial redraw), not a reason for a
+    // full drawCurrentPageFull(). pageDirty here flickered the whole screen
+    // on every WiFi reconnect - and did so on the Home page too, which has no
+    // connection status at all.
     dataDirty = true;
-    pageDirty = true;
     return;
   }
 
@@ -165,7 +169,7 @@ void updateWiFiConnectionState() {
       return;
     }
     wifiConnectInProgress = false;
-    pageDirty = true;
+    dataDirty = true;  // status change only (see reconnect note above)
   }
 }
 
