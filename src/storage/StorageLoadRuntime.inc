@@ -33,6 +33,11 @@ void sanitizeGeneralConfig() {
   // reject negative values.
   sleepIntervalMin = constrain(sleepIntervalMin, 0, 1440);
 
+  if (tabCycleIntervalSec != 30 && tabCycleIntervalSec != 60 &&
+      tabCycleIntervalSec != 180 && tabCycleIntervalSec != 360) {
+    tabCycleIntervalSec = 60;
+  }
+
   wifiActiveIndex = constrain(wifiActiveIndex, 0, WIFI_NETWORK_COUNT - 1);
 
   if (vpnEndpointPort == 0) vpnEndpointPort = 51820;
@@ -84,6 +89,8 @@ void loadStoredSettings() {
   vpnName          = cfgGetString("vpnName", "vpnName", "");
   nightModeEnabled = cfgGetBool("nightMode", "nightMode", false);
   displayRotated180 = cfgGetBool("rotate180", "rotate180", false);
+  tabCycleEnabled = cfgGetBool("tabCycle", "tabCycle", false);
+  tabCycleIntervalSec = cfgGetInt("tabCycleSec", "tabCycleSec", 60);
   logLevelValue    = constrain(cfgGetInt("logLevel", "logLevel", static_cast<int>(Logger::Level::Info)), 0, 3);
   Logger::setLevel(logLevelValue);
   Logger::debug(String("Configured log level: ") + Logger::levelName(Logger::level()));

@@ -737,6 +737,15 @@ unsigned long lastInteractionMs = 0;
 
 int sleepIntervalMin = 10;
 int sleepOffDelaySec = 60;
+
+// Tab rotation / burn-in guard (1.0.2). When auto-sleep is "Never"
+// (sleepIntervalMin == 0) and this is enabled, the visible tabs (all except
+// the Info page) are cycled every tabCycleIntervalSec seconds so no single
+// screen stays fixed. Persisted and part of Backup/Restore.
+bool tabCycleEnabled = false;
+int tabCycleIntervalSec = 60;   // one of 30 / 60 / 180 / 360
+unsigned long lastTabCycleMs = 0;
+
 int logLevelValue = static_cast<int>(Logger::Level::Info);
 
 const int BL_FULL = 255;
@@ -1357,6 +1366,48 @@ int visibleNavPages(Page pages[], String labels[], int maxPages) {
   }
   if (count < maxPages) { pages[count] = PAGE_INFO; labels[count] = String(TXT(L_TAB_STATUS)); count++; }
   return count;
+}
+
+// Next visible tab after `current`, skipping the Info page (1.0.2 tab
+// rotation). If `current` is the Info page (user opened it manually), the
+// rotation resumes at the first non-Info tab. Returns `current` unchanged
+// when there are fewer than two rotatable tabs (nothing to cycle).
+Page nextCyclePage(Page current) {
+  Page pages[5];
+  String labels[5];
+  int count = visibleNavPages(pages, labels, 5);
+
+  Page cyclePages[5];
+  int cycleCount = 0;
+  for (int i = 0; i < count; i++) {
+    if (pages[i] != PAGE_INFO) cyclePages[cycleCount++] = pages[i];
+  }
+  if (cycleCount < 2) return current;
+
+  int idx = -1;
+  for (int i = 0; i < cycleCount; i++) {
+    if (cyclePages[i] == current) { idx = i; break; }
+  }
+  return cyclePages[(idx + 1) % cycleCount];
+}
+
+// Advances to the next tab once tabCycleIntervalSec has elapsed. Only runs
+// when the burn-in rotation is enabled AND auto-sleep is "Never" - if a sleep
+// timeout is set, that already prevents a static burned-in image. Called from
+// schedulerSystemStatus() (5 s cadence; a few seconds of jitter on a 30 s+
+// interval is irrelevant). Manual touch and a WebGUI save reset lastTabCycleMs
+// so the user always gets a full interval on the tab they just selected.
+void handleTabCycle() {
+  if (!tabCycleEnabled || sleepIntervalMin > 0) return;
+  if (sleepDimmed || sleepOff) return;  // don't rotate a dimmed/off screen
+  unsigned long now = millis();
+  if (now - lastTabCycleMs < (unsigned long)tabCycleIntervalSec * 1000UL) return;
+  lastTabCycleMs = now;
+  Page next = nextCyclePage(currentPage);
+  if (next != currentPage) {
+    currentPage = next;
+    pageDirty = true;
+  }
 }
 
 // Small gear glyph for the Info/settings nav button - replaces the "Info"

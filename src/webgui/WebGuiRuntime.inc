@@ -451,6 +451,14 @@ void handleRoot() {
   page += "<option value='30'" + String(sleepIntervalMin==30?" selected":"") + ">30 Minuten</option>";
   page += "<option value='60'" + String(sleepIntervalMin==60?" selected":"") + ">1 Stunde</option>";
   page += "</select><div class='muted' style='margin-top:8px;'>Der Schlafmodus dimmt zuerst das Display und schaltet es nach 60 Sekunden ganz aus.</div></div>";
+  page += "<div><label class='label'>Tab-Rotation (Einbrennschutz)</label>";
+  page += "<label class='switch-row' style='padding-top:0;border-bottom:none;'><input type='checkbox' name='tabCycle' value='1'" + String(tabCycleEnabled ? " checked" : "") + "><small>Angezeigte Tabs (ausser Info) automatisch durchlaufen - nur wirksam, wenn der Schlafmodus auf \"Nie\" steht</small></label>";
+  page += "<select name='tabCycleSec'>";
+  page += "<option value='30'"  + String(tabCycleIntervalSec==30?" selected":"")  + ">alle 30 Sekunden</option>";
+  page += "<option value='60'"  + String(tabCycleIntervalSec==60?" selected":"")  + ">alle 60 Sekunden</option>";
+  page += "<option value='180'" + String(tabCycleIntervalSec==180?" selected":"") + ">alle 3 Minuten</option>";
+  page += "<option value='360'" + String(tabCycleIntervalSec==360?" selected":"") + ">alle 6 Minuten</option>";
+  page += "</select></div>";
   page += "<div><label class='label'>Log-Level</label><select name='logLevel'>";
   page += "<option value='0'" + String(logLevelValue==0?" selected":"") + ">ERROR</option>";
   page += "<option value='1'" + String(logLevelValue==1?" selected":"") + ">WARNING</option>";
@@ -1356,6 +1364,18 @@ void handleSave() {
 
   int newSleepMin = server.hasArg("sleepMin") ? server.arg("sleepMin").toInt() : sleepIntervalMin;
   sleepIntervalMin = constrain(newSleepMin, 0, 120);
+
+  // Tab rotation / burn-in guard (1.0.2). Only the 4 offered intervals are
+  // accepted; anything else falls back to 60 s. Reset the rotation timer so
+  // the user gets a full interval after saving.
+  tabCycleEnabled = server.hasArg("tabCycle");
+  int newTabCycleSec = server.hasArg("tabCycleSec") ? server.arg("tabCycleSec").toInt() : tabCycleIntervalSec;
+  if (newTabCycleSec != 30 && newTabCycleSec != 60 && newTabCycleSec != 180 && newTabCycleSec != 360) {
+    newTabCycleSec = 60;
+  }
+  tabCycleIntervalSec = newTabCycleSec;
+  lastTabCycleMs = millis();
+
   logLevelValue = constrain(server.hasArg("logLevel") ? server.arg("logLevel").toInt() : logLevelValue, 0, 3);
   Logger::setLevel(logLevelValue);
   widgetBordersEnabled = server.hasArg("widgetBorder");

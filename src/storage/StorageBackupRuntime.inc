@@ -74,6 +74,8 @@ bool serializeConfigurationToJson(String& jsonOut) {
   general["vpnName"] = vpnName;
   general["nightMode"] = nightModeEnabled;
   general["rotate180"] = displayRotated180;
+  general["tabCycle"] = tabCycleEnabled;
+  general["tabCycleSec"] = tabCycleIntervalSec;
   general["mqttOn"] = mqttWeatherEnabled;
   general["mqttFallback"] = mqttFallbackOpenMeteo;
   general["mqttHost"] = mqttHost;
@@ -180,6 +182,8 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
   vpnName = general["vpnName"] | vpnName;
   nightModeEnabled = general["nightMode"] | nightModeEnabled;
   displayRotated180 = general["rotate180"] | displayRotated180;
+  tabCycleEnabled = general["tabCycle"] | tabCycleEnabled;
+  tabCycleIntervalSec = general["tabCycleSec"] | tabCycleIntervalSec;
   mqttWeatherEnabled = general["mqttOn"] | mqttWeatherEnabled;
   mqttFallbackOpenMeteo = general["mqttFallback"] | mqttFallbackOpenMeteo;
   mqttHost = general["mqttHost"] | mqttHost;

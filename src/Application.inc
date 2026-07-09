@@ -156,6 +156,7 @@ static void schedulerDisplayRefresh() {
 // not noticeable.
 static void schedulerSystemStatus() {
   handleAutoSleep();
+  handleTabCycle();
 }
 
 void setup() {
@@ -335,6 +336,7 @@ void loop() {
   int tx = 0, ty = 0;
   if (touchNewPress(tx, ty)) {
     lastInteractionMs = millis();
+    lastTabCycleMs = millis();  // manual touch defers the next auto tab rotation
 
     if (sleepOff) {
       if (manualDimMode) {

@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.2] — Stable
+
+### Added
+
+- **Tab-Rotation (Einbrennschutz)**: Neue Option im Einstellungen-Tab
+  direkt unter dem Schlafmodus (Checkbox + Dropdown 30 / 60 / 180 / 360
+  Sekunden). Wenn der automatische Schlafmodus auf "Nie" steht, laufen die
+  angezeigten Tabs (Home und aktive Custom-Tabs, **ausser dem Info-Tab**)
+  automatisch im gewaehlten Intervall durch, damit kein statisches Bild
+  einbrennt. Umgesetzt ueber `handleTabCycle()` (aufgerufen im
+  5-Sekunden-`schedulerSystemStatus`-Task, greift nur bei
+  `sleepIntervalMin == 0`); manuelle Touch-Bedienung und ein WebGUI-Save
+  setzen den Rotations-Timer zurueck, sodass der gerade gewaehlte Tab die
+  volle Intervalldauer stehen bleibt. Persistiert in NVS und Teil von
+  Backup/Restore.
+
 ## [1.0.1] — Stable
 
 ### Fixed

@@ -49,6 +49,8 @@ void persistGeneralConfiguration() {
   cfgPutString("vpnName", vpnName);
   cfgPutBool("nightMode", nightModeEnabled);
   cfgPutBool("rotate180", displayRotated180);
+  cfgPutBool("tabCycle", tabCycleEnabled);
+  cfgPutInt("tabCycleSec", tabCycleIntervalSec);
   cfgPutBool("mqttOn", mqttWeatherEnabled);
   cfgPutBool("mqttFallback", mqttFallbackOpenMeteo);
   cfgPutString("mqttHost", mqttHost);
