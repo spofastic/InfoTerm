@@ -1,0 +1,55 @@
+# InfoTerm custom partition table (4 MB flash)
+#
+# Replaces the stock huge_app.csv to grow nvs: with ~250 individual
+# Preferences keys (32 MQTT slots x 5 fields, widget/tab slots, etc.) stacked
+# across three never-cleaned-up key generations (cfg_*, cfg2_*, hashed c*),
+# the stock 20 KB nvs partition was running out of free pages, and the ESP32
+# Arduino core silently erases+reformats the whole nvs partition on the next
+# boot when that happens (esp32-hal-misc.c calls nvs_flash_erase() on
+# ESP_ERR_NVS_NO_FREE_PAGES) - this was the real cause of settings loss.
+#
+# CRITICAL constraint discovered the hard way: PlatformIO's Arduino-framework
+# upload ALWAYS writes framework-arduinoespressif32/tools/partitions/
+# boot_app0.bin to the hardcoded physical address 0xE000 on every single
+# `pio run -t upload`, regardless of what this partition table says - there
+# is no working override for it (board_upload.ota_partition_offset does NOT
+# affect it, confirmed by testing). An earlier version of this table put
+# nvs across 0xB000-0x40000, which includes 0xE000 - every upload silently
+# corrupted whatever nvs entries physically landed in that ~8KB window,
+# reproducibly wiping general settings + the first few MQTT slots on every
+# reflash (NOT on a plain reset - only on upload). Fix: otadata is placed
+# EXACTLY at 0xE000 (its conventional home anyway, and where boot_app0.bin's
+# content belongs), and nvs starts only at 0x10000, so nothing nvs-related
+# ever occupies the 0xE000-0x10000 window. 0x9000-0xE000 (20 KB) is
+# deliberately left as an unallocated gap - nothing else in the observed
+# upload command writes there, so this is safe.
+#
+# spiffs is kept (not just dead weight): the WebGUI is fully inline HTML/CSS/JS
+# and never served template files from flash (the old INFOTERM_USE_LITTLEFS
+# template path was dead code and was removed in 0.9.14), but
+# StorageBackupRuntime.inc / WebGuiRuntime.inc mount LittleFS directly to
+# store the config Backup/Restore JSON file - removing spiffs would break
+# that feature.
+#
+# board_upload.offset_address in platformio.ini MUST match app0's offset
+# here (0x50000) - PlatformIO does not derive the upload address from this
+# file for the Arduino framework (see platformio.ini comment).
+#
+# app0/app1 (0.9.13): true dual-slot OTA. Confirmed live on hardware that a
+# single ota_0-only layout cannot support OTA at all - ESP-IDF's
+# esp_flash_erase_region() unconditionally aborts() rather than let you erase
+# the app partition your code is currently executing from (Update.write()
+# crashed immediately on the very first sector erase). A second app
+# partition is not an optional safety nicety, it is the only way OTA can
+# function on this chip: Update.begin() writes into whichever of app0/app1
+# is NOT currently running, and otadata then flips the active slot. Shrunk
+# from one 3 MB app0 to two 1.625 MB slots (current firmware ~1.24 MB, so
+# ~27% headroom per slot) to make room; coredump/spiffs shrunk to fit.
+#
+# Name,   Type, SubType, Offset,   Size,     Flags
+otadata,  data, ota,     0xE000,   0x2000,
+nvs,      data, nvs,     0x10000,  0x40000,
+app0,     app,  ota_0,   0x50000,  0x1A0000,
+app1,     app,  ota_1,   0x1F0000, 0x1A0000,
+coredump, data, coredump,0x390000, 0x10000,
+spiffs,   data, spiffs,  0x3A0000, 0x60000,

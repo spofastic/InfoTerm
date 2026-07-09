@@ -1,0 +1,188 @@
+/******************************************************************************
+ * InfoTerm
+ * Version : 0.6.0
+ * Module  : Wifi runtime migration
+ *
+ * This file contains legacy runtime functions moved out of InfoTerm.ino as the
+ * first productive migration step. It is included into the legacy compilation
+ * unit to keep access to the existing stable global runtime state while reducing
+ * the size and complexity of the main firmware file.
+ ******************************************************************************/
+
+#include <ESPmDNS.h>
+
+// Network hostname (DHCP option 12 + mDNS), derived from the configured
+// device name so the device shows up recognizably in router overviews
+// instead of the Arduino default "esp32-<MAC-suffix>" (0.9.27, user
+// request). Hostname rules are stricter than the free-text device name
+// (letters/digits/hyphen only, no leading/trailing hyphen), so the name is
+// sanitized; an empty result falls back to "InfoTerm-<MAC-suffix>".
+// A device-name change takes effect on the next reconnect/reboot.
+static String networkHostname() {
+  String src = deviceName;
+  src.trim();
+  String out;
+  for (size_t i = 0; i < src.length() && out.length() < 24; i++) {
+    char c = src[i];
+    if (isalnum((unsigned char)c)) {
+      out += c;
+    } else if (out.length() > 0 && out[out.length() - 1] != '-') {
+      out += '-';
+    }
+  }
+  while (out.length() > 0 && out[out.length() - 1] == '-') {
+    out.remove(out.length() - 1);
+  }
+  if (out.length() == 0) {
+    String mac = WiFi.macAddress();
+    mac.replace(":", "");
+    out = "InfoTerm-" + mac.substring(mac.length() >= 4 ? mac.length() - 4 : 0);
+  }
+  return out;
+}
+
+// Announces <hostname>.local plus the HTTP service via mDNS so the WebGUI
+// stays reachable by name even when DHCP hands out a new address (the
+// trigger for this feature: the device "disappeared" after a router-side
+// lease change). Called after every successful association - MDNS.end()
+// first, so a reconnect or renamed device never leaves a stale announcement.
+static void startMdns() {
+  MDNS.end();
+  String host = networkHostname();
+  if (MDNS.begin(host.c_str())) {
+    MDNS.addService("http", "tcp", 80);
+    Logger::info(String("[mDNS] erreichbar als ") + host + ".local");
+  } else {
+    Logger::warning("[mDNS] Start fehlgeschlagen");
+  }
+}
+
+// Applies the persisted IP configuration to the STA interface. Must run
+// after WiFi.mode(WIFI_STA) and before WiFi.begin() (0.9.31). In "static"
+// mode WiFi.config() pins IP/gateway/subnet (DNS falls back to the gateway
+// if left empty); any invalid field falls back to DHCP so a typo can never
+// leave the device unreachable via a broken static address. In "dhcp" mode
+// (and as the fallback) an all-zero WiFi.config() clears any previously
+// applied static config so a static->dhcp switch actually takes effect
+// (0.0.0.0 as local IP is the ESP32 core's "use DHCP" signal - INADDR_NONE
+// is deliberately NOT used, it reads as a 255.255.255.255 static address on
+// some core versions).
+static void applyIpConfiguration() {
+  const IPAddress none((uint32_t)0);
+  if (ipMode == "static") {
+    IPAddress ip, gw, sn, dns;
+    if (ip.fromString(staticIp) && gw.fromString(staticGateway) && sn.fromString(staticSubnet)) {
+      if (!dns.fromString(staticDns)) dns = gw;
+      if (WiFi.config(ip, gw, sn, dns)) {
+        Logger::info(String("[WiFi] Statische IP: ") + staticIp + " GW " + staticGateway);
+        return;
+      }
+      Logger::warning("[WiFi] Statische IP-Konfiguration abgelehnt - nutze DHCP");
+    } else {
+      Logger::warning("[WiFi] Statische IP-Felder ungueltig - nutze DHCP");
+    }
+  }
+  WiFi.config(none, none, none);
+}
+
+// Starts a connection attempt against WIFI_NETWORKS[index], clamping to a
+// valid index so a corrupted/out-of-range wifiActiveIndex can't crash this.
+void startWifiAttempt(int index) {
+  wifiAttemptIndex = constrain(index, 0, WIFI_NETWORK_COUNT - 1);
+  // ESP32's WiFi.begin() does not reliably switch to a different AP if the
+  // radio is still associated with the previous one (well-known ESP32
+  // Arduino core quirk) - an explicit disconnect first is required whenever
+  // this is called while already connected (e.g. switching networks live
+  // from the WebGUI, as opposed to the normal boot/reconnect case where the
+  // radio is already idle).
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFi.disconnect();
+    delay(100);
+  }
+  // Must run before mode()/begin() so the name reaches the DHCP request
+  // (ESP32 core applies the stored hostname when the STA netif starts).
+  WiFi.setHostname(networkHostname().c_str());
+  WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);
+  applyIpConfiguration();  // static IP or DHCP; must precede WiFi.begin()
+  WiFi.begin(WIFI_NETWORKS[wifiAttemptIndex].ssid, WIFI_NETWORKS[wifiAttemptIndex].pass);
+  wifiConnectInProgress = true;
+  wifiConnectStartedMs = millis();
+  Logger::info(String("[WiFi] Verbindungsversuch: ") + WIFI_NETWORKS[wifiAttemptIndex].ssid);
+}
+
+void beginWiFiConnect() {
+  if (!wifiEnabled) {
+    WiFi.disconnect(true, true);
+    WiFi.mode(WIFI_OFF);
+    wifiConnectInProgress = false;
+    return;
+  }
+
+  startWifiAttempt(wifiActiveIndex);
+}
+
+void connectWiFi(bool waitForConnection = true) {
+  beginWiFiConnect();
+  if (!waitForConnection) return;
+
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000) {
+    delay(200);
+  }
+  wifiConnectInProgress = false;
+  // The synchronous boot path bypasses updateWiFiConnectionState(), so the
+  // mDNS announcement has to happen here as well.
+  if (WiFi.status() == WL_CONNECTED) startMdns();
+}
+
+void updateWiFiConnectionState() {
+  if (!wifiEnabled || !wifiConnectInProgress) return;
+
+  wl_status_t status = WiFi.status();
+  if (status == WL_CONNECTED) {
+    wifiConnectInProgress = false;
+    Logger::info(String("[WiFi] Verbunden: ") + WIFI_NETWORKS[wifiAttemptIndex].ssid + " (" + WiFi.localIP().toString() + ")");
+    startMdns();
+    ensureMQTTVerbunden();
+    ensureSunTimesForToday();
+    ensureWeather();
+    ensureKpIndex();
+    dataDirty = true;
+    pageDirty = true;
+    return;
+  }
+
+  if (millis() - wifiConnectStartedMs >= WIFI_CONNECT_TIMEOUT_MS) {
+    // Fallback rotation: try the next configured network before giving up
+    // for this cycle. Once we would wrap back to the preferred network,
+    // stop - the periodic RuntimeTask::WiFiReconnect scheduler task will
+    // call beginWiFiConnect() again later and restart from the preferred
+    // network.
+    int nextIndex = (wifiAttemptIndex + 1) % WIFI_NETWORK_COUNT;
+    if (WIFI_NETWORK_COUNT > 1 && nextIndex != wifiActiveIndex) {
+      startWifiAttempt(nextIndex);
+      return;
+    }
+    wifiConnectInProgress = false;
+    pageDirty = true;
+  }
+}
+
+void setWifiEnabled(bool enabled) {
+  wifiEnabled = enabled;
+  cfgPutBool("wifiEnabled", wifiEnabled);
+  markConfigSaved();
+  markConfigSaved();
+
+  if (!wifiEnabled) {
+    wifiConnectInProgress = false;
+    WiFi.disconnect(true, true);
+    WiFi.mode(WIFI_OFF);
+  } else {
+    beginWiFiConnect();
+  }
+
+  dataDirty = true;
+  pageDirty = true;
+}

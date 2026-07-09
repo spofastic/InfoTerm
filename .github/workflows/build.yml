@@ -1,0 +1,46 @@
+name: PlatformIO Build
+
+# Builds the exact same target as local development and the release process:
+# the esp32_2432s028r environment from platformio.ini. Using PlatformIO (not
+# arduino-cli) means CI resolves the pinned lib_deps - including WireGuard-ESP32
+# and the custom partition table (partitions_infoterm.csv) - so a green CI run
+# reflects what actually ships. (The previous arduino-cli workflow neither
+# installed WireGuard-ESP32 nor used the partition table and diverged from the
+# real build.)
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Build firmware
+        run: pio run --environment esp32_2432s028r
+
+      - name: Run host unit tests
+        run: pio test --environment native
