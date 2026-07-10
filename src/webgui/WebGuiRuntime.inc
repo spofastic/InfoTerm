@@ -427,27 +427,11 @@ void handleRoot() {
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_SETTINGS)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
   page += "<p class='muted'>" + String(TXTW(L_WEB_SETTINGS_DESC)) + "</p>";
+  // ---- Allgemein ----
   page += "<div class='settings-block'>";
   page += "<span class='settings-title'>" + String(TXTW(L_WEB_GENERAL)) + "</span>";
   page += "<div class='grid'>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_DEVICE_NAME)) + "</label><input name='deviceName' maxlength='24' value='" + htmlEscape(deviceName) + "'></div>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_WIFI_NETWORK)) + "</label><select name='wifiNet'>";
-  for (int i = 0; i < WIFI_NETWORK_COUNT; i++) {
-    String suffix;
-    bool isConnectedNet = WiFi.status() == WL_CONNECTED && WiFi.SSID() == String(WIFI_NETWORKS[i].ssid);
-    if (isConnectedNet) {
-      suffix = TXTW(L_WEB_WIFI_CONNECTED);
-    } else if (!wifiScanEverCompleted) {
-      suffix = "";
-    } else if (wifiNetworkReachable[i]) {
-      suffix = TXTW(L_WEB_WIFI_IN_RANGE);
-    } else {
-      suffix = TXTW(L_WEB_WIFI_OUT_RANGE);
-    }
-    page += "<option value='" + String(i) + "'" + String(i == wifiActiveIndex ? " selected" : "") +
-            ">" + htmlEscape(String(WIFI_NETWORKS[i].ssid) + suffix) + "</option>";
-  }
-  page += "</select><div class='muted' style='margin-top:8px;'>" + String(TXTW(L_WEB_WIFI_HINT)) + "</div></div>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_LANGUAGE)) + "</label><select name='lang'>";
   page += "<option value='de'" + String(uiLanguage==LANG_DE ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_DE)) + "</option>";
   page += "<option value='en'" + String(uiLanguage==LANG_EN ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_EN)) + "</option>";
@@ -458,14 +442,14 @@ void handleRoot() {
   page += "<option value='hi'" + String(uiLanguage==LANG_HI ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_HI)) + "</option>";
   page += "<option value='zh'" + String(uiLanguage==LANG_ZH ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_ZH)) + "</option>";
   page += "</select></div>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_AUTO_SLEEP)) + "</label><select name='sleepMin'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_AUTO_SLEEP)) + "</label><div class='muted' style='margin:0 0 6px;'>" + String(TXTW(L_WEB_SLEEP_HINT)) + "</div><select name='sleepMin'>";
   page += "<option value='0'"  + String(sleepIntervalMin==0?" selected":"")  + ">" + String(TXTW(L_WEB_NEVER)) + "</option>";
   page += "<option value='1'"  + String(sleepIntervalMin==1?" selected":"")  + ">" + String(TXTW(L_WEB_1_MINUTE)) + "</option>";
   page += "<option value='5'"  + String(sleepIntervalMin==5?" selected":"")  + ">" + String(TXTW(L_WEB_5_MINUTES)) + "</option>";
   page += "<option value='10'" + String(sleepIntervalMin==10?" selected":"") + ">" + String(TXTW(L_WEB_10_MINUTES)) + "</option>";
   page += "<option value='30'" + String(sleepIntervalMin==30?" selected":"") + ">" + String(TXTW(L_WEB_30_MINUTES)) + "</option>";
   page += "<option value='60'" + String(sleepIntervalMin==60?" selected":"") + ">" + String(TXTW(L_WEB_1_HOUR)) + "</option>";
-  page += "</select><div class='muted' style='margin-top:8px;'>" + String(TXTW(L_WEB_SLEEP_HINT)) + "</div></div>";
+  page += "</select></div>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_CYCLE)) + "</label>";
   page += "<label class='switch-row' style='padding-top:0;border-bottom:none;'><input type='checkbox' name='tabCycle' value='1'" + String(tabCycleEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_TAB_CYCLE_HINT)) + "</small></label>";
   page += "<select name='tabCycleSec'>";
@@ -480,6 +464,60 @@ void handleRoot() {
   page += "<option value='2'" + String(logLevelValue==2?" selected":"") + ">INFO</option>";
   page += "<option value='3'" + String(logLevelValue==3?" selected":"") + ">DEBUG</option>";
   page += "</select></div>";
+  page += "</div>";
+  page += "</div>";
+
+  // ---- Netzwerk (WLAN slots + IP) ----
+  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_STATUS_NETWORK)) + "</span>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_WIFI_HINT)) + "</div>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_WIFI_SLOTS_DESC)) + "</div>";
+  page += "<div class='grid'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_WIFI_NETWORK)) + "</label><select name='wifiNet'>";
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    bool empty = wifiSlotSsid[i].length() == 0;
+    String label = empty ? (String("SSID ") + String(i + 1) + " " + String(TXTW(L_WEB_WIFI_SLOT_EMPTY)))
+                         : wifiSlotSsid[i];
+    String suffix;
+    if (empty) {
+      suffix = "";
+    } else if (WiFi.status() == WL_CONNECTED && WiFi.SSID() == wifiSlotSsid[i]) {
+      suffix = TXTW(L_WEB_WIFI_CONNECTED);
+    } else if (!wifiScanEverCompleted) {
+      suffix = "";
+    } else if (wifiNetworkReachable[i]) {
+      suffix = TXTW(L_WEB_WIFI_IN_RANGE);
+    } else {
+      suffix = TXTW(L_WEB_WIFI_OUT_RANGE);
+    }
+    page += "<option value='" + String(i) + "'" + String(i == wifiActiveIndex ? " selected" : "") +
+            ">" + htmlEscape(label + suffix) + "</option>";
+  }
+  page += "</select></div>";
+  page += "<div><label class='label'>&nbsp;</label><div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;'><button type='button' class='secondary-button' onclick='scanWifi()'>" + String(TXTW(L_WEB_WIFI_SCAN)) + "</button><span id='wifiScanResult' class='muted'></span></div></div>";
+  page += "</div>";
+  page += "<datalist id='wifiScanList'></datalist>";
+  page += "<div class='grid'>";
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    page += "<div><label class='label'>SSID " + String(i + 1) + "</label><input name='wifiSsid" + String(i) + "' list='wifiScanList' maxlength='32' value='" + htmlEscape(wifiSlotSsid[i]) + "'></div>";
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_PASSWORD)) + " " + String(i + 1) + "</label><input name='wifiPass" + String(i) + "' type='password' value='' autocomplete='new-password' placeholder='" + String(wifiSlotPass[i].length() > 0 ? TXTW(L_WEB_PASSWORD_KEEP_HINT) : "") + "'></div>";
+  }
+  page += "</div>";
+  page += "<div class='settings-block' style='margin-top:16px;'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_IP_MODE)) + "</label><div class='settings-desc' style='margin:0 0 6px;'>" + String(TXTW(L_WEB_IP_DESC)) + "</div><select name='ipMode'>";
+  page += "<option value='dhcp'" + String(ipMode == "static" ? "" : " selected") + ">" + String(TXTW(L_WEB_IP_DHCP)) + "</option>";
+  page += "<option value='static'" + String(ipMode == "static" ? " selected" : "") + ">" + String(TXTW(L_WEB_IP_STATIC)) + "</option>";
+  page += "</select></div>";
+  page += "<div class='grid'>";
+  page += "<div><label class='label'>" + String(TXTW(L_STATUS_IP)) + "</label><input name='ipStatic' value='" + htmlEscape(staticIp) + "' placeholder='192.168.1.50'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_SUBNET)) + "</label><input name='ipMask' value='" + htmlEscape(staticSubnet) + "' placeholder='255.255.255.0'></div>";
+  page += "<div><label class='label'>Gateway</label><input name='ipGw' value='" + htmlEscape(staticGateway) + "' placeholder='192.168.1.1'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_DNS)) + "</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
+  page += "</div></div>";
+  page += "</div>";
+
+  // ---- Standort (locale + location) ----
+  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_WEB_LOCATION)) + "</span>";
+  page += "<div class='grid'>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_UNITS)) + "</label><select name='units'>";
   page += "<option value='metric'"   + String(units=="metric"?" selected":"")   + ">Celsius / mm</option>";
   page += "<option value='imperial'" + String(units=="imperial"?" selected":"") + ">" + String(TXTW(L_WEB_UNIT_IMPERIAL)) + "</option>";
@@ -492,25 +530,14 @@ void handleRoot() {
   appendTimezoneOptions(page, tz);
   page += "</select></div>";
   page += "</div>";
-  page += "</div>";
-  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_WEB_LOCATION)) + "</span><div class='settings-desc'>" + String(TXTW(L_WEB_LOCATION_DESC)) + "</div><div class='grid-3'>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_LOCATION_NAME)) + "</label><input name='locname' value='" + htmlEscape(locationName) + "'></div>";
+  page += "<div class='settings-block' style='margin-top:16px;'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_LOCATION_NAME)) + "</label><div class='settings-desc' style='margin:0 0 6px;'>" + String(TXTW(L_WEB_LOCATION_DESC)) + " " + String(TXTW(L_WEB_LOCATION_EXAMPLE)) + "</div><input name='locname' value='" + htmlEscape(locationName) + "'></div>";
+  page += "<div class='grid'>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_LATITUDE)) + "</label><input name='lat' value='" + String(LAT, 6) + "'></div>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_LONGITUDE)) + "</label><input name='lng' value='" + String(LNG, 6) + "'></div>";
-  page += "</div><div class='footer-note'>" + String(TXTW(L_WEB_LOCATION_EXAMPLE)) + "</div></div>";
-
-  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_WEB_NETWORK_IP)) + "</span>";
-  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_IP_DESC)) + "</div>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_IP_MODE)) + "</label><select name='ipMode'>";
-  page += "<option value='dhcp'" + String(ipMode == "static" ? "" : " selected") + ">" + String(TXTW(L_WEB_IP_DHCP)) + "</option>";
-  page += "<option value='static'" + String(ipMode == "static" ? " selected" : "") + ">" + String(TXTW(L_WEB_IP_STATIC)) + "</option>";
-  page += "</select></div>";
-  page += "<div class='grid'>";
-  page += "<div><label class='label'>" + String(TXTW(L_STATUS_IP)) + "</label><input name='ipStatic' value='" + htmlEscape(staticIp) + "' placeholder='192.168.1.50'></div>";
-  page += "<div><label class='label'>Gateway</label><input name='ipGw' value='" + htmlEscape(staticGateway) + "' placeholder='192.168.1.1'></div>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_SUBNET)) + "</label><input name='ipMask' value='" + htmlEscape(staticSubnet) + "' placeholder='255.255.255.0'></div>";
-  page += "<div><label class='label'>" + String(TXTW(L_WEB_DNS)) + "</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
-  page += "</div></div>";
+  page += "</div>";
+  page += "</div>";
+  page += "</div>";
 
   page += "</div></div>";
 
@@ -726,9 +753,13 @@ void handleRoot() {
   page += "mqttSelect:'" + String(TXTW(L_JS_MQTT_SELECT)) + "',";
   page += "mqttImportConfirm:'" + String(TXTW(L_JS_MQTT_IMPORT_CONFIRM)) + "',";
   page += "importFailed:'" + String(TXTW(L_JS_IMPORT_FAILED)) + "',";
-  page += "noFile:'" + String(TXTW(L_WEB_NO_FILE)) + "'";
+  page += "noFile:'" + String(TXTW(L_WEB_NO_FILE)) + "',";
+  page += "wifiScanning:'" + String(TXTW(L_JS_WIFI_SCANNING)) + "',";
+  page += "wifiFound:'" + String(TXTW(L_JS_WIFI_FOUND)) + "',";
+  page += "wifiScanFailed:'" + String(TXTW(L_JS_WIFI_SCAN_FAILED)) + "'";
   page += "};";
   page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
+  page += "function scanWifi(){var res=document.getElementById('wifiScanResult');var dl=document.getElementById('wifiScanList');if(res)res.textContent=T.wifiScanning;fetch('/wifi/scan?csrf='+csrfToken,{method:'POST'}).then(function(r){return r.json();}).then(function(list){if(dl){dl.innerHTML='';list.forEach(function(n){var o=document.createElement('option');o.value=n;dl.appendChild(o);});}if(res)res.textContent=list.length+' '+T.wifiFound;}).catch(function(){if(res)res.textContent=T.wifiScanFailed;});}";
   page += "function mqttRowAction(path,idx,dir){var p=new URLSearchParams();p.append('idx',idx);if(dir)p.append('dir',dir);p.append('csrf',csrfToken);fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=mqtt';}).catch(function(){});}";
   page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert(T.backupSelect);return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert(T.restoreFailed);});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert(T.fwSelect);return;}if(!confirm(T.fwConfirm)){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent=T.uploading+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent=T.updateOk;setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);}};xhr.onerror=function(){if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);};if(status)status.textContent=T.uploading+'0%';xhr.send(fd);}";
   page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
@@ -1119,6 +1150,29 @@ void handleLogView() {
 // handleSave(). Blocks the cooperative main loop for the duration of the
 // connect attempt (bounded by the socket timeout / TCP connect timeout) -
 // accepted for a deliberately clicked test button.
+// On-demand WiFi scan for the WebGUI SSID picker (1.0.5). Returns a JSON array
+// of unique visible SSIDs. Skipped while a connect attempt is in flight so it
+// cannot disrupt it.
+void handleWifiScan() {
+  if (!requireAuthAndCsrf()) return;
+  JsonDocument doc;
+  JsonArray arr = doc.to<JsonArray>();
+  if (!wifiConnectInProgress) {
+    int16_t n = WiFi.scanNetworks(false, false, false, 150);
+    for (int16_t i = 0; i < n && (int)arr.size() < 40; i++) {
+      String s = WiFi.SSID(i);
+      if (s.length() == 0) continue;
+      bool dup = false;
+      for (JsonVariant v : arr) { if (v.as<String>() == s) { dup = true; break; } }
+      if (!dup) arr.add(s);
+    }
+    WiFi.scanDelete();
+  }
+  String out;
+  serializeJson(doc, out);
+  server.send(200, "application/json", out);
+}
+
 void handleMqttTest() {
   if (!requireAuthAndCsrf()) return;
   String host = server.hasArg("mqttHost") ? server.arg("mqttHost") : mqttHost;
@@ -1296,7 +1350,23 @@ void handleSave() {
   String newLoc    = server.hasArg("locname") ? server.arg("locname") : locationName;
   String newNickname = server.hasArg("deviceName") ? server.arg("deviceName") : deviceName;
   int newWifiActiveIndex = server.hasArg("wifiNet") ? server.arg("wifiNet").toInt() : wifiActiveIndex;
-  newWifiActiveIndex = constrain(newWifiActiveIndex, 0, WIFI_NETWORK_COUNT - 1);
+  newWifiActiveIndex = constrain(newWifiActiveIndex, 0, WIFI_SLOT_COUNT - 1);
+
+  // Runtime Wi-Fi slot credentials (1.0.5). Password fields are write-only:
+  // an empty field keeps the stored password (like MQTT/WebGUI passwords);
+  // clearing the SSID also clears that slot's password.
+  String newWifiSsid[WIFI_SLOT_COUNT];
+  String newWifiPass[WIFI_SLOT_COUNT];
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    String kS = String("wifiSsid") + String(i);
+    String kP = String("wifiPass") + String(i);
+    newWifiSsid[i] = server.hasArg(kS) ? server.arg(kS) : wifiSlotSsid[i];
+    newWifiSsid[i].trim();
+    if (newWifiSsid[i].length() > 32) newWifiSsid[i] = newWifiSsid[i].substring(0, 32);
+    if (server.hasArg(kP) && server.arg(kP).length() > 0) newWifiPass[i] = server.arg(kP);
+    else newWifiPass[i] = wifiSlotPass[i];
+    if (newWifiSsid[i].length() == 0) newWifiPass[i] = "";
+  }
 
   // IP configuration (0.9.31). Static mode requires syntactically valid
   // ip/gateway/subnet; any invalid field falls back to DHCP so a typo can't
@@ -1453,9 +1523,17 @@ void handleSave() {
   }
 
   bool wifiNetChanged = (newWifiActiveIndex != wifiActiveIndex);
+  bool wifiCredsChanged = false;
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    if (newWifiSsid[i] != wifiSlotSsid[i] || newWifiPass[i] != wifiSlotPass[i]) wifiCredsChanged = true;
+  }
 
   deviceName = newNickname;
   wifiActiveIndex = newWifiActiveIndex;
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    wifiSlotSsid[i] = newWifiSsid[i];
+    wifiSlotPass[i] = newWifiPass[i];
+  }
   ipMode = newIpMode;
   staticIp = newStaticIp;
   staticGateway = newStaticGw;
@@ -1539,7 +1617,7 @@ void handleSave() {
   // An IP-config change needs a fresh connect so applyIpConfiguration() runs
   // again; this drops the current association, so the WebGUI session ends and
   // the device returns under its new address (noted in the UI hint).
-  if ((wifiNetChanged || ipConfigChanged) && wifiEnabled) beginWiFiConnect();
+  if ((wifiNetChanged || ipConfigChanged || wifiCredsChanged) && wifiEnabled) beginWiFiConnect();
   Logger::info(String("Configuration saved; log level=") + Logger::levelName(Logger::level()));
   InfoTermEventBusIntegration::publishConfigurationChanged("webgui", "save");
   if (widgetConfigChanged) {
@@ -1592,6 +1670,7 @@ void setupWebServer() {
   server.on("/mqtt/delete", HTTP_POST, handleMqttDelete);
   server.on("/mqtt/move", HTTP_POST, handleMqttMove);
   server.on("/mqtt/test", HTTP_POST, handleMqttTest);
+  server.on("/wifi/scan", HTTP_POST, handleWifiScan);
   server.on("/mqtt/export", HTTP_GET, handleMqttExport);
   server.on("/mqtt/import", HTTP_POST, handleMqttImportDone, handleMqttImportUpload);
   server.on("/log", HTTP_GET, handleLogView);

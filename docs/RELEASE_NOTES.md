@@ -2,8 +2,14 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.4**  
-Diese Version: **1.0.4** (stable)
+Aktuelle stabile Basis: **1.0.5**  
+Diese Version: **1.0.5** (stable)
+
+1.0.5 WLAN-Auswahl in der WebGUI: drei editierbare WLAN-Slots (SSID + Passwort),
+"WLAN suchen"-Scan der sichtbaren Netze, Auswahl im SSID-Feld - InfoTerm kann so
+ohne Config-Dateien in ein anderes WLAN. Passwoerter write-only, nie im Backup.
+Ausserdem: Einstellungen-Tab neu gegliedert (Allgemein / Netzwerk / Standort),
+"IP-Bezug" -> "IP-Zuweisung". Details siehe `CHANGELOG.md`.
 
 1.0.4 Partitionstabelle: OTA-App-Slots von 1,625 MB auf 1,75 MB vergroessert
 (Flash-Reserve fuer kommende Funktionen; Auslastung 83,3 % -> 77,3 %). spiffs

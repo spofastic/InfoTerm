@@ -265,6 +265,13 @@ enum LanguageKey {
   L_WEB_LANGUAGE_RU,
   L_WEB_LANGUAGE_HI,
   L_WEB_LANGUAGE_ZH,
+  // --- WiFi slot editor (1.0.5) ---
+  L_WEB_WIFI_SLOTS_DESC,
+  L_WEB_WIFI_SCAN,
+  L_WEB_WIFI_SLOT_EMPTY,
+  L_JS_WIFI_SCANNING,
+  L_JS_WIFI_FOUND,
+  L_JS_WIFI_SCAN_FAILED,
   L_COUNT
 };
 
@@ -409,7 +416,7 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"Beispiel Berlin: Breitengrad 52.5200, Längengrad 13.4050.", "Example Berlin: latitude 52.5200, longitude 13.4050.", "Exemple Berlin : latitude 52.5200, longitude 13.4050.", "Ejemplo Berlín: latitud 52.5200, longitud 13.4050.", "Esempio Berlino: latitudine 52.5200, longitudine 13.4050.", "Пример Берлин: широта 52.5200, долгота 13.4050.", "उदाहरण बर्लिन: अक्षांश 52.5200, देशांतर 13.4050।", "示例柏林：纬度 52.5200，经度 13.4050。"}},
   {{"Netzwerk / IP-Adresse", "Network / IP address", "Réseau / adresse IP", "Red / dirección IP", "Rete / indirizzo IP", "Сеть / IP-адрес", "नेटवर्क / IP पता", "网络 / IP 地址"}},
   {{"Standard ist automatischer Bezug (DHCP). Fuer Netze ohne DHCP-Server eine feste IP vergeben. Eine Aenderung baut die WLAN-Verbindung neu auf - das Geraet ist danach unter der neuen Adresse erreichbar. Achtung: eine falsche feste IP kann das Geraet unerreichbar machen (Wiederherstellung per Backup-Import oder USB-Reflash).", "Default is automatic assignment (DHCP). For networks without a DHCP server, assign a fixed IP. A change rebuilds the WiFi connection - the device is then reachable at the new address. Caution: an incorrect fixed IP can make the device unreachable (recovery via backup import or USB reflash).", "Par défaut, l'attribution est automatique (DHCP). Pour les réseaux sans serveur DHCP, attribuez une IP fixe. Une modification reconstruit la connexion WiFi - l'appareil est ensuite accessible à la nouvelle adresse. Attention : une IP fixe incorrecte peut rendre l'appareil inaccessible (récupération via import de sauvegarde ou reflash USB).", "Por defecto la asignación es automática (DHCP). Para redes sin servidor DHCP, asigna una IP fija. Un cambio reconstruye la conexión WiFi - el dispositivo será accesible en la nueva dirección. Atención: una IP fija incorrecta puede dejar el dispositivo inaccesible (recuperación mediante importación de copia de seguridad o reflasheo USB).", "Per impostazione predefinita l'assegnazione è automatica (DHCP). Per reti senza server DHCP, assegna un IP fisso. Una modifica ricostruisce la connessione WiFi - il dispositivo sarà poi raggiungibile al nuovo indirizzo. Attenzione: un IP fisso errato può rendere il dispositivo irraggiungibile (ripristino tramite importazione backup o riflash USB).", "По умолчанию используется автоматическое назначение (DHCP). Для сетей без DHCP-сервера назначьте фиксированный IP. Изменение перестраивает WiFi-соединение - после этого устройство доступно по новому адресу. Внимание: неверный фиксированный IP может сделать устройство недоступным (восстановление через импорт резервной копии или перепрошивку по USB).", "डिफ़ॉल्ट रूप से स्वचालित असाइनमेंट (DHCP) होता है। DHCP सर्वर के बिना नेटवर्क के लिए एक स्थिर IP असाइन करें। बदलाव WiFi कनेक्शन को फिर से बनाता है - फिर डिवाइस नए पते पर पहुँच योग्य होता है। सावधान: गलत स्थिर IP डिवाइस को पहुँच से बाहर कर सकता है (बैकअप आयात या USB रीफ़्लैश द्वारा पुनर्प्राप्ति)।", "默认使用自动分配 (DHCP)。对于没有 DHCP 服务器的网络，请分配固定 IP。更改会重建 WiFi 连接 - 之后设备可通过新地址访问。注意：错误的固定 IP 可能导致设备无法访问（通过备份导入或 USB 重新刷写恢复）。"}},
-  {{"IP-Bezug", "IP assignment", "Attribution IP", "Asignación de IP", "Assegnazione IP", "Назначение IP", "IP असाइनमेंट", "IP 分配"}},
+  {{"IP-Zuweisung", "IP assignment", "Attribution IP", "Asignación de IP", "Assegnazione IP", "Назначение IP", "IP असाइनमेंट", "IP 分配"}},
   {{"Automatisch (DHCP)", "Automatic (DHCP)", "Automatique (DHCP)", "Automática (DHCP)", "Automatico (DHCP)", "Автоматически (DHCP)", "स्वचालित (DHCP)", "自动 (DHCP)"}},
   {{"Statisch (feste IP)", "Static (fixed IP)", "Statique (IP fixe)", "Estática (IP fija)", "Statico (IP fisso)", "Статически (фикс. IP)", "स्थिर (फ़िक्स्ड IP)", "静态（固定 IP）"}},
   {{"Subnetzmaske", "Subnet mask", "Masque de sous-réseau", "Máscara de subred", "Maschera di sottorete", "Маска подсети", "सबनेट मास्क", "子网掩码"}},
@@ -506,7 +513,14 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"Italienisch", "Italian", "Italien", "Italiano", "Italiano", "Итальянский", "इतालवी", "意大利语"}},
   {{"Russisch", "Russian", "Russe", "Ruso", "Russo", "Русский", "रूसी", "俄语"}},
   {{"Hindi", "Hindi", "Hindi", "Hindi", "Hindi", "Хинди", "हिन्दी", "印地语"}},
-  {{"Chinesisch", "Chinese", "Chinois", "Chino", "Cinese", "Китайский", "चीनी", "中文"}}
+  {{"Chinesisch", "Chinese", "Chinois", "Chino", "Cinese", "Китайский", "चीनी", "中文"}},
+  // --- WiFi slot editor (1.0.5) ---
+  {{"SSID aus der Liste wählen oder eintippen und Passwort setzen. Ein leeres SSID-Feld deaktiviert den Slot. Passwörter werden nie angezeigt oder exportiert.", "Pick an SSID from the list or type it and set a password. An empty SSID field disables the slot. Passwords are never shown or exported.", "Choisissez un SSID dans la liste ou saisissez-le et définissez un mot de passe. Un champ SSID vide désactive l'emplacement. Les mots de passe ne sont jamais affichés ni exportés.", "Elige un SSID de la lista o escríbelo y define una contraseña. Un campo SSID vacío desactiva la ranura. Las contraseñas nunca se muestran ni se exportan.", "Scegli un SSID dall'elenco o digitalo e imposta una password. Un campo SSID vuoto disattiva lo slot. Le password non vengono mai mostrate né esportate.", "Выберите SSID из списка или введите его и задайте пароль. Пустое поле SSID отключает слот. Пароли никогда не отображаются и не экспортируются.", "सूची से एक SSID चुनें या टाइप करें और पासवर्ड सेट करें। खाली SSID फ़ील्ड स्लॉट को अक्षम कर देता है। पासवर्ड कभी नहीं दिखाए या निर्यात किए जाते हैं।", "从列表中选择或输入 SSID 并设置密码。SSID 字段为空则禁用该槽位。密码从不显示或导出。"}},
+  {{"WLAN suchen", "Scan networks", "Rechercher les réseaux", "Buscar redes", "Cerca reti", "Искать сети", "नेटवर्क खोजें", "扫描网络"}},
+  {{"(leer)", "(empty)", "(vide)", "(vacío)", "(vuoto)", "(пусто)", "(खाली)", "（空）"}},
+  {{"Suche Netze...", "Scanning networks...", "Recherche des réseaux...", "Buscando redes...", "Ricerca reti...", "Поиск сетей...", "नेटवर्क खोज रहे हैं...", "正在扫描网络..."}},
+  {{"WLANs gefunden, im SSID-Feld auswählen", "networks found, select in an SSID field", "réseaux trouvés, à choisir dans un champ SSID", "redes encontradas, elígela en un campo SSID", "reti trovate, selezionala in un campo SSID", "сетей найдено, выберите в поле SSID", "नेटवर्क मिले, SSID फ़ील्ड में चुनें", "个网络，在 SSID 字段中选择"}},
+  {{"Suche fehlgeschlagen.", "Scan failed.", "Échec de la recherche.", "Error al buscar.", "Ricerca non riuscita.", "Поиск не удался.", "खोज विफल।", "扫描失败。"}}
 };
 
 static_assert(sizeof(LANGUAGE_TABLE) / sizeof(LANGUAGE_TABLE[0]) == L_COUNT,

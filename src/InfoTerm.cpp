@@ -664,6 +664,13 @@ unsigned long wifiConnectStartedMs = 0;
 const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000UL;
 int wifiActiveIndex = 0;   // preferred network, selected via WebGUI
 int wifiAttemptIndex = 0;  // network currently being tried (fallback rotation)
+int wifiCycleStartIndex = 0;  // slot this connect cycle started from (stops the fallback rotation)
+
+// Runtime Wi-Fi credentials (1.0.5). Seeded from the compile-time WIFI_NETWORKS
+// on first boot (see loadStoredSettings()), then editable in the WebGUI and
+// persisted in NVS. Empty-SSID slots are skipped by the connection logic.
+String wifiSlotSsid[WIFI_SLOT_COUNT];
+String wifiSlotPass[WIFI_SLOT_COUNT];
 
 // IP configuration (0.9.31). "dhcp" (default) or "static". The static fields
 // are applied via WiFi.config() before WiFi.begin(); see applyIpConfiguration()
@@ -678,7 +685,7 @@ String staticDns = INFOTERM_STATIC_DNS;
 // which configured WIFI_NETWORKS[] entries were seen in the most recent scan,
 // shown as a hint in the WebGUI's network dropdown. Runtime-only, never
 // persisted.
-bool wifiNetworkReachable[WIFI_NETWORK_COUNT] = {};
+bool wifiNetworkReachable[WIFI_SLOT_COUNT] = {};
 bool wifiScanEverCompleted = false;
 
 // VPN (WireGuard, on-demand) - see src/vpn/VpnRuntime.inc. vpnConnected is

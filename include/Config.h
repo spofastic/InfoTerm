@@ -34,6 +34,13 @@ struct WifiCredential {
 
 static const int WIFI_NETWORK_COUNT = sizeof(WIFI_NETWORKS) / sizeof(WIFI_NETWORKS[0]);
 
+// Number of editable runtime Wi-Fi slots exposed in the WebGUI (1.0.5). The
+// compile-time WIFI_NETWORKS above are only first-boot seeds; the runtime
+// credentials live in wifiSlotSsid[]/wifiSlotPass[] (NVS) and can be changed
+// from the web interface. At least 3 slots, and never fewer than the number
+// of seed networks so none are lost.
+static const int WIFI_SLOT_COUNT = (WIFI_NETWORK_COUNT > 3) ? WIFI_NETWORK_COUNT : 3;
+
 // First-boot IP configuration. Default is automatic (DHCP). For a network
 // without a DHCP server, set these in include/Config.local.h so the device
 // comes up reachable on the very first boot; afterwards they are editable in

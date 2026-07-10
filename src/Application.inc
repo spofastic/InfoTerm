@@ -100,7 +100,7 @@ static const unsigned long WIFI_SCAN_INTERVAL_MS = 30000UL;
 static void schedulerWifiScan() {
   // Also skip while a connection attempt is in progress or the radio isn't
   // associated at all - scanning mid-connect risks disrupting that attempt.
-  if (WIFI_NETWORK_COUNT <= 1 || !wifiEnabled || vpnConnected) return;
+  if (configuredWifiSlotCount() <= 1 || !wifiEnabled || vpnConnected) return;
   if (wifiConnectInProgress || WiFi.status() != WL_CONNECTED) return;
   if (wifiScanEverStarted && millis() - wifiScanLastStartMs < WIFI_SCAN_INTERVAL_MS) return;
 
@@ -111,19 +111,19 @@ static void schedulerWifiScan() {
   Logger::info(String("[WiFiScan] scanNetworks() -> ") + result);
 
   if (result >= 0) {
-    for (int i = 0; i < WIFI_NETWORK_COUNT; i++) wifiNetworkReachable[i] = false;
+    for (int i = 0; i < WIFI_SLOT_COUNT; i++) wifiNetworkReachable[i] = false;
     for (int16_t f = 0; f < result; f++) {
       String foundSsid = WiFi.SSID(f);
-      for (int i = 0; i < WIFI_NETWORK_COUNT; i++) {
-        if (foundSsid == WIFI_NETWORKS[i].ssid) wifiNetworkReachable[i] = true;
+      for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+        if (wifiSlotSsid[i].length() > 0 && foundSsid == wifiSlotSsid[i]) wifiNetworkReachable[i] = true;
       }
     }
     if (WiFi.status() == WL_CONNECTED) {
       // The currently connected network is reachable by definition, even
       // if this particular scan pass missed it.
       String connectedSsid = WiFi.SSID();
-      for (int i = 0; i < WIFI_NETWORK_COUNT; i++) {
-        if (connectedSsid == WIFI_NETWORKS[i].ssid) wifiNetworkReachable[i] = true;
+      for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+        if (wifiSlotSsid[i].length() > 0 && connectedSsid == wifiSlotSsid[i]) wifiNetworkReachable[i] = true;
       }
     }
     wifiScanEverCompleted = true;

@@ -38,7 +38,7 @@ void sanitizeGeneralConfig() {
     tabCycleIntervalSec = 60;
   }
 
-  wifiActiveIndex = constrain(wifiActiveIndex, 0, WIFI_NETWORK_COUNT - 1);
+  wifiActiveIndex = constrain(wifiActiveIndex, 0, WIFI_SLOT_COUNT - 1);
 
   if (vpnEndpointPort == 0) vpnEndpointPort = 51820;
 }
@@ -74,6 +74,16 @@ void loadStoredSettings() {
   flashModeEnabled = cfgGetBool("flashMode", "flashMode", false);
   wifiEnabled      = cfgGetBool("wifiEnabled", "wifiEnabled", true);
   wifiActiveIndex  = cfgGetInt("wifiActiveIdx", "wifiActiveIdx", 0);
+  // Runtime Wi-Fi slots (1.0.5): seeded from the compile-time WIFI_NETWORKS on
+  // first boot, then overridden by any WebGUI-stored credentials.
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    String seedSsid = (i < WIFI_NETWORK_COUNT) ? String(WIFI_NETWORKS[i].ssid) : String("");
+    String seedPass = (i < WIFI_NETWORK_COUNT) ? String(WIFI_NETWORKS[i].pass) : String("");
+    String kS = String("wifiSsid") + String(i);
+    String kP = String("wifiPass") + String(i);
+    wifiSlotSsid[i] = cfgGetString(kS, kS, seedSsid);
+    wifiSlotPass[i] = cfgGetString(kP, kP, seedPass);
+  }
   ipMode           = cfgGetString("ipMode", "ipMode", INFOTERM_IP_MODE);
   staticIp         = cfgGetString("ipStatic", "ipStatic", INFOTERM_STATIC_IP);
   staticGateway    = cfgGetString("ipGw", "ipGw", INFOTERM_STATIC_GATEWAY);

@@ -34,6 +34,10 @@ void persistGeneralConfiguration() {
   cfgPutBool("flashMode", flashModeEnabled);
   cfgPutBool("wifiEnabled", wifiEnabled);
   cfgPutInt("wifiActiveIdx", wifiActiveIndex);
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
+    cfgPutString(String("wifiSsid") + String(i), wifiSlotSsid[i]);
+    cfgPutString(String("wifiPass") + String(i), wifiSlotPass[i]);
+  }
   cfgPutString("ipMode", ipMode);
   cfgPutString("ipStatic", staticIp);
   cfgPutString("ipGw", staticGateway);

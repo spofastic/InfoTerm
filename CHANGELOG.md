@@ -4,6 +4,29 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.5] — Stable
+
+### Added
+
+- **WLAN-Auswahl in der WebGUI.** InfoTerm kann jetzt ohne Config-Dateien in ein
+  anderes WLAN aufgenommen werden. Drei editierbare WLAN-Slots (SSID + Passwort)
+  im Einstellungen-Tab, aus den compile-time-Netzen gesät und in NVS
+  gespeichert. Ein „WLAN suchen"-Button (`/wifi/scan`, auth + CSRF) listet die
+  sichtbaren Netze; die SSID wird per Vorschlagsliste im SSID-Feld gewählt oder
+  eingetippt (auch versteckte Netze). Passwörter sind write-only (werden nie
+  angezeigt) und werden **nie** ins Backup exportiert (SSIDs schon). Die
+  WLAN-State-Machine nutzt die Runtime-Slots mit geordnetem Fallback (leere
+  Slots werden übersprungen); eine Änderung löst einen Reconnect aus. Die
+  compile-time-Netze bleiben als Fallback erhalten.
+
+### Changed
+
+- **Einstellungen-Tab neu gegliedert** in die Blöcke **Allgemein**,
+  **Netzwerk** (WLAN-Slots + IP zusammengeführt) und **Standort** (Einheiten,
+  Datumsformat, Zeitzone dorthin verschoben). Feldbeschreibungen stehen jetzt
+  direkt zwischen Titel und Eingabefeld. „IP-Bezug" in **„IP-Zuweisung"**
+  umbenannt.
+
 ## [1.0.4] — Stable
 
 ### Changed

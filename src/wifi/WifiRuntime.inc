@@ -85,10 +85,31 @@ static void applyIpConfiguration() {
   WiFi.config(none, none, none);
 }
 
-// Starts a connection attempt against WIFI_NETWORKS[index], clamping to a
+// --- Runtime Wi-Fi slot helpers (1.0.5) ---
+// Connectable networks are the runtime slots wifiSlotSsid/Pass[] (seeded from
+// the compile-time WIFI_NETWORKS at first boot, then editable in the WebGUI).
+// Slots with an empty SSID are skipped by the connection logic.
+int configuredWifiSlotCount() {
+  int n = 0;
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) if (wifiSlotSsid[i].length() > 0) n++;
+  return n;
+}
+int firstConfiguredWifiSlot() {
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) if (wifiSlotSsid[i].length() > 0) return i;
+  return -1;
+}
+int nextConfiguredWifiSlot(int from) {
+  for (int step = 1; step <= WIFI_SLOT_COUNT; step++) {
+    int idx = (from + step) % WIFI_SLOT_COUNT;
+    if (wifiSlotSsid[idx].length() > 0) return idx;
+  }
+  return -1;
+}
+
+// Starts a connection attempt against wifiSlotSsid/Pass[index], clamping to a
 // valid index so a corrupted/out-of-range wifiActiveIndex can't crash this.
 void startWifiAttempt(int index) {
-  wifiAttemptIndex = constrain(index, 0, WIFI_NETWORK_COUNT - 1);
+  wifiAttemptIndex = constrain(index, 0, WIFI_SLOT_COUNT - 1);
   // ESP32's WiFi.begin() does not reliably switch to a different AP if the
   // radio is still associated with the previous one (well-known ESP32
   // Arduino core quirk) - an explicit disconnect first is required whenever
@@ -105,10 +126,10 @@ void startWifiAttempt(int index) {
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
   applyIpConfiguration();  // static IP or DHCP; must precede WiFi.begin()
-  WiFi.begin(WIFI_NETWORKS[wifiAttemptIndex].ssid, WIFI_NETWORKS[wifiAttemptIndex].pass);
+  WiFi.begin(wifiSlotSsid[wifiAttemptIndex].c_str(), wifiSlotPass[wifiAttemptIndex].c_str());
   wifiConnectInProgress = true;
   wifiConnectStartedMs = millis();
-  Logger::info(String("[WiFi] Verbindungsversuch: ") + WIFI_NETWORKS[wifiAttemptIndex].ssid);
+  Logger::info(String("[WiFi] Verbindungsversuch: ") + wifiSlotSsid[wifiAttemptIndex]);
 }
 
 void beginWiFiConnect() {
@@ -119,7 +140,20 @@ void beginWiFiConnect() {
     return;
   }
 
-  startWifiAttempt(wifiActiveIndex);
+  // Start from the preferred slot, but skip it if it has no SSID (e.g. the
+  // preferred index points at an empty slot). If nothing is configured at all,
+  // don't attempt - Phase A (SoftAP onboarding portal) will hook in here.
+  int start = constrain(wifiActiveIndex, 0, WIFI_SLOT_COUNT - 1);
+  if (wifiSlotSsid[start].length() == 0) {
+    int first = firstConfiguredWifiSlot();
+    if (first < 0) {
+      wifiConnectInProgress = false;
+      return;
+    }
+    start = first;
+  }
+  wifiCycleStartIndex = start;
+  startWifiAttempt(start);
 }
 
 void connectWiFi(bool waitForConnection = true) {
@@ -142,7 +176,7 @@ void updateWiFiConnectionState() {
   wl_status_t status = WiFi.status();
   if (status == WL_CONNECTED) {
     wifiConnectInProgress = false;
-    Logger::info(String("[WiFi] Verbunden: ") + WIFI_NETWORKS[wifiAttemptIndex].ssid + " (" + WiFi.localIP().toString() + ")");
+    Logger::info(String("[WiFi] Verbunden: ") + wifiSlotSsid[wifiAttemptIndex] + " (" + WiFi.localIP().toString() + ")");
     startMdns();
     ensureMQTTVerbunden();
     ensureSunTimesForToday();
@@ -163,8 +197,8 @@ void updateWiFiConnectionState() {
     // stop - the periodic RuntimeTask::WiFiReconnect scheduler task will
     // call beginWiFiConnect() again later and restart from the preferred
     // network.
-    int nextIndex = (wifiAttemptIndex + 1) % WIFI_NETWORK_COUNT;
-    if (WIFI_NETWORK_COUNT > 1 && nextIndex != wifiActiveIndex) {
+    int nextIndex = nextConfiguredWifiSlot(wifiAttemptIndex);
+    if (nextIndex >= 0 && nextIndex != wifiCycleStartIndex) {
       startWifiAttempt(nextIndex);
       return;
     }

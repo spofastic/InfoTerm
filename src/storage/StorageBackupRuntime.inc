@@ -56,6 +56,11 @@ bool serializeConfigurationToJson(String& jsonOut) {
   general["flashMode"] = flashModeEnabled;
   general["wifiEnabled"] = wifiEnabled;
   general["wifiActiveIdx"] = wifiActiveIndex;
+  // Wi-Fi slot SSIDs are included; passwords are deliberately NEVER exported
+  // (write-only, like the MQTT/WebGUI passwords) so a backup file carries no
+  // Wi-Fi secrets.
+  JsonArray wifiSsids = general["wifiSsids"].to<JsonArray>();
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) wifiSsids.add(wifiSlotSsid[i]);
   general["ipMode"] = ipMode;
   general["ipStatic"] = staticIp;
   general["ipGw"] = staticGateway;
@@ -160,6 +165,16 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
   flashModeEnabled = general["flashMode"] | flashModeEnabled;
   wifiEnabled = general["wifiEnabled"] | wifiEnabled;
   wifiActiveIndex = general["wifiActiveIdx"] | wifiActiveIndex;
+  // Restore Wi-Fi slot SSIDs if present (passwords are never in a backup and
+  // keep their current runtime/seed value).
+  if (general["wifiSsids"].is<JsonArray>()) {
+    JsonArray wifiSsids = general["wifiSsids"].as<JsonArray>();
+    int i = 0;
+    for (JsonVariant v : wifiSsids) {
+      if (i >= WIFI_SLOT_COUNT) break;
+      wifiSlotSsid[i++] = v.as<String>();
+    }
+  }
   ipMode = general["ipMode"] | ipMode;
   staticIp = general["ipStatic"] | staticIp;
   staticGateway = general["ipGw"] | staticGateway;
