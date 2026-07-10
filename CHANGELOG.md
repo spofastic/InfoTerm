@@ -4,6 +4,39 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.3] — Stable
+
+### Added
+
+- **Mehrsprachigkeit (8 Sprachen)**: Neben Deutsch und Englisch jetzt auch
+  **Französisch, Spanisch, Italienisch, Russisch, Hindi und Chinesisch**,
+  umschaltbar in den Einstellungen. Die Sprachtabelle (`Language.h`) wurde auf
+  eine indizierte Struktur `t[LANG_COUNT]` umgestellt; ein `static_assert`
+  sichert die Synchronität von Enum und Tabelle.
+- **Display-Fallback für nicht-lateinische Schriften**: Russisch, Hindi und
+  Chinesisch werden in der WebGUI voll dargestellt. Da die eingebetteten
+  TFT-Fonts keine kyrillischen/indischen/chinesischen Glyphen enthalten, fällt
+  das Geräte-Display für diese Sprachen automatisch auf Englisch zurück
+  (`TXT()` = display-sicher, `TXTW()` = volle Sprache für die WebGUI).
+- **VPN-Name und Tunnel-IP auf der Info-Seite**: Die Status-/Info-Seite des
+  Terminals zeigt zusätzlich zum VPN-Status jetzt den VPN-Namen und die
+  Tunnel-Adresse als eigene Zeilen.
+
+### Fixed
+
+- **Durchgängige Übersetzung der WebGUI**: Zahlreiche fest verdrahtete deutsche
+  Texte (Labels, Beschreibungen, Dropdown-Optionen, JavaScript-Meldungen,
+  Farbnamen, Widget-Positionen wie „Oben links", MQTT-Testmeldungen) liefen
+  bisher nicht über das Sprachsystem und blieben auch bei anderer Sprachwahl
+  deutsch — jetzt vollständig übersetzt.
+- **Datei-Auswahl-Buttons lokalisiert**: Der browser-native „Datei
+  auswählen"-Text der Upload-Felder (Backup/Firmware/VPN/MQTT-Import) wurde
+  durch einen eigenen, gestylten Button ersetzt, der der gewählten UI-Sprache
+  folgt statt der Browsersprache.
+- **Sprachauswahl wurde für neue Sprachen zurückgesetzt**: Eine Whitelist im
+  Speichern-Handler ließ nur `de`/`en` zu und setzte alle anderen Sprachen
+  still auf Deutsch zurück. Jetzt werden alle acht Sprachcodes akzeptiert.
+
 ## [1.0.2] — Stable
 
 ### Added

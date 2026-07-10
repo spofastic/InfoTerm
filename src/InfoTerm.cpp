@@ -408,26 +408,26 @@ static void sanitizeWidgetSlotsForMqttCount() {
 
 const char* homeSlotLabel(int slot) {
   switch (slot) {
-    case 0: return "Oben links";
-    case 1: return "Oben rechts";
-    case 2: return "Mitte links";
-    case 3: return "Mitte rechts";
-    case 4: return "Unten links";
-    case 5: return "Unten rechts";
+    case 0: return TXT(L_POS_TL);
+    case 1: return TXT(L_POS_TR);
+    case 2: return TXT(L_POS_ML);
+    case 3: return TXT(L_POS_MR);
+    case 4: return TXT(L_POS_BL);
+    case 5: return TXT(L_POS_BR);
     default: return "Widget";
   }
 }
 
 const char* tabWidgetSlotLabel(int slot) {
   switch (slot) {
-    case 0: return "Oben links";
-    case 1: return "Oben rechts";
-    case 2: return "Mitte oben links";
-    case 3: return "Mitte oben rechts";
-    case 4: return "Mitte unten links";
-    case 5: return "Mitte unten rechts";
-    case 6: return "Unten links";
-    case 7: return "Unten rechts";
+    case 0: return TXT(L_POS_TL);
+    case 1: return TXT(L_POS_TR);
+    case 2: return TXT(L_POS_UML);
+    case 3: return TXT(L_POS_UMR);
+    case 4: return TXT(L_POS_LML);
+    case 5: return TXT(L_POS_LMR);
+    case 6: return TXT(L_POS_BL);
+    case 7: return TXT(L_POS_BR);
     default: return "Widget";
   }
 }
@@ -1020,7 +1020,7 @@ static String cssColorFrom565(uint16_t color) {
 // STROKE) are derived automatically from each entry's base color via
 // mixRgb565() rather than hand-picked per theme, so all pickers stay in
 // sync with a single source of truth.
-struct PaletteEntry { const char* key; const char* label; uint16_t rgb565; };
+struct PaletteEntry { const char* key; const char* label[LANG_COUNT]; uint16_t rgb565; };  // label order: de, en, fr, es, it
 
 // 0.9.24: extended back to the larger pre-consolidation range (user request,
 // reconstructed from a screenshot of the earlier WebGUI - the 0.9.12-0.9.15
@@ -1029,29 +1029,32 @@ struct PaletteEntry { const char* key; const char* label; uint16_t rgb565; };
 // 0.9.11.10 accent key of the same name. Order: light -> colors -> cyan ->
 // dark, matching the historical row layout.
 static const PaletteEntry COLOR_PALETTE[] = {
-  {"white",      "Weiß",         TFT_WHITE},
-  {"ice",        "Eis",          0xEFFF},
-  {"silver",     "Silber",       0xC618},
-  {"mint",       "Minze",        0x07F0},
-  {"green",      "Grün",         TFT_GREEN},
-  {"teal",       "Türkis",       0x2EB7},
-  {"blue",       "Blau",         0x3D9F},
-  {"purple",     "Violett",      0xA2F5},
-  {"lavender",   "Flieder",      0xB41F},
-  {"pink",       "Magenta",      0xF97F},
-  {"orange",     "Orange",       0xFD20},
-  {"amber",      "Gold",         0xFEA0},
-  {"yellow",     "Gelb",         0xFFE0},
-  {"red",        "Rot",          TFT_RED},
-  {"cyan",       "Cyan",         0x5EFA},
-  {"black",      "Schwarz",      0x0862},
-  {"anthracite", "Anthrazit",    0x2966},
-  {"graphite",   "Graphit",      0x4228},
-  {"petrol",     "Dunkelpetrol", 0x1269},
-  {"navy",       "Tiefblau",     0x19CB},
-  {"indigo",     "Indigo",       0x18C9},
-  {"olive",      "Oliv",         0x5AA3},
+  {"white",      {"Weiß", "White", "Blanc", "Blanco", "Bianco", "Белый", "सफ़ेद", "白色"},                        TFT_WHITE},
+  {"ice",        {"Eis", "Ice", "Glace", "Hielo", "Ghiaccio", "Лёд", "बर्फ़", "冰蓝"},                          0xEFFF},
+  {"silver",     {"Silber", "Silver", "Argent", "Plata", "Argento", "Серебристый", "चाँदी", "银色"},            0xC618},
+  {"mint",       {"Minze", "Mint", "Menthe", "Menta", "Menta", "Мятный", "पुदीना", "薄荷绿"},                    0x07F0},
+  {"green",      {"Grün", "Green", "Vert", "Verde", "Verde", "Зелёный", "हरा", "绿色"},                          TFT_GREEN},
+  {"teal",       {"Türkis", "Teal", "Sarcelle", "Verde azulado", "Verde acqua", "Бирюзовый", "टील", "青色"},    0x2EB7},
+  {"blue",       {"Blau", "Blue", "Bleu", "Azul", "Blu", "Синий", "नीला", "蓝色"},                              0x3D9F},
+  {"purple",     {"Violett", "Purple", "Violet", "Púrpura", "Viola", "Фиолетовый", "बैंगनी", "紫色"},           0xA2F5},
+  {"lavender",   {"Flieder", "Lavender", "Lavande", "Lavanda", "Lavanda", "Лавандовый", "लैवेंडर", "薰衣草紫"},  0xB41F},
+  {"pink",       {"Magenta", "Magenta", "Magenta", "Magenta", "Magenta", "Пурпурный", "मैजेंटा", "品红"},       0xF97F},
+  {"orange",     {"Orange", "Orange", "Orange", "Naranja", "Arancione", "Оранжевый", "नारंगी", "橙色"},         0xFD20},
+  {"amber",      {"Gold", "Gold", "Or", "Oro", "Oro", "Золотой", "सुनहरा", "金色"},                             0xFEA0},
+  {"yellow",     {"Gelb", "Yellow", "Jaune", "Amarillo", "Giallo", "Жёлтый", "पीला", "黄色"},                   0xFFE0},
+  {"red",        {"Rot", "Red", "Rouge", "Rojo", "Rosso", "Красный", "लाल", "红色"},                            TFT_RED},
+  {"cyan",       {"Cyan", "Cyan", "Cyan", "Cian", "Ciano", "Голубой", "सियान", "青蓝"},                         0x5EFA},
+  {"black",      {"Schwarz", "Black", "Noir", "Negro", "Nero", "Чёрный", "काला", "黑色"},                       0x0862},
+  {"anthracite", {"Anthrazit", "Anthracite", "Anthracite", "Antracita", "Antracite", "Антрацит", "एन्थ्रेसाइट", "炭灰"}, 0x2966},
+  {"graphite",   {"Graphit", "Graphite", "Graphite", "Grafito", "Grafite", "Графит", "ग्रेफ़ाइट", "石墨灰"},     0x4228},
+  {"petrol",     {"Dunkelpetrol", "Dark petrol", "Pétrole foncé", "Petróleo oscuro", "Petrolio scuro", "Тёмный петроль", "गहरा पेट्रोल", "深孔雀蓝"}, 0x1269},
+  {"navy",       {"Tiefblau", "Navy", "Bleu marine", "Azul marino", "Blu navy", "Тёмно-синий", "नेवी", "藏青"},  0x19CB},
+  {"indigo",     {"Indigo", "Indigo", "Indigo", "Índigo", "Indaco", "Индиго", "इंडिगो", "靛蓝"},                0x18C9},
+  {"olive",      {"Oliv", "Olive", "Olive", "Oliva", "Oliva", "Оливковый", "जैतून", "橄榄绿"},                  0x5AA3},
 };
+static inline const char* paletteLabel(const PaletteEntry& e) {
+  return e.label[clampLanguageIndex()];
+}
 static const int COLOR_PALETTE_COUNT = sizeof(COLOR_PALETTE) / sizeof(COLOR_PALETTE[0]);
 
 static const PaletteEntry* findPaletteEntry(const String& key) {
@@ -1700,7 +1703,8 @@ void updateStatusDynamic() {
   String mqttText = mqttStateText();
   String firmwareText = String(INFOTERM_APP_NAME) + " " + String(INFOTERM_APP_VERSION);
   String brokerText = mqttHost + ":" + String(mqttPort);
-  String vpnText = vpnStatusText() + (vpnConnected ? (" (" + vpnName + ")") : "");
+  String vpnNameText = vpnName.length() ? vpnName : String("-");
+  String vpnTunnelText = vpnConnected ? vpnLocalAddress : String("-");
   StatusPageRow rows[] = {
     {TXT(L_STATUS_VERSION), firmwareText, COL_ACCENT},
     {TXT(L_STATUS_WIFI), wifiText, statusColor()},
@@ -1710,7 +1714,9 @@ void updateStatusDynamic() {
     {TXT(L_TAB_MQTT), mqttText, mqttClient.connected() ? COL_GREEN : COL_TEXT},
     {TXT(L_STATUS_UPTIME), uptime, COL_TEXT},
     {TXT(L_STATUS_SYNC), sync, COL_TEXT},
-    {"VPN", vpnText, vpnConnected ? COL_GREEN : COL_DIM},
+    {"VPN", vpnStatusText(), vpnConnected ? COL_GREEN : COL_DIM},
+    {"Name", vpnNameText, vpnConnected ? COL_TEXT : COL_DIM},
+    {TXT(L_WEB_TUNNEL_IP), vpnTunnelText, vpnConnected ? COL_TEXT : COL_DIM},
   };
   const int rowCount = sizeof(rows) / sizeof(rows[0]);
 
@@ -1723,12 +1729,12 @@ void updateStatusDynamic() {
   // widget pages the earlier fixes touched). drawSetupRow() already clears
   // its own row. drawStatusPageFull() empties lastIpText to force a one-time
   // full repaint of every row after a page switch.
-  static String statusRowCache[9];  // must be >= rowCount
+  static String statusRowCache[11];  // must be >= rowCount
   bool fullRedraw = (lastIpText.length() == 0);
   lastIpText = "x";
 
   int y = STATUS_ROWS_START_Y;
-  for (int i = 0; i < rowCount && i < 9; i++) {
+  for (int i = 0; i < rowCount && i < 11; i++) {
     String key = rows[i].value + "|" + String(rows[i].color);
     if (fullRedraw || key != statusRowCache[i]) {
       statusRowCache[i] = key;

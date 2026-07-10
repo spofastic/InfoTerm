@@ -108,10 +108,10 @@ static void htmlEnd(String& page) {
 }
 
 static String colorKeyLabel(const String& key) {
-  if (key == "theme") return "Design";
+  if (key == "theme") return TXTW(L_WEB_THEME);
   if (key == "standard") return "Standard";
   const PaletteEntry* e = findPaletteEntry(key);
-  return e ? String(e->label) : key;
+  return e ? String(paletteLabel(*e)) : key;
 }
 
 // Shared by every color picker on the Design tab (accent, border, text,
@@ -124,11 +124,11 @@ static void appendColorPaletteRow(String& page, const String& label, const Strin
   page += colorKeyLabel(selectedKey);
   page += "</span></div><div class='swatch-row'>";
   if (allowTheme) {
-    page += "<label class='swatch" + String(selectedKey == "theme" ? " active" : "") + "' style='background:linear-gradient(135deg,#0f172a,#334155);'><input type='radio' name='" + fieldName + "' value='theme' data-label='Design'" + String(selectedKey == "theme" ? " checked" : "") + "></label>";
+    page += "<label class='swatch" + String(selectedKey == "theme" ? " active" : "") + "' style='background:linear-gradient(135deg,#0f172a,#334155);'><input type='radio' name='" + fieldName + "' value='theme' data-label='" + String(TXTW(L_WEB_THEME)) + "'" + String(selectedKey == "theme" ? " checked" : "") + "></label>";
   }
   for (int i = 0; i < COLOR_PALETTE_COUNT; i++) {
     String key = String(COLOR_PALETTE[i].key);
-    page += "<label class='swatch" + String(selectedKey == key ? " active" : "") + "' style='background:" + accentPreviewCss(key) + ";'><input type='radio' name='" + fieldName + "' value='" + key + "' data-label='" + String(COLOR_PALETTE[i].label) + "'" + String(selectedKey == key ? " checked" : "") + "></label>";
+    page += "<label class='swatch" + String(selectedKey == key ? " active" : "") + "' style='background:" + accentPreviewCss(key) + ";'><input type='radio' name='" + fieldName + "' value='" + key + "' data-label='" + String(paletteLabel(COLOR_PALETTE[i])) + "'" + String(selectedKey == key ? " checked" : "") + "></label>";
   }
   page += "</div></div>";
 }
@@ -198,32 +198,32 @@ static void appendDataPointsPanel(String& page, const String& sourceFilter, cons
   }
 
   page += "<div class='" + tabPanelClass(activeTab, "datapoints") + "' data-panel='datapoints' data-tab='datapoints'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Datenpunkte</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_DATAPOINTS)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>Aktuelle Runtime-Werte aus Wetter, MQTT, System und internen Quellen.</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_DP_DESC)) + "</p>";
   page += "<form method='get' action='/' class='bar datapoint-filter'>";
   page += "<input type='hidden' name='tab' value='datapoints'>";
-  page += "<div><label class='label'>Suche</label><input name='q' value='" + htmlEscape(query) + "' placeholder='ID, Name oder Wert'></div>";
-  page += "<div><label class='label'>Quelle</label><select name='src'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_SEARCH)) + "</label><input name='q' value='" + htmlEscape(query) + "' placeholder='" + String(TXTW(L_WEB_DP_SEARCH_PH)) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_SOURCE)) + "</label><select name='src'>";
   const char* sourceKeys[] = {"all", "Weather", "MQTT", "System", "Internal"};
-  const char* sourceLabels[] = {"Alle", "Wetter", "MQTT", "System", "Internal"};
+  const char* sourceLabels[] = {TXTW(L_WEB_ALL), TXTW(L_TAB_WEATHER), "MQTT", "System", "Internal"};
   for (int i = 0; i < 5; i++) {
     page += "<option value='" + String(sourceKeys[i]) + "'" + String(normalizedSourceFilter == sourceKeys[i] ? " selected" : "") + ">" + String(sourceLabels[i]) + "</option>";
   }
   page += "</select></div>";
-  page += "<button type='submit'>Anwenden</button>";
-  page += "<a class='btn secondary' href='/?tab=datapoints'>Zurücksetzen</a>";
+  page += "<button type='submit'>" + String(TXTW(L_WEB_APPLY)) + "</button>";
+  page += "<a class='btn secondary' href='/?tab=datapoints'>" + String(TXTW(L_WEB_RESET)) + "</a>";
   page += "</form>";
 
   page += "<div class='summary'>";
-  page += "<div class='card'><span class='muted'>Gesamt</span><b>" + String(total) + "</b></div>";
-  page += "<div class='card'><span class='muted'>Wetter</span><b>" + String(sourceWeather) + "</b></div>";
+  page += "<div class='card'><span class='muted'>" + String(TXTW(L_WEB_TOTAL)) + "</span><b>" + String(total) + "</b></div>";
+  page += "<div class='card'><span class='muted'>" + String(TXTW(L_TAB_WEATHER)) + "</span><b>" + String(sourceWeather) + "</b></div>";
   page += "<div class='card'><span class='muted'>MQTT</span><b>" + String(sourceMqtt) + "</b></div>";
   page += "<div class='card'><span class='muted'>System</span><b>" + String(sourceSystem) + "</b></div>";
   page += "<div class='card'><span class='muted'>Internal</span><b>" + String(sourceInternal + sourceOther) + "</b></div>";
   page += "</div>";
 
-  page += "<div class='tablewrap'><table class='datapoint-table'><thead><tr><th>ID</th><th>Name</th><th>Wert</th><th>Einheit</th><th>Quelle</th><th>Alter</th><th>Status</th></tr></thead><tbody>";
+  page += "<div class='tablewrap'><table class='datapoint-table'><thead><tr><th>ID</th><th>Name</th><th>" + String(TXTW(L_WEB_VALUE)) + "</th><th>" + String(TXTW(L_WEB_UNIT)) + "</th><th>" + String(TXTW(L_WEB_SOURCE)) + "</th><th>" + String(TXTW(L_WEB_AGE)) + "</th><th>" + String(TXTW(L_WEB_STATUS)) + "</th></tr></thead><tbody>";
   for (int i = 0; i < total; i++) {
     const DataPoint* point = dataPointManager.at(i);
     if (!point) continue;
@@ -247,11 +247,20 @@ static void appendDataPointsPanel(String& page, const String& sourceFilter, cons
     htmlFlush(page);
   }
   if (visible == 0) {
-    page += "<tr><td colspan='7' class='muted'>Keine passenden Datenpunkte gefunden.</td></tr>";
+    page += "<tr><td colspan='7' class='muted'>" + String(TXTW(L_WEB_DP_NONE)) + "</td></tr>";
   }
   page += "</tbody></table></div>";
-  page += "<p class='footer-note'>Sichtbar: " + String(visible) + " von " + String(total) + " Datenpunkten.</p>";
+  page += "<p class='footer-note'>" + String(TXTW(L_WEB_DP_VISIBLE_PRE)) + String(visible) + String(TXTW(L_WEB_DP_VISIBLE_OF)) + String(total) + String(TXTW(L_WEB_DP_VISIBLE_SUF)) + "</p>";
   page += "</div></div>";
+}
+
+// Replaces the browser-native (locale-dependent) file input button with a
+// styled label + translated text and a filename span updated via JS, so the
+// picker follows the selected UI language instead of the browser language.
+static void appendFilePicker(String& page, const char* id, const char* accept) {
+  page += "<label class='secondary-button' style='background:#111827;color:#cbd5e1;' for='" + String(id) + "'>" + String(TXTW(L_WEB_CHOOSE_FILE)) + "</label>";
+  page += "<input type='file' id='" + String(id) + "' accept='" + String(accept) + "' style='display:none' onchange='fileName(this)'>";
+  page += "<span class='muted' id='" + String(id) + "-name'>" + String(TXTW(L_WEB_NO_FILE)) + "</span>";
 }
 
 static String deviceDisplayName(const String& name) {
@@ -330,24 +339,24 @@ void handleRoot() {
   page += "<div class='brand-block'><h1>InfoTerm</h1></div>";
   page += "<div class='status-columns'>";
   page += "<div class='status-group'>";
-  page += "<span>Gerätename</span><b>" + htmlEscape(deviceDisplayName(deviceName)) + "</b>";
-  page += "<span>Version</span><b>" + String(INFOTERM_APP_VERSION) + "</b>";
-  page += "<span>Laufzeit</span><b>" + htmlEscape(uptimeText()) + "</b>";
+  page += "<span>" + String(TXTW(L_WEB_DEVICE_NAME)) + "</span><b>" + htmlEscape(deviceDisplayName(deviceName)) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_VERSION)) + "</span><b>" + String(INFOTERM_APP_VERSION) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_UPTIME)) + "</span><b>" + htmlEscape(uptimeText()) + "</b>";
   page += "</div>";
   page += "<div class='status-group'>";
-  page += "<span>WLAN</span><b>" + htmlEscape(wifiStatusText()) + "</b>";
-  page += "<span>IP-Adresse</span><b>" + htmlEscape(WiFi.localIP().toString()) + "</b>";
-  page += "<span>Signal</span><b>" + htmlEscape(signalText()) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_WIFI)) + "</span><b>" + htmlEscape(wifiStatusText()) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_IP)) + "</span><b>" + htmlEscape(WiFi.localIP().toString()) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_SIGNAL)) + "</span><b>" + htmlEscape(signalText()) + "</b>";
   page += "</div>";
   page += "<div class='status-group'>";
   page += "<span>MQTT</span><b>" + htmlEscape(mqttStateText()) + "</b>";
-  page += "<span>Broker</span><b>" + htmlEscape(mqttHost) + ":" + String(mqttPort) + "</b>";
+  page += "<span>" + String(TXTW(L_STATUS_BROKER)) + "</span><b>" + htmlEscape(mqttHost) + ":" + String(mqttPort) + "</b>";
   page += "<span>Sync</span><b>" + htmlEscape(lastSyncValueText()) + "</b>";
   page += "</div>";
   page += "<div class='status-group'>";
   page += "<span>VPN</span><b>" + htmlEscape(vpnStatusText()) + "</b>";
   page += "<span>Name</span><b>" + htmlEscape(vpnName.length() ? vpnName : String("-")) + "</b>";
-  page += "<span>Tunnel-IP</span><b>" + htmlEscape(vpnConnected ? vpnLocalAddress : String("-")) + "</b>";
+  page += "<span>" + String(TXTW(L_WEB_TUNNEL_IP)) + "</span><b>" + htmlEscape(vpnConnected ? vpnLocalAddress : String("-")) + "</b>";
   page += "</div>";
   page += "</div>";
   page += "</div>";
@@ -355,7 +364,7 @@ void handleRoot() {
   page += "<form method='POST' action='/save'>";
   page += "<input type='hidden' name='csrf' value='" + webCsrfToken + "'>";
   page += "<div class='tabs' role='tablist'>";
-  page += "<a class='" + tabButtonClass(activeTab, "home") + "' href='/?tab=home' data-target-tab='home'>Home</a>";
+  page += "<a class='" + tabButtonClass(activeTab, "home") + "' href='/?tab=home' data-target-tab='home'>" + String(TXTW(L_TAB_START)) + "</a>";
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     String tabLabel = customTabNames[t];
     tabLabel.trim();
@@ -364,9 +373,9 @@ void handleRoot() {
     page += "<a class='" + tabButtonClass(activeTab, tabId.c_str()) + "' href='/?tab=" + tabId + "' data-target-tab='" + tabId + "'>" + htmlEscape(tabLabel) + "</a>";
   }
   page += "<a class='" + tabButtonClass(activeTab, "mqtt") + "' href='/?tab=mqtt' data-target-tab='mqtt'>MQTT</a>";
-  page += "<a class='" + tabButtonClass(activeTab, "datapoints") + "' href='/?tab=datapoints' data-target-tab='datapoints'>Datenpunkte</a>";
-  page += "<a class='" + tabButtonClass(activeTab, "design") + "' href='/?tab=design' data-target-tab='design'>Design</a>";
-  page += "<a class='" + tabButtonClass(activeTab, "settings") + "' href='/?tab=settings' data-target-tab='settings'>Einstellungen</a>";
+  page += "<a class='" + tabButtonClass(activeTab, "datapoints") + "' href='/?tab=datapoints' data-target-tab='datapoints'>" + String(TXTW(L_WEB_DATAPOINTS)) + "</a>";
+  page += "<a class='" + tabButtonClass(activeTab, "design") + "' href='/?tab=design' data-target-tab='design'>" + String(TXTW(L_WEB_THEME_TITLE)) + "</a>";
+  page += "<a class='" + tabButtonClass(activeTab, "settings") + "' href='/?tab=settings' data-target-tab='settings'>" + String(TXTW(L_WEB_SETTINGS)) + "</a>";
   page += "</div>";
 
   if (activeTab == "datapoints") {
@@ -384,80 +393,86 @@ void handleRoot() {
   htmlFlush(page);
 
   page += "<div class='" + tabPanelClass(activeTab, "mqtt") + "' data-panel='mqtt' data-tab='mqtt'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXT(L_WEB_MQTT_WEATHER_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_MQTT_WEATHER_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
   page += "<div class='settings-block'>";
   page += "<div class='grid'>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_BROKER)) + "</label><input name='mqttHost' value='" + htmlEscape(webMqttHost) + "'></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_PORT)) + "</label><input name='mqttPort' type='number' min='1' max='65535' value='" + String(webMqttPort) + "'></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_USER)) + "</label><input name='mqttUser' value='" + htmlEscape(webMqttUser) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_BROKER)) + "</label><input name='mqttHost' value='" + htmlEscape(webMqttHost) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_PORT)) + "</label><input name='mqttPort' type='number' min='1' max='65535' value='" + String(webMqttPort) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_USER)) + "</label><input name='mqttUser' value='" + htmlEscape(webMqttUser) + "'></div>";
   // The stored password is never rendered into the page (/ is reachable
   // without auth); an empty field means "keep the stored password".
-  page += "<div><label class='label'>" + String(TXT(L_WEB_PASSWORD)) + "</label><input name='mqttPass' type='password' value='' autocomplete='new-password' placeholder='" + String(mqttPass.length() > 0 ? TXT(L_WEB_PASSWORD_KEEP_HINT) : "") + "'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_PASSWORD)) + "</label><input name='mqttPass' type='password' value='' autocomplete='new-password' placeholder='" + String(mqttPass.length() > 0 ? TXTW(L_WEB_PASSWORD_KEEP_HINT) : "") + "'>";
   if (mqttPass.length() > 0) {
-    page += "<label class='muted' style='display:flex;align-items:center;gap:6px;margin-top:6px;'><input type='checkbox' name='mqttPassClear' value='1' style='width:auto;'>" + String(TXT(L_WEB_PASSWORD_CLEAR)) + "</label>";
+    page += "<label class='muted' style='display:flex;align-items:center;gap:6px;margin-top:6px;'><input type='checkbox' name='mqttPassClear' value='1' style='width:auto;'>" + String(TXTW(L_WEB_PASSWORD_CLEAR)) + "</label>";
   }
   page += "</div>";
   page += "</div>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;'>";
-  page += "<button type='button' class='secondary-button' onclick='submitMqttTest()'>Verbindung testen</button>";
+  page += "<button type='button' class='secondary-button' onclick='submitMqttTest()'>" + String(TXTW(L_WEB_TEST_CONNECTION)) + "</button>";
   page += "<span id='mqttTestResult' class='muted'></span>";
   page += "</div>";
-  page += "<label class='label' style='margin-top:12px;'>" + String(TXT(L_WEB_OBSERVATION_TOPIC)) + "</label>";
+  page += "<label class='label' style='margin-top:12px;'>" + String(TXTW(L_WEB_OBSERVATION_TOPIC)) + "</label>";
   page += "<input name='mqttTopic' value='" + htmlEscape(webMqttTopic) + "'>";
   page += "<label class='switch-row' style='margin-top:14px;border-bottom:none;'><input type='checkbox' name='mqttOn' value='1' ";
   page += webMqttOn ? "checked" : "";
-  page += "><small>" + String(TXT(L_WEB_USE_MQTT_WEATHER)) + "</small></label>";
+  page += "><small>" + String(TXTW(L_WEB_USE_MQTT_WEATHER)) + "</small></label>";
   page += "<label class='switch-row' style='border-bottom:none;'><input type='checkbox' name='mqttFallback' value='1' ";
   page += webMqttFallback ? "checked" : "";
-  page += "><small>" + String(TXT(L_WEB_USE_OPENMETEO_FALLBACK)) + "</small></label>";
+  page += "><small>" + String(TXTW(L_WEB_USE_OPENMETEO_FALLBACK)) + "</small></label>";
   page += "</div>";
   page += "</div></div>";
 
   page += "<div class='" + tabPanelClass(activeTab, "settings") + "' data-panel='settings' data-tab='settings'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXT(L_WEB_SETTINGS)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_SETTINGS)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>" + String(TXT(L_WEB_SETTINGS_DESC)) + "</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_SETTINGS_DESC)) + "</p>";
   page += "<div class='settings-block'>";
-  page += "<span class='settings-title'>" + String(TXT(L_WEB_GENERAL)) + "</span>";
+  page += "<span class='settings-title'>" + String(TXTW(L_WEB_GENERAL)) + "</span>";
   page += "<div class='grid'>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_DEVICE_NAME)) + "</label><input name='deviceName' maxlength='24' value='" + htmlEscape(deviceName) + "'></div>";
-  page += "<div><label class='label'>WLAN-Netzwerk</label><select name='wifiNet'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_DEVICE_NAME)) + "</label><input name='deviceName' maxlength='24' value='" + htmlEscape(deviceName) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_WIFI_NETWORK)) + "</label><select name='wifiNet'>";
   for (int i = 0; i < WIFI_NETWORK_COUNT; i++) {
     String suffix;
     bool isConnectedNet = WiFi.status() == WL_CONNECTED && WiFi.SSID() == String(WIFI_NETWORKS[i].ssid);
     if (isConnectedNet) {
-      suffix = " - aktuell verbunden";
+      suffix = TXTW(L_WEB_WIFI_CONNECTED);
     } else if (!wifiScanEverCompleted) {
       suffix = "";
     } else if (wifiNetworkReachable[i]) {
-      suffix = " - in Reichweite";
+      suffix = TXTW(L_WEB_WIFI_IN_RANGE);
     } else {
-      suffix = " - nicht in Reichweite";
+      suffix = TXTW(L_WEB_WIFI_OUT_RANGE);
     }
     page += "<option value='" + String(i) + "'" + String(i == wifiActiveIndex ? " selected" : "") +
             ">" + htmlEscape(String(WIFI_NETWORKS[i].ssid) + suffix) + "</option>";
   }
-  page += "</select><div class='muted' style='margin-top:8px;'>Bevorzugtes Netz - klappt die Verbindung nicht, werden die anderen hinterlegten Netze der Reihe nach automatisch versucht.</div></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_LANGUAGE)) + "</label><select name='lang'>";
-  page += "<option value='de'" + String(uiLanguage==LANG_DE ? " selected" : "") + ">" + String(TXT(L_WEB_LANGUAGE_DE)) + "</option>";
-  page += "<option value='en'" + String(uiLanguage==LANG_EN ? " selected" : "") + ">" + String(TXT(L_WEB_LANGUAGE_EN)) + "</option>";
+  page += "</select><div class='muted' style='margin-top:8px;'>" + String(TXTW(L_WEB_WIFI_HINT)) + "</div></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_LANGUAGE)) + "</label><select name='lang'>";
+  page += "<option value='de'" + String(uiLanguage==LANG_DE ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_DE)) + "</option>";
+  page += "<option value='en'" + String(uiLanguage==LANG_EN ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_EN)) + "</option>";
+  page += "<option value='fr'" + String(uiLanguage==LANG_FR ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_FR)) + "</option>";
+  page += "<option value='es'" + String(uiLanguage==LANG_ES ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_ES)) + "</option>";
+  page += "<option value='it'" + String(uiLanguage==LANG_IT ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_IT)) + "</option>";
+  page += "<option value='ru'" + String(uiLanguage==LANG_RU ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_RU)) + "</option>";
+  page += "<option value='hi'" + String(uiLanguage==LANG_HI ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_HI)) + "</option>";
+  page += "<option value='zh'" + String(uiLanguage==LANG_ZH ? " selected" : "") + ">" + String(TXTW(L_WEB_LANGUAGE_ZH)) + "</option>";
   page += "</select></div>";
-  page += "<div><label class='label'>Automatischer Schlafmodus</label><select name='sleepMin'>";
-  page += "<option value='0'"  + String(sleepIntervalMin==0?" selected":"")  + ">Nie</option>";
-  page += "<option value='1'"  + String(sleepIntervalMin==1?" selected":"")  + ">1 Minute</option>";
-  page += "<option value='5'"  + String(sleepIntervalMin==5?" selected":"")  + ">5 Minuten</option>";
-  page += "<option value='10'" + String(sleepIntervalMin==10?" selected":"") + ">10 Minuten</option>";
-  page += "<option value='30'" + String(sleepIntervalMin==30?" selected":"") + ">30 Minuten</option>";
-  page += "<option value='60'" + String(sleepIntervalMin==60?" selected":"") + ">1 Stunde</option>";
-  page += "</select><div class='muted' style='margin-top:8px;'>Der Schlafmodus dimmt zuerst das Display und schaltet es nach 60 Sekunden ganz aus.</div></div>";
-  page += "<div><label class='label'>Tab-Rotation (Einbrennschutz)</label>";
-  page += "<label class='switch-row' style='padding-top:0;border-bottom:none;'><input type='checkbox' name='tabCycle' value='1'" + String(tabCycleEnabled ? " checked" : "") + "><small>Angezeigte Tabs (ausser Info) automatisch durchlaufen - nur wirksam, wenn der Schlafmodus auf \"Nie\" steht</small></label>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_AUTO_SLEEP)) + "</label><select name='sleepMin'>";
+  page += "<option value='0'"  + String(sleepIntervalMin==0?" selected":"")  + ">" + String(TXTW(L_WEB_NEVER)) + "</option>";
+  page += "<option value='1'"  + String(sleepIntervalMin==1?" selected":"")  + ">" + String(TXTW(L_WEB_1_MINUTE)) + "</option>";
+  page += "<option value='5'"  + String(sleepIntervalMin==5?" selected":"")  + ">" + String(TXTW(L_WEB_5_MINUTES)) + "</option>";
+  page += "<option value='10'" + String(sleepIntervalMin==10?" selected":"") + ">" + String(TXTW(L_WEB_10_MINUTES)) + "</option>";
+  page += "<option value='30'" + String(sleepIntervalMin==30?" selected":"") + ">" + String(TXTW(L_WEB_30_MINUTES)) + "</option>";
+  page += "<option value='60'" + String(sleepIntervalMin==60?" selected":"") + ">" + String(TXTW(L_WEB_1_HOUR)) + "</option>";
+  page += "</select><div class='muted' style='margin-top:8px;'>" + String(TXTW(L_WEB_SLEEP_HINT)) + "</div></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_CYCLE)) + "</label>";
+  page += "<label class='switch-row' style='padding-top:0;border-bottom:none;'><input type='checkbox' name='tabCycle' value='1'" + String(tabCycleEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_TAB_CYCLE_HINT)) + "</small></label>";
   page += "<select name='tabCycleSec'>";
-  page += "<option value='30'"  + String(tabCycleIntervalSec==30?" selected":"")  + ">alle 30 Sekunden</option>";
-  page += "<option value='60'"  + String(tabCycleIntervalSec==60?" selected":"")  + ">alle 60 Sekunden</option>";
-  page += "<option value='180'" + String(tabCycleIntervalSec==180?" selected":"") + ">alle 3 Minuten</option>";
-  page += "<option value='360'" + String(tabCycleIntervalSec==360?" selected":"") + ">alle 6 Minuten</option>";
+  page += "<option value='30'"  + String(tabCycleIntervalSec==30?" selected":"")  + ">" + String(TXTW(L_WEB_EVERY_30S)) + "</option>";
+  page += "<option value='60'"  + String(tabCycleIntervalSec==60?" selected":"")  + ">" + String(TXTW(L_WEB_EVERY_60S)) + "</option>";
+  page += "<option value='180'" + String(tabCycleIntervalSec==180?" selected":"") + ">" + String(TXTW(L_WEB_EVERY_3M)) + "</option>";
+  page += "<option value='360'" + String(tabCycleIntervalSec==360?" selected":"") + ">" + String(TXTW(L_WEB_EVERY_6M)) + "</option>";
   page += "</select></div>";
   page += "<div><label class='label'>Log-Level</label><select name='logLevel'>";
   page += "<option value='0'" + String(logLevelValue==0?" selected":"") + ">ERROR</option>";
@@ -465,36 +480,36 @@ void handleRoot() {
   page += "<option value='2'" + String(logLevelValue==2?" selected":"") + ">INFO</option>";
   page += "<option value='3'" + String(logLevelValue==3?" selected":"") + ">DEBUG</option>";
   page += "</select></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_UNITS)) + "</label><select name='units'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_UNITS)) + "</label><select name='units'>";
   page += "<option value='metric'"   + String(units=="metric"?" selected":"")   + ">Celsius / mm</option>";
-  page += "<option value='imperial'" + String(units=="imperial"?" selected":"") + ">Fahrenheit / Zoll</option>";
+  page += "<option value='imperial'" + String(units=="imperial"?" selected":"") + ">" + String(TXTW(L_WEB_UNIT_IMPERIAL)) + "</option>";
   page += "</select></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_DATE_FORMAT)) + "</label><select name='region'>";
-  page += "<option value='europe'" + String(region=="europe"?" selected":"") + ">Europa: TT.MM.JJJJ</option>";
-  page += "<option value='us'" + String(region=="us"?" selected":"") + ">USA: MM/TT/JJJJ</option>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_DATE_FORMAT)) + "</label><select name='region'>";
+  page += "<option value='europe'" + String(region=="europe"?" selected":"") + ">" + String(TXTW(L_WEB_DATE_EUROPE)) + "</option>";
+  page += "<option value='us'" + String(region=="us"?" selected":"") + ">" + String(TXTW(L_WEB_DATE_US)) + "</option>";
   page += "</select></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_TIMEZONE)) + "</label><select name='tz'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_TIMEZONE)) + "</label><select name='tz'>";
   appendTimezoneOptions(page, tz);
   page += "</select></div>";
   page += "</div>";
   page += "</div>";
-  page += "<div class='settings-block'><span class='settings-title'>" + String(TXT(L_WEB_LOCATION)) + "</span><div class='settings-desc'>" + String(TXT(L_WEB_LOCATION_DESC)) + "</div><div class='grid-3'>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_LOCATION_NAME)) + "</label><input name='locname' value='" + htmlEscape(locationName) + "'></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_LATITUDE)) + "</label><input name='lat' value='" + String(LAT, 6) + "'></div>";
-  page += "<div><label class='label'>" + String(TXT(L_WEB_LONGITUDE)) + "</label><input name='lng' value='" + String(LNG, 6) + "'></div>";
-  page += "</div><div class='footer-note'>Beispiel Berlin: Breitengrad 52.5200, Längengrad 13.4050.</div></div>";
+  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_WEB_LOCATION)) + "</span><div class='settings-desc'>" + String(TXTW(L_WEB_LOCATION_DESC)) + "</div><div class='grid-3'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_LOCATION_NAME)) + "</label><input name='locname' value='" + htmlEscape(locationName) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_LATITUDE)) + "</label><input name='lat' value='" + String(LAT, 6) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_LONGITUDE)) + "</label><input name='lng' value='" + String(LNG, 6) + "'></div>";
+  page += "</div><div class='footer-note'>" + String(TXTW(L_WEB_LOCATION_EXAMPLE)) + "</div></div>";
 
-  page += "<div class='settings-block'><span class='settings-title'>Netzwerk / IP-Adresse</span>";
-  page += "<div class='settings-desc'>Standard ist automatischer Bezug (DHCP). Fuer Netze ohne DHCP-Server eine feste IP vergeben. Eine Aenderung baut die WLAN-Verbindung neu auf - das Geraet ist danach unter der neuen Adresse erreichbar. Achtung: eine falsche feste IP kann das Geraet unerreichbar machen (Wiederherstellung per Backup-Import oder USB-Reflash).</div>";
-  page += "<div><label class='label'>IP-Bezug</label><select name='ipMode'>";
-  page += "<option value='dhcp'" + String(ipMode == "static" ? "" : " selected") + ">Automatisch (DHCP)</option>";
-  page += "<option value='static'" + String(ipMode == "static" ? " selected" : "") + ">Statisch (feste IP)</option>";
+  page += "<div class='settings-block'><span class='settings-title'>" + String(TXTW(L_WEB_NETWORK_IP)) + "</span>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_IP_DESC)) + "</div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_IP_MODE)) + "</label><select name='ipMode'>";
+  page += "<option value='dhcp'" + String(ipMode == "static" ? "" : " selected") + ">" + String(TXTW(L_WEB_IP_DHCP)) + "</option>";
+  page += "<option value='static'" + String(ipMode == "static" ? " selected" : "") + ">" + String(TXTW(L_WEB_IP_STATIC)) + "</option>";
   page += "</select></div>";
   page += "<div class='grid'>";
-  page += "<div><label class='label'>IP-Adresse</label><input name='ipStatic' value='" + htmlEscape(staticIp) + "' placeholder='192.168.1.50'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_STATUS_IP)) + "</label><input name='ipStatic' value='" + htmlEscape(staticIp) + "' placeholder='192.168.1.50'></div>";
   page += "<div><label class='label'>Gateway</label><input name='ipGw' value='" + htmlEscape(staticGateway) + "' placeholder='192.168.1.1'></div>";
-  page += "<div><label class='label'>Subnetzmaske</label><input name='ipMask' value='" + htmlEscape(staticSubnet) + "' placeholder='255.255.255.0'></div>";
-  page += "<div><label class='label'>DNS-Server (optional)</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_SUBNET)) + "</label><input name='ipMask' value='" + htmlEscape(staticSubnet) + "' placeholder='255.255.255.0'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_DNS)) + "</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
   page += "</div></div>";
 
   page += "</div></div>";
@@ -502,54 +517,54 @@ void handleRoot() {
   page += "<div class='" + tabPanelClass(activeTab, "settings") + "' data-panel='vpn' data-tab='settings'>";
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>VPN</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>WireGuard-Konfigurationsdatei (.conf) hochladen und den Tunnel bei Bedarf aktivieren. <b>Wichtig:</b> waehrend der Tunnel aktiv ist, ist die WebGUI im lokalen Netz nicht erreichbar - nur ueber die Tunnel-IP.</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_VPN_DESC)) + "</p>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;'>";
-  page += "<input type='file' id='vpnFileInput' accept='.conf'>";
-  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitVpnUpload()'>Hochladen</button>";
+  appendFilePicker(page, "vpnFileInput", ".conf");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitVpnUpload()'>" + String(TXTW(L_WEB_UPLOAD)) + "</button>";
   page += "</div>";
   if (vpnPrivateKey.length() > 0) {
     String peerKeyShort = vpnPeerPublicKey.length() > 12 ? vpnPeerPublicKey.substring(0, 12) + "..." : vpnPeerPublicKey;
     page += "<div class='grid'>";
     page += "<div><label class='label'>Name</label><input name='vpnName' maxlength='24' value='" + htmlEscape(vpnName) + "'></div>";
-    page += "<div><label class='label'>Endpunkt</label><input value='" + htmlEscape(vpnEndpointHost) + ":" + String(vpnEndpointPort) + "' disabled></div>";
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_ENDPOINT)) + "</label><input value='" + htmlEscape(vpnEndpointHost) + ":" + String(vpnEndpointPort) + "' disabled></div>";
     page += "<div><label class='label'>Peer-Key</label><input value='" + htmlEscape(peerKeyShort) + "' disabled></div>";
-    page += "<div><label class='label'>Tunnel-Adresse</label><input value='" + htmlEscape(vpnLocalAddress) + "' disabled></div>";
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_TUNNEL_ADDR)) + "</label><input value='" + htmlEscape(vpnLocalAddress) + "' disabled></div>";
     page += "</div>";
     page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;'>";
-    page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitVpnConnect()'>Verbinden</button>";
-    page += "<button type='button' class='secondary-button' onclick='submitVpnDisconnect()'>Trennen</button>";
-    page += "<span class='muted'>Status: " + htmlEscape(vpnStatusMessage) + "</span>";
+    page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitVpnConnect()'>" + String(TXTW(L_WEB_CONNECT)) + "</button>";
+    page += "<button type='button' class='secondary-button' onclick='submitVpnDisconnect()'>" + String(TXTW(L_WEB_DISCONNECT)) + "</button>";
+    page += "<span class='muted'>" + String(TXTW(L_WEB_STATUS)) + ": " + htmlEscape(vpnStatusMessage) + "</span>";
     page += "</div>";
   } else {
-    page += "<p class='footer-note'>Noch keine VPN-Konfiguration hochgeladen.</p>";
+    page += "<p class='footer-note'>" + String(TXTW(L_WEB_VPN_NONE)) + "</p>";
   }
   page += "</div></div>";
 
   if (activeTab == "settings") {
     page += "<div class='savebar' style='margin-bottom:22px;'>";
-    page += "<button type='submit'>" + String(TXT(L_WEB_SAVE)) + "</button>";
+    page += "<button type='submit'>" + String(TXTW(L_WEB_SAVE)) + "</button>";
     page += "</div>";
   }
 
   page += "<div class='" + tabPanelClass(activeTab, "settings") + "' data-panel='backup' data-tab='settings'>";
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Backup</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>Aktuelle Konfiguration als JSON-Datei herunterladen oder aus einer Datei wiederherstellen.</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_BACKUP_DESC)) + "</p>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;'>";
-  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/backup/export'>Backup herunterladen</a>";
-  page += "<input type='file' id='backupFileInput' accept='.json'>";
-  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitBackupImport()'>Wiederherstellen</button>";
+  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/backup/export'>" + String(TXTW(L_WEB_BACKUP_DOWNLOAD)) + "</a>";
+  appendFilePicker(page, "backupFileInput", ".json");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitBackupImport()'>" + String(TXTW(L_WEB_RESTORE)) + "</button>";
   page += "</div>";
   page += "</div></div>";
 
   page += "<div class='" + tabPanelClass(activeTab, "settings") + "' data-panel='firmware' data-tab='settings'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Firmware-Update</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_FW_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>Aktuelle Version: " + String(INFOTERM_APP_VERSION) + ". Neue .bin-Firmwaredatei hochladen, um das Geraet ohne USB-Kabel zu aktualisieren.</p>";
-  page += "<p class='footer-note'>Waehrend des Uploads nicht ausschalten und die WLAN-Verbindung nicht unterbrechen. Bricht die Uebertragung ab, startet das Geraet mit der alten Firmware nicht mehr und muss per USB neu geflasht werden.</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_FW_CURRENT_VERSION)) + String(INFOTERM_APP_VERSION) + String(TXTW(L_WEB_FW_DESC)) + "</p>";
+  page += "<p class='footer-note'>" + String(TXTW(L_WEB_FW_WARN)) + "</p>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;'>";
-  page += "<input type='file' id='otaFileInput' accept='.bin'>";
-  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitOtaUpload()'>Firmware hochladen</button>";
+  appendFilePicker(page, "otaFileInput", ".bin");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitOtaUpload()'>" + String(TXTW(L_WEB_FW_UPLOAD)) + "</button>";
   page += "<span id='otaStatus' class='muted'></span>";
   page += "</div>";
   page += "</div></div>";
@@ -557,34 +572,34 @@ void handleRoot() {
   page += "<div class='" + tabPanelClass(activeTab, "settings") + "' data-panel='log' data-tab='settings'>";
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Log</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>Die letzten " + String(Logger::HISTORY_SIZE) + " Logzeilen (neueste zuerst, Zeitangabe = Geräte-Laufzeit). Welche Meldungen aufgezeichnet werden, steuert das Log-Level in den Einstellungen.</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_LOG_DESC_PRE)) + String(Logger::HISTORY_SIZE) + String(TXTW(L_WEB_LOG_DESC_POST)) + "</p>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;'>";
-  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='loadLogView()'>Log laden</button>";
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='loadLogView()'>" + String(TXTW(L_WEB_LOG_LOAD)) + "</button>";
   page += "</div>";
   page += "<pre id='logOutput' style='background:#0b1220;border:1px solid #334155;border-radius:10px;padding:10px;font-size:12px;line-height:1.4;max-height:320px;overflow:auto;white-space:pre-wrap;margin:0;'></pre>";
   page += "</div></div>";
 
   page += "<div class='" + tabPanelClass(activeTab, "design") + "' data-panel='theme' data-tab='design'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXT(L_WEB_THEME_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_THEME_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>" + String(TXT(L_WEB_THEME_DESC)) + "</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_THEME_DESC)) + "</p>";
   page += "<div class='grid'>";
 
   page += "<div style='grid-column:1 / -1;' class='color-stack'>";
-  page += "<b>Nachtmodus</b>";
-  page += "<label class='switch-row'><input type='checkbox' name='nightMode' value='1'" + String(webNightModeEnabled ? " checked" : "") + "><small>Automatisch zwischen Sonnenuntergang und -aufgang auf gedämpfte Rottöne umschalten</small></label>";
-  page += "<b>Rahmen um Widgets</b>";
-  page += "<label class='switch-row'><input type='checkbox' name='widgetBorder' value='1'" + String(webWidgetBordersEnabled ? " checked" : "") + "><small>Rahmen auf Display-Widgets anzeigen</small></label>";
-  page += "<b>Anzeige drehen</b>";
-  page += "<label class='switch-row'><input type='checkbox' name='rotate180' value='1'" + String(webDisplayRotated180 ? " checked" : "") + "><small>Darstellung um 180° drehen, für über Kopf montierte Geräte</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_NIGHT_MODE)) + "</b>";
+  page += "<label class='switch-row'><input type='checkbox' name='nightMode' value='1'" + String(webNightModeEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_NIGHT_MODE_HINT)) + "</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_WIDGET_BORDER)) + "</b>";
+  page += "<label class='switch-row'><input type='checkbox' name='widgetBorder' value='1'" + String(webWidgetBordersEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_WIDGET_BORDER_HINT)) + "</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_ROTATE)) + "</b>";
+  page += "<label class='switch-row'><input type='checkbox' name='rotate180' value='1'" + String(webDisplayRotated180 ? " checked" : "") + "><small>" + String(TXTW(L_WEB_ROTATE_HINT)) + "</small></label>";
 
-  appendColorPaletteRow(page, String(TXT(L_WEB_ACCENT)), "accent", accent, "accent-value", false);
-  appendColorPaletteRow(page, String(TXT(L_WEB_BORDER_COLOR)), "border", border, "border-value", false);
-  appendColorPaletteRow(page, String(TXT(L_WEB_TEXT_COLOR)), "text", txt, "text-value", false);
-  appendColorPaletteRow(page, "Menühintergrund", "menuBg", menuBg, "menuBg-value", true);
-  appendColorPaletteRow(page, "Buttonhintergrund", "buttonBg", buttonBg, "buttonBg-value", true);
-  appendColorPaletteRow(page, "Widgethintergrund", "widgetBg", widgetBg, "widgetBg-value", true);
-  appendColorPaletteRow(page, String(TXT(L_WEB_THEME)), "bg", bg, "bg-value", false);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_ACCENT)), "accent", accent, "accent-value", false);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_BORDER_COLOR)), "border", border, "border-value", false);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_TEXT_COLOR)), "text", txt, "text-value", false);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_MENU_BG)), "menuBg", menuBg, "menuBg-value", true);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_BUTTON_BG)), "buttonBg", buttonBg, "buttonBg-value", true);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_WIDGET_BG)), "widgetBg", widgetBg, "widgetBg-value", true);
+  appendColorPaletteRow(page, String(TXTW(L_WEB_THEME)), "bg", bg, "bg-value", false);
 
   page += "</div>";
 
@@ -592,11 +607,11 @@ void handleRoot() {
   htmlFlush(page);
 
   page += "<div class='" + tabPanelClass(activeTab, "mqtt") + "' data-panel='mqttvalues' data-tab='mqtt'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXT(L_WEB_MQTT_VALUES_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_MQTT_VALUES_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<div class='settings-block'><div class='settings-desc'>MQTT-Datenpunkte konfigurieren (maximal 32 Datenpunkte).</div>";
+  page += "<div class='settings-block'><div class='settings-desc'>" + String(TXTW(L_WEB_MQTT_CFG_DESC)) + "</div>";
   page += "<input type='hidden' name='mqttValueCount' value='" + String(mqttValueCount) + "'>";
-  page += "<div class='datapoint-scroll'><table class='mqtt-config-table'><thead><tr><th></th><th>Name</th><th>Topic</th><th>Unit</th><th>Dez.</th><th>Aktiv</th></tr></thead><tbody>";
+  page += "<div class='datapoint-scroll'><table class='mqtt-config-table'><thead><tr><th></th><th>Name</th><th>Topic</th><th>Unit</th><th>" + String(TXTW(L_WEB_DECIMALS)) + "</th><th>" + String(TXTW(L_WEB_ACTIVE)) + "</th></tr></thead><tbody>";
   for (int i = 0; i < mqttValueCount; i++) {
     page += "<tr>";
     page += "<td><div class='mqtt-row-actions'>";
@@ -604,7 +619,7 @@ void handleRoot() {
     else page += "<span class='mqtt-action-btn' style='opacity:.25;pointer-events:none;'>&#9650;</span>";
     if (i < mqttValueCount - 1) page += "<button type='button' class='mqtt-action-btn' onclick='mqttRowAction(\"/mqtt/move\"," + String(i) + ",\"down\")'>&#9660;</button>";
     else page += "<span class='mqtt-action-btn' style='opacity:.25;pointer-events:none;'>&#9660;</span>";
-    page += "<button type='button' class='mqtt-trash' title='DataPoint löschen' onclick=\"if(confirm('Diesen MQTT-DataPoint löschen?'))mqttRowAction('/mqtt/delete'," + String(i) + ",'')\">&#128465;</button>";
+    page += "<button type='button' class='mqtt-trash' title='" + String(TXTW(L_WEB_DP_DELETE_TITLE)) + "' onclick=\"if(confirm('" + String(TXTW(L_WEB_DP_DELETE_CONFIRM)) + "'))mqttRowAction('/mqtt/delete'," + String(i) + ",'')\">&#128465;</button>";
     page += "</div></td>";
     page += "<td><input type='text' name='mqttLabel" + String(i) + "' maxlength='18' value='" + htmlEscape(mqttLabels[i]) + "'></td>";
     page += "<td><input type='text' name='mqttTopic" + String(i) + "' value='" + htmlEscape(mqttTopics[i]) + "' placeholder='topic'></td>";
@@ -615,25 +630,25 @@ void handleRoot() {
       page += "<option value='" + String(d) + "'" + String(mqttDecimals[i] == d ? " selected" : "") + ">" + String(d) + "</option>";
     }
     page += "</select></td>";
-    page += "<td><label class='muted'><input class='mqtt-action' type='checkbox' name='mqttValEn" + String(i) + "' value='1'" + String(mqttValueEnabled[i] ? " checked" : "") + "> aktiv</label></td>";
+    page += "<td><label class='muted'><input class='mqtt-action' type='checkbox' name='mqttValEn" + String(i) + "' value='1'" + String(mqttValueEnabled[i] ? " checked" : "") + "> " + String(TXTW(L_WEB_ACTIVE)) + "</label></td>";
     page += "</tr>";
     htmlFlush(page);
   }
   page += "</tbody></table></div>";
-  page += "<button type='submit' class='secondary-button' name='mqttAdd' value='1'>Datenpunkt anlegen</button>";
-  page += "<div class='settings-block'><div class='settings-desc'>Nur die MQTT-Datenpunkte als JSON sichern oder von einem anderen Terminal uebernehmen (ueberschreibt die gespeicherten Datenpunkte, nicht die uebrige Konfiguration). Vor dem Export nicht gespeicherte Aenderungen bitte zuerst speichern.</div>";
+  page += "<button type='submit' class='secondary-button' name='mqttAdd' value='1'>" + String(TXTW(L_WEB_DP_ADD)) + "</button>";
+  page += "<div class='settings-block'><div class='settings-desc'>" + String(TXTW(L_WEB_MQTT_EXPORT_DESC)) + "</div>";
   page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;'>";
-  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/mqtt/export'>Datenpunkte exportieren</a>";
-  page += "<input type='file' id='mqttImportInput' accept='.json'>";
-  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitMqttImport()'>Datenpunkte importieren</button>";
+  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/mqtt/export'>" + String(TXTW(L_WEB_DP_EXPORT)) + "</a>";
+  appendFilePicker(page, "mqttImportInput", ".json");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitMqttImport()'>" + String(TXTW(L_WEB_DP_IMPORT)) + "</button>";
   page += "</div></div>";
   page += "</div>";
   page += "</div></div>";
 
   page += "<div class='" + tabPanelClass(activeTab, "home") + "' data-panel='widgets' data-tab='home'>";
-  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXT(L_WEB_WIDGETS_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_WIDGETS_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
-  page += "<p class='muted'>" + String(TXT(L_WEB_WIDGETS_DESC)) + "</p>";
+  page += "<p class='muted'>" + String(TXTW(L_WEB_WIDGETS_DESC)) + "</p>";
   page += "<div class='grid'>";
   for (int i = 0; i < HOME_SLOT_COUNT; i++) {
     page += "<div><label class='label'>";
@@ -661,10 +676,10 @@ void handleRoot() {
     if (panelTabLabel.length() == 0) panelTabLabel = "Tab" + String(t + 1);
     page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + htmlEscape(panelTabLabel) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
     page += "<div class='panel-body'>";
-    page += "<p class='muted'>Tab-Name, Sichtbarkeit und Widgets konfigurieren.</p>";
+    page += "<p class='muted'>" + String(TXTW(L_WEB_TAB_CFG_DESC)) + "</p>";
     page += "<div class='grid'>";
-    page += "<div><label class='label'>Tab Name</label><input name='tabName" + String(t) + "' maxlength='10' value='" + htmlEscape(customTabNames[t]) + "'></div>";
-    page += "<label class='mqtt-check' style='align-self:end;'><input type='checkbox' name='tabEnabled" + String(t) + "' value='1'" + String(customTabEnabled[t] ? " checked" : "") + " style='width:auto;'>Aktiv</label>";
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_NAME)) + "</label><input name='tabName" + String(t) + "' maxlength='10' value='" + htmlEscape(customTabNames[t]) + "'></div>";
+    page += "<label class='mqtt-check' style='align-self:end;'><input type='checkbox' name='tabEnabled" + String(t) + "' value='1'" + String(customTabEnabled[t] ? " checked" : "") + " style='width:auto;'>" + String(TXTW(L_WEB_ACTIVE)) + "</label>";
     page += "</div>";
     page += "<div class='settings-block'><span class='settings-title'>Widgets</span><div class='grid'>";
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
@@ -684,20 +699,43 @@ void handleRoot() {
   page += "</div>";
   if (activeTab != "datapoints" && activeTab != "settings") {
     page += "<div class='savebar'>";
-    page += "<button type='submit'>" + String(TXT(L_WEB_SAVE)) + "</button>";
+    page += "<button type='submit'>" + String(TXTW(L_WEB_SAVE)) + "</button>";
     page += "</div>";
   }
   page += "</form>";
   htmlFlush(page);
   page += "<script>";
   page += "var csrfToken='" + webCsrfToken + "';";
+  // Localized JS-facing strings (alerts/confirms/status) injected once as an object.
+  page += "var T={";
+  page += "backupSelect:'" + String(TXTW(L_JS_BACKUP_SELECT)) + "',";
+  page += "restoreFailed:'" + String(TXTW(L_JS_RESTORE_FAILED)) + "',";
+  page += "fwSelect:'" + String(TXTW(L_JS_FW_SELECT)) + "',";
+  page += "fwConfirm:'" + String(TXTW(L_JS_FW_CONFIRM)) + "',";
+  page += "uploading:'" + String(TXTW(L_JS_UPLOADING)) + "',";
+  page += "updateOk:'" + String(TXTW(L_JS_UPDATE_OK)) + "',";
+  page += "updateFailed:'" + String(TXTW(L_JS_UPDATE_FAILED)) + "',";
+  page += "fwUpdateFailed:'" + String(TXTW(L_JS_FW_UPDATE_FAILED)) + "',";
+  page += "vpnSelect:'" + String(TXTW(L_JS_VPN_SELECT)) + "',";
+  page += "vpnUploadFailed:'" + String(TXTW(L_JS_VPN_UPLOAD_FAILED)) + "',";
+  page += "vpnConnectConfirm:'" + String(TXTW(L_JS_VPN_CONNECT_CONFIRM)) + "',";
+  page += "loading:'" + String(TXTW(L_JS_LOADING)) + "',";
+  page += "logFailed:'" + String(TXTW(L_JS_LOG_FAILED)) + "',";
+  page += "testing:'" + String(TXTW(L_JS_TESTING)) + "',";
+  page += "testFailed:'" + String(TXTW(L_JS_TEST_FAILED)) + "',";
+  page += "mqttSelect:'" + String(TXTW(L_JS_MQTT_SELECT)) + "',";
+  page += "mqttImportConfirm:'" + String(TXTW(L_JS_MQTT_IMPORT_CONFIRM)) + "',";
+  page += "importFailed:'" + String(TXTW(L_JS_IMPORT_FAILED)) + "',";
+  page += "noFile:'" + String(TXTW(L_WEB_NO_FILE)) + "'";
+  page += "};";
+  page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
   page += "function mqttRowAction(path,idx,dir){var p=new URLSearchParams();p.append('idx',idx);if(dir)p.append('dir',dir);p.append('csrf',csrfToken);fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=mqtt';}).catch(function(){});}";
-  page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert('Bitte eine Backup-Datei auswaehlen.');return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert('Wiederherstellen fehlgeschlagen.');});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert('Bitte eine Firmware-Datei (.bin) auswaehlen.');return;}if(!confirm('Firmware jetzt aktualisieren? Das Geraet startet danach neu.')){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent='Wird hochgeladen... '+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent='Update erfolgreich, Geraet startet neu...';setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent='Update fehlgeschlagen.';alert('Firmware-Update fehlgeschlagen.');}};xhr.onerror=function(){if(status)status.textContent='Update fehlgeschlagen.';alert('Firmware-Update fehlgeschlagen.');};if(status)status.textContent='Wird hochgeladen... 0%';xhr.send(fd);}";
-  page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert('Bitte eine WireGuard .conf-Datei auswaehlen.');return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert('VPN-Upload fehlgeschlagen.');});}";
-  page += "function submitVpnConnect(){if(!confirm('VPN-Tunnel jetzt aktivieren? Die WebGUI ist im lokalen Netz dann NICHT mehr erreichbar, bis der Tunnel wieder getrennt wird (nur ueber die Tunnel-IP).')){return;}fetch('/vpn/connect?csrf='+csrfToken,{method:'POST'}).then(function(){setTimeout(function(){location.href='/?tab=settings';},1500);}).catch(function(){});}";
-  page += "function loadLogView(){var out=document.getElementById('logOutput');if(!out)return;out.textContent='Laedt...';fetch('/log').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){out.textContent=t;}).catch(function(){out.textContent='Log konnte nicht geladen werden.';});}";
-  page += "function submitMqttTest(){var res=document.getElementById('mqttTestResult');function val(n){var el=document.getElementsByName(n)[0];return el?el.value:'';}var p=new URLSearchParams();p.append('mqttHost',val('mqttHost'));p.append('mqttPort',val('mqttPort'));p.append('mqttUser',val('mqttUser'));p.append('mqttPass',val('mqttPass'));p.append('csrf',csrfToken);if(res)res.textContent='Teste Verbindung...';fetch('/mqtt/test',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(r){return r.text();}).then(function(t){if(res)res.textContent=t;}).catch(function(){if(res)res.textContent='Test fehlgeschlagen (Netzwerkfehler).';});}";
-  page += "function submitMqttImport(){var input=document.getElementById('mqttImportInput');if(!input||!input.files||!input.files.length){alert('Bitte eine MQTT-Datenpunkte-Datei auswaehlen.');return;}if(!confirm('MQTT-Datenpunkte aus der Datei uebernehmen? Die gespeicherten Datenpunkte werden ersetzt.')){return;}var fd=new FormData();fd.append('mqttFile',input.files[0]);fetch('/mqtt/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=mqtt'+(r.ok&&r.url.indexOf('mqttImportError')<0?'':'&mqttImportError=1');}).catch(function(){alert('Import fehlgeschlagen.');});}";
+  page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert(T.backupSelect);return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert(T.restoreFailed);});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert(T.fwSelect);return;}if(!confirm(T.fwConfirm)){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent=T.uploading+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent=T.updateOk;setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);}};xhr.onerror=function(){if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);};if(status)status.textContent=T.uploading+'0%';xhr.send(fd);}";
+  page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
+  page += "function submitVpnConnect(){if(!confirm(T.vpnConnectConfirm)){return;}fetch('/vpn/connect?csrf='+csrfToken,{method:'POST'}).then(function(){setTimeout(function(){location.href='/?tab=settings';},1500);}).catch(function(){});}";
+  page += "function loadLogView(){var out=document.getElementById('logOutput');if(!out)return;out.textContent=T.loading;fetch('/log').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){out.textContent=t;}).catch(function(){out.textContent=T.logFailed;});}";
+  page += "function submitMqttTest(){var res=document.getElementById('mqttTestResult');function val(n){var el=document.getElementsByName(n)[0];return el?el.value:'';}var p=new URLSearchParams();p.append('mqttHost',val('mqttHost'));p.append('mqttPort',val('mqttPort'));p.append('mqttUser',val('mqttUser'));p.append('mqttPass',val('mqttPass'));p.append('csrf',csrfToken);if(res)res.textContent=T.testing;fetch('/mqtt/test',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(r){return r.text();}).then(function(t){if(res)res.textContent=t;}).catch(function(){if(res)res.textContent=T.testFailed;});}";
+  page += "function submitMqttImport(){var input=document.getElementById('mqttImportInput');if(!input||!input.files||!input.files.length){alert(T.mqttSelect);return;}if(!confirm(T.mqttImportConfirm)){return;}var fd=new FormData();fd.append('mqttFile',input.files[0]);fetch('/mqtt/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=mqtt'+(r.ok&&r.url.indexOf('mqttImportError')<0?'':'&mqttImportError=1');}).catch(function(){alert(T.importFailed);});}";
   page += "function submitVpnDisconnect(){fetch('/vpn/disconnect?csrf='+csrfToken,{method:'POST'}).then(function(){location.href='/?tab=settings';}).catch(function(){location.href='/?tab=settings';});}";
   page += "var initialTab='home';try{initialTab=new URLSearchParams(location.search).get('tab')||localStorage.getItem('infoterm-active-tab')||'home';}catch(e){}if(!document.querySelector('.tab-button[data-target-tab=\"'+initialTab+'\"]')) initialTab='home';";
   page += "document.querySelectorAll('.tab-button').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.getAttribute('data-target-tab'));});});showTab(initialTab);";
@@ -775,12 +813,12 @@ void handleBackupExport() {
   if (!requireAuth()) return;
   const char* path = "/config_backup.json";
   if (!InfoTermBackupRestoreManager::exportBackup(path) || !LittleFS.exists(path)) {
-    server.send(500, "text/plain", "Backup-Export fehlgeschlagen");
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
     return;
   }
   File file = LittleFS.open(path, "r");
   if (!file) {
-    server.send(500, "text/plain", "Backup-Export fehlgeschlagen");
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
     return;
   }
   time_t nowT = time(nullptr);
@@ -857,12 +895,12 @@ void handleMqttExport() {
   if (!requireAuth()) return;
   const char* path = "/mqtt_datapoints.json";
   if (!serializeMqttDataPointsToFile(path) || !LittleFS.exists(path)) {
-    server.send(500, "text/plain", "MQTT-Export fehlgeschlagen");
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
     return;
   }
   File file = LittleFS.open(path, "r");
   if (!file) {
-    server.send(500, "text/plain", "MQTT-Export fehlgeschlagen");
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
     return;
   }
   time_t nowT = time(nullptr);
@@ -1107,14 +1145,14 @@ void handleMqttTest() {
 
   String msg;
   if (ok) {
-    msg = "Verbindung erfolgreich (" + host + ":" + String(port) + ")";
+    msg = String(TXTW(L_WEB_MQTT_TEST_OK)) + host + ":" + String(port) + ")";
   } else {
     switch (state) {
-      case -4: msg = "Fehlgeschlagen: Zeitueberschreitung"; break;
-      case -2: msg = "Fehlgeschlagen: Broker nicht erreichbar"; break;
-      case 4:  msg = "Fehlgeschlagen: Benutzer/Passwort falsch"; break;
-      case 5:  msg = "Fehlgeschlagen: nicht autorisiert"; break;
-      default: msg = "Fehlgeschlagen (Code " + String(state) + ")"; break;
+      case -4: msg = TXTW(L_WEB_MQTT_TEST_TIMEOUT); break;
+      case -2: msg = TXTW(L_WEB_MQTT_TEST_UNREACHABLE); break;
+      case 4:  msg = TXTW(L_WEB_MQTT_TEST_AUTH); break;
+      case 5:  msg = TXTW(L_WEB_MQTT_TEST_UNAUTHORIZED); break;
+      default: msg = String(TXTW(L_WEB_MQTT_TEST_CODE)) + String(state) + ")"; break;
     }
   }
   server.send(200, "text/plain; charset=utf-8", msg);
@@ -1359,7 +1397,8 @@ void handleSave() {
   if (newNickname.length() > 24) newNickname = newNickname.substring(0, 24);
   if (newUnits != "metric" && newUnits != "imperial") newUnits = "metric";
   if (newRegion != "europe" && newRegion != "us") newRegion = "europe";
-  if (newLang != "de" && newLang != "en") newLang = "de";
+  if (newLang != "de" && newLang != "en" && newLang != "fr" && newLang != "es" && newLang != "it" &&
+      newLang != "ru" && newLang != "hi" && newLang != "zh") newLang = "de";
   newTz = sanitizeTimezoneKey(newTz);
 
   int newSleepMin = server.hasArg("sleepMin") ? server.arg("sleepMin").toInt() : sleepIntervalMin;
