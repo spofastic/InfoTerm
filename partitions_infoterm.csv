@@ -42,14 +42,25 @@
 # crashed immediately on the very first sector erase). A second app
 # partition is not an optional safety nicety, it is the only way OTA can
 # function on this chip: Update.begin() writes into whichever of app0/app1
-# is NOT currently running, and otadata then flips the active slot. Shrunk
-# from one 3 MB app0 to two 1.625 MB slots (current firmware ~1.24 MB, so
-# ~27% headroom per slot) to make room; coredump/spiffs shrunk to fit.
+# is NOT currently running, and otadata then flips the active slot.
+#
+# 1.0.4 repartition: the OTA slots were grown from 1.625 MB (0x1A0000) to
+# 1.75 MB (0x1C0000) each to reclaim flash headroom for upcoming features
+# (WiFi onboarding portal). The extra 256 KB comes entirely from the tail:
+# spiffs 384 KB -> 128 KB (the Backup/Restore JSON is only ~4 KB, so this is
+# still ~30x headroom) and coredump kept at 64 KB. nvs stays 256 KB and
+# otadata stays at 0xE000 - the two hard constraints above are untouched, and
+# app0's offset is unchanged (0x50000), so board_upload.offset_address in
+# platformio.ini needs no change. MIGRATION: because app1/coredump/spiffs
+# offsets move and otadata must not point at a stale slot, this table only
+# takes effect via a USB flash with a ONE-TIME full erase (`pio run -t erase`
+# then `pio run -t upload`), which wipes nvs -> export a config Backup first
+# and restore it afterwards. A plain OTA update keeps running the old table.
 #
 # Name,   Type, SubType, Offset,   Size,     Flags
 otadata,  data, ota,     0xE000,   0x2000,
 nvs,      data, nvs,     0x10000,  0x40000,
-app0,     app,  ota_0,   0x50000,  0x1A0000,
-app1,     app,  ota_1,   0x1F0000, 0x1A0000,
-coredump, data, coredump,0x390000, 0x10000,
-spiffs,   data, spiffs,  0x3A0000, 0x60000,
+app0,     app,  ota_0,   0x50000,  0x1C0000,
+app1,     app,  ota_1,   0x210000, 0x1C0000,
+coredump, data, coredump,0x3D0000, 0x10000,
+spiffs,   data, spiffs,  0x3E0000, 0x20000,

@@ -2,8 +2,14 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.3**  
-Diese Version: **1.0.3** (stable)
+Aktuelle stabile Basis: **1.0.4**  
+Diese Version: **1.0.4** (stable)
+
+1.0.4 Partitionstabelle: OTA-App-Slots von 1,625 MB auf 1,75 MB vergroessert
+(Flash-Reserve fuer kommende Funktionen; Auslastung 83,3 % -> 77,3 %). spiffs
+384 KB -> 128 KB, nvs/otadata/OTA unveraendert. Bei bestehenden Geraeten wird
+die neue Tabelle nur durch einen einmaligen USB-Full-Erase wirksam (vorher
+Config-Backup exportieren, danach importieren). Details siehe `CHANGELOG.md`.
 
 1.0.3 Mehrsprachigkeit: 8 Sprachen (DE/EN/FR/ES/IT/RU/HI/ZH), umschaltbar in
 den Einstellungen. Russisch/Hindi/Chinesisch werden in der WebGUI voll

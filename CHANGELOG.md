@@ -4,6 +4,26 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.4] — Stable
+
+### Changed
+
+- **Partitionstabelle: größere OTA-App-Slots.** Beide OTA-Slots wurden von
+  1,625 MB (`0x1A0000`) auf **1,75 MB (`0x1C0000`)** vergrößert, um
+  Flash-Reserve für kommende Funktionen (WLAN-Onboarding) zu schaffen. Die
+  zusätzlichen 256 KB stammen vollständig aus dem Tail: `spiffs` 384 KB → 128 KB
+  (die Backup/Restore-JSON ist nur ~4 KB), `coredump` bleibt 64 KB. `nvs`
+  (256 KB) und `otadata` (auf `0xE000`) bleiben unangetastet, `app0` bleibt bei
+  Offset `0x50000` (kein `board_upload.offset_address`-Wechsel nötig). Dual-Slot
+  OTA bleibt vollständig erhalten. Flash-Auslastung sinkt von 83,3 % auf 77,3 %.
+- **Migration (nur einmalig, nur bei bestehenden Geräten):** Weil sich die
+  Offsets von `app1`/`coredump`/`spiffs` verschieben, wird die neue Tabelle erst
+  durch einen **USB-Flash mit einmaligem Full-Erase** wirksam
+  (`pio run -t erase` dann `pio run -t upload`). Der Erase löscht NVS — vorher
+  eine Konfigurations-Sicherung exportieren und danach wieder importieren
+  (die WLAN-Zugangsdaten sind compile-time und überleben den Erase). Ein reines
+  OTA-Update behält die alte Tabelle bei.
+
 ## [1.0.3] — Stable
 
 ### Added
