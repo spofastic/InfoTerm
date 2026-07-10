@@ -21,6 +21,7 @@ using fs::FS;
 #include <time.h>
 #include <ArduinoJson.h>
 #include <WebServer.h>
+#include <DNSServer.h>
 #include <PubSubClient.h>
 #include <Preferences.h>
 #include <SPI.h>
@@ -671,6 +672,14 @@ int wifiCycleStartIndex = 0;  // slot this connect cycle started from (stops the
 // persisted in NVS. Empty-SSID slots are skipped by the connection logic.
 String wifiSlotSsid[WIFI_SLOT_COUNT];
 String wifiSlotPass[WIFI_SLOT_COUNT];
+
+// SoftAP onboarding portal (1.0.6) - see startSetupPortal() in WifiRuntime.inc.
+// Active when the device could not join any configured network at boot (or was
+// started manually from the WebGUI); serves a captive setup page over its own
+// access point.
+DNSServer dnsServer;
+bool portalActive = false;
+String portalApSsid;
 
 // IP configuration (0.9.31). "dhcp" (default) or "static". The static fields
 // are applied via WiFi.config() before WiFi.begin(); see applyIpConfiguration()
@@ -1751,7 +1760,33 @@ void updateStatusDynamic() {
   }
 }
 
+// SoftAP onboarding portal screen (1.0.6): shown full-screen while the setup
+// access point is active so a headless user knows what to connect to.
+void drawSetupPortalPage() {
+  tft.fillScreen(COL_BG);
+  tft.setTextColor(COL_ACCENT, COL_BG);
+  tft.drawString(TXT(L_PORTAL_TITLE), 12, 20, 4);
+  tft.setTextColor(COL_TEXT, COL_BG);
+  tft.drawString(TXT(L_PORTAL_DISP_HINT), 12, 62, 2);
+  int y = 112;
+  tft.setTextColor(COL_DIM, COL_BG);
+  tft.drawString("WLAN:", 12, y, 2);
+  tft.setTextColor(COL_TEXT, COL_BG);
+  tft.drawString(portalApSsid, 92, y, 2);
+  y += 30;
+  tft.setTextColor(COL_DIM, COL_BG);
+  tft.drawString(String(TXT(L_WEB_PASSWORD)) + ":", 12, y, 2);
+  tft.setTextColor(COL_TEXT, COL_BG);
+  tft.drawString(INFOTERM_AP_PASSWORD, 92, y, 2);
+  y += 30;
+  tft.setTextColor(COL_DIM, COL_BG);
+  tft.drawString("URL:", 12, y, 2);
+  tft.setTextColor(COL_ACCENT, COL_BG);
+  tft.drawString("http://192.168.4.1", 92, y, 2);
+}
+
 void drawCurrentPageFull() {
+  if (portalActive) { drawSetupPortalPage(); return; }
   switch (currentPage) {
     case PAGE_HOME: drawHomePageFull(); break;
     case PAGE_TAB1: drawCustomTabPageFull(0); break;
@@ -1763,6 +1798,7 @@ void drawCurrentPageFull() {
 }
 
 void updateCurrentPageDynamic() {
+  if (portalActive) return;
 
   switch (currentPage) {
     case PAGE_HOME: updateHomeDynamic(); break;

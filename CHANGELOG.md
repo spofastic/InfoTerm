@@ -4,6 +4,33 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.6] — Stable
+
+### Added
+
+- **SoftAP-Onboarding-Portal.** Verbindet sich beim Start kein hinterlegtes
+  WLAN, öffnet das InfoTerm einen WPA2-geschützten Setup-Access-Point
+  (`InfoTerm-Setup-XXXX`) und zeigt AP-Name, Passwort und `http://192.168.4.1`
+  auf dem Display. Ein Captive-Portal (DNS-Catch-all + Redirect) öffnet sich am
+  Handy automatisch: Netz aus der Scan-Liste wählen, Passwort eingeben,
+  verbinden — das Gerät kann so komplett **ohne Config-Dateien** in ein WLAN
+  aufgenommen werden. Das Portal schließt sich automatisch, sobald die
+  STA-Verbindung steht (Access Point läuft im `WIFI_AP_STA`-Modus, damit
+  Verbindungsversuche ihn nicht abreißen). Zusätzlich ein manueller Trigger
+  „Setup-Portal starten" (Button im Netzwerk-Block, auth + CSRF). AP-Name und
+  -Passwort sind über `INFOTERM_AP_SSID` / `INFOTERM_AP_PASSWORD` in
+  `Config.local.h` überschreibbar; das Portal lässt sich per
+  `INFOTERM_PORTAL_ENABLED 0` abschalten.
+
+### Fixed
+
+- **JS-Strings mit Apostroph brachen die WebGUI in einigen Sprachen.** Die
+  lokalisierten JavaScript-Meldungen wurden als einfach-gequotete Literale
+  eingesetzt; Übersetzungen mit Apostroph (z. B. Französisch „L'interface",
+  Italienisch „L'AP") hätten das injizierte `T`-Objekt und damit das gesamte
+  Inline-Skript zerschossen. Jetzt werden Werte über einen `jsQuote()`-Helfer
+  escaped (Backslash + Apostroph).
+
 ## [1.0.5] — Stable
 
 ### Added

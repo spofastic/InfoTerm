@@ -271,7 +271,25 @@ static String deviceDisplayName(const String& name) {
   return "InfoTerm";
 }
 
+// Returns a single-quoted JavaScript string literal for s, escaping backslash
+// and apostrophe so translated text (e.g. French "L'interface") cannot break
+// the injected T object or inline scripts.
+static String jsQuote(const String& s) {
+  String out = "'";
+  for (size_t i = 0; i < s.length(); i++) {
+    char c = s[i];
+    if (c == '\\' || c == '\'') out += '\\';
+    out += c;
+  }
+  out += "'";
+  return out;
+}
+
+void handleSetupPortalPage();  // defined below; served for "/" while the portal is active
+void startSetupPortal();       // defined in WifiRuntime.inc (included after this file)
+
 void handleRoot() {
+  if (portalActive) { handleSetupPortalPage(); return; }
   syncDataPointsFromRuntime();
 
   String sourceFilter = server.hasArg("src") ? server.arg("src") : "all";
@@ -513,6 +531,7 @@ void handleRoot() {
   page += "<div><label class='label'>Gateway</label><input name='ipGw' value='" + htmlEscape(staticGateway) + "' placeholder='192.168.1.1'></div>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_DNS)) + "</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
   page += "</div></div>";
+  page += "<div style='margin-top:12px;'><button type='button' class='secondary-button' onclick='startPortal()'>" + String(TXTW(L_WEB_PORTAL_START)) + "</button></div>";
   page += "</div>";
 
   // ---- Standort (locale + location) ----
@@ -735,31 +754,33 @@ void handleRoot() {
   page += "var csrfToken='" + webCsrfToken + "';";
   // Localized JS-facing strings (alerts/confirms/status) injected once as an object.
   page += "var T={";
-  page += "backupSelect:'" + String(TXTW(L_JS_BACKUP_SELECT)) + "',";
-  page += "restoreFailed:'" + String(TXTW(L_JS_RESTORE_FAILED)) + "',";
-  page += "fwSelect:'" + String(TXTW(L_JS_FW_SELECT)) + "',";
-  page += "fwConfirm:'" + String(TXTW(L_JS_FW_CONFIRM)) + "',";
-  page += "uploading:'" + String(TXTW(L_JS_UPLOADING)) + "',";
-  page += "updateOk:'" + String(TXTW(L_JS_UPDATE_OK)) + "',";
-  page += "updateFailed:'" + String(TXTW(L_JS_UPDATE_FAILED)) + "',";
-  page += "fwUpdateFailed:'" + String(TXTW(L_JS_FW_UPDATE_FAILED)) + "',";
-  page += "vpnSelect:'" + String(TXTW(L_JS_VPN_SELECT)) + "',";
-  page += "vpnUploadFailed:'" + String(TXTW(L_JS_VPN_UPLOAD_FAILED)) + "',";
-  page += "vpnConnectConfirm:'" + String(TXTW(L_JS_VPN_CONNECT_CONFIRM)) + "',";
-  page += "loading:'" + String(TXTW(L_JS_LOADING)) + "',";
-  page += "logFailed:'" + String(TXTW(L_JS_LOG_FAILED)) + "',";
-  page += "testing:'" + String(TXTW(L_JS_TESTING)) + "',";
-  page += "testFailed:'" + String(TXTW(L_JS_TEST_FAILED)) + "',";
-  page += "mqttSelect:'" + String(TXTW(L_JS_MQTT_SELECT)) + "',";
-  page += "mqttImportConfirm:'" + String(TXTW(L_JS_MQTT_IMPORT_CONFIRM)) + "',";
-  page += "importFailed:'" + String(TXTW(L_JS_IMPORT_FAILED)) + "',";
-  page += "noFile:'" + String(TXTW(L_WEB_NO_FILE)) + "',";
-  page += "wifiScanning:'" + String(TXTW(L_JS_WIFI_SCANNING)) + "',";
-  page += "wifiFound:'" + String(TXTW(L_JS_WIFI_FOUND)) + "',";
-  page += "wifiScanFailed:'" + String(TXTW(L_JS_WIFI_SCAN_FAILED)) + "'";
+  page += "backupSelect:" + jsQuote(TXTW(L_JS_BACKUP_SELECT)) + ",";
+  page += "restoreFailed:" + jsQuote(TXTW(L_JS_RESTORE_FAILED)) + ",";
+  page += "fwSelect:" + jsQuote(TXTW(L_JS_FW_SELECT)) + ",";
+  page += "fwConfirm:" + jsQuote(TXTW(L_JS_FW_CONFIRM)) + ",";
+  page += "uploading:" + jsQuote(TXTW(L_JS_UPLOADING)) + ",";
+  page += "updateOk:" + jsQuote(TXTW(L_JS_UPDATE_OK)) + ",";
+  page += "updateFailed:" + jsQuote(TXTW(L_JS_UPDATE_FAILED)) + ",";
+  page += "fwUpdateFailed:" + jsQuote(TXTW(L_JS_FW_UPDATE_FAILED)) + ",";
+  page += "vpnSelect:" + jsQuote(TXTW(L_JS_VPN_SELECT)) + ",";
+  page += "vpnUploadFailed:" + jsQuote(TXTW(L_JS_VPN_UPLOAD_FAILED)) + ",";
+  page += "vpnConnectConfirm:" + jsQuote(TXTW(L_JS_VPN_CONNECT_CONFIRM)) + ",";
+  page += "loading:" + jsQuote(TXTW(L_JS_LOADING)) + ",";
+  page += "logFailed:" + jsQuote(TXTW(L_JS_LOG_FAILED)) + ",";
+  page += "testing:" + jsQuote(TXTW(L_JS_TESTING)) + ",";
+  page += "testFailed:" + jsQuote(TXTW(L_JS_TEST_FAILED)) + ",";
+  page += "mqttSelect:" + jsQuote(TXTW(L_JS_MQTT_SELECT)) + ",";
+  page += "mqttImportConfirm:" + jsQuote(TXTW(L_JS_MQTT_IMPORT_CONFIRM)) + ",";
+  page += "importFailed:" + jsQuote(TXTW(L_JS_IMPORT_FAILED)) + ",";
+  page += "noFile:" + jsQuote(TXTW(L_WEB_NO_FILE)) + ",";
+  page += "wifiScanning:" + jsQuote(TXTW(L_JS_WIFI_SCANNING)) + ",";
+  page += "wifiFound:" + jsQuote(TXTW(L_JS_WIFI_FOUND)) + ",";
+  page += "wifiScanFailed:" + jsQuote(TXTW(L_JS_WIFI_SCAN_FAILED)) + ",";
+  page += "portalConfirm:" + jsQuote(TXTW(L_JS_PORTAL_CONFIRM));
   page += "};";
   page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
   page += "function scanWifi(){var res=document.getElementById('wifiScanResult');var dl=document.getElementById('wifiScanList');if(res)res.textContent=T.wifiScanning;fetch('/wifi/scan?csrf='+csrfToken,{method:'POST'}).then(function(r){return r.json();}).then(function(list){if(dl){dl.innerHTML='';list.forEach(function(n){var o=document.createElement('option');o.value=n;dl.appendChild(o);});}if(res)res.textContent=list.length+' '+T.wifiFound;}).catch(function(){if(res)res.textContent=T.wifiScanFailed;});}";
+  page += "function startPortal(){if(!confirm(T.portalConfirm))return;fetch('/setup/start?csrf='+csrfToken,{method:'POST'}).catch(function(){});}";
   page += "function mqttRowAction(path,idx,dir){var p=new URLSearchParams();p.append('idx',idx);if(dir)p.append('dir',dir);p.append('csrf',csrfToken);fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=mqtt';}).catch(function(){});}";
   page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert(T.backupSelect);return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert(T.restoreFailed);});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert(T.fwSelect);return;}if(!confirm(T.fwConfirm)){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent=T.uploading+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent=T.updateOk;setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);}};xhr.onerror=function(){if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);};if(status)status.textContent=T.uploading+'0%';xhr.send(fd);}";
   page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
@@ -1662,9 +1683,94 @@ void handleSave() {
 }
 
 
+// --- SoftAP onboarding portal pages (1.0.6) ---
+// These are reachable WITHOUT the WebGUI login: while the portal is active the
+// device has its own WPA2 access point, so joining that AP is the access gate.
+void handleSetupPortalPage() {
+  String page;
+  page.reserve(2600);
+  page += "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>InfoTerm Setup</title>";
+  page += "<style>body{margin:0;background:#0b1018;color:#edf2f7;font-family:system-ui,sans-serif;font-size:15px}.wrap{max-width:420px;margin:0 auto;padding:22px 16px}h1{font-size:24px;margin:0 0 10px}label{display:block;margin:14px 0 5px}select,input{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#edf2f7;padding:11px;font-size:15px}button{margin-top:18px;width:100%;min-height:46px;background:#38bdf8;color:#001018;border:0;border-radius:12px;font-weight:700;font-size:16px}.row{display:flex;gap:8px}.row select{flex:1}.row button{width:auto;margin-top:0;background:#111827;color:#cbd5e1;border:1px solid #334155;font-size:14px;padding:0 14px}.muted{color:#8ea3ba;font-size:13px;margin-top:12px}</style></head><body><div class='wrap'>";
+  page += "<h1>" + String(TXTW(L_PORTAL_TITLE)) + "</h1>";
+  page += "<p class='muted'>" + String(TXTW(L_PORTAL_INTRO)) + "</p>";
+  page += "<label>" + String(TXTW(L_WEB_WIFI_NETWORK)) + "</label>";
+  page += "<div class='row'><select id='ssid'></select><button type='button' onclick='scan()'>" + String(TXTW(L_WEB_WIFI_SCAN)) + "</button></div>";
+  page += "<label>" + String(TXTW(L_WEB_PASSWORD)) + "</label><input id='pass' type='password' autocomplete='off'>";
+  page += "<button type='button' onclick='conn()'>" + String(TXTW(L_WEB_CONNECT)) + "</button>";
+  page += "<p class='muted' id='msg'></p>";
+  page += "<script>";
+  page += "var Ts=" + jsQuote(TXTW(L_JS_WIFI_SCANNING)) + ",Tf=" + jsQuote(TXTW(L_PORTAL_FOUND)) + ",Te=" + jsQuote(TXTW(L_JS_WIFI_SCAN_FAILED)) + ",Tp=" + jsQuote(TXTW(L_PORTAL_PICK)) + ",Tc=" + jsQuote(TXTW(L_PORTAL_CONNECTING)) + ";";
+  page += "function scan(){var m=document.getElementById('msg');m.textContent=Ts;fetch('/setup/scan').then(function(r){return r.json();}).then(function(l){var s=document.getElementById('ssid');s.innerHTML='';l.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;s.appendChild(o);});m.textContent=l.length+' '+Tf;}).catch(function(){m.textContent=Te;});}";
+  page += "function conn(){var m=document.getElementById('msg');var ss=document.getElementById('ssid').value;if(!ss){m.textContent=Tp;return;}m.textContent=Tc;var p=new URLSearchParams();p.append('ssid',ss);p.append('pass',document.getElementById('pass').value);fetch('/setup/connect',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(r){return r.text();}).then(function(t){m.textContent=t;}).catch(function(){m.textContent=Te;});}";
+  page += "scan();";
+  page += "</script></div></body></html>";
+  server.send(200, "text/html; charset=utf-8", page);
+}
+
+void handleSetupScan() {
+  if (!portalActive) { server.send(403, "text/plain", ""); return; }
+  JsonDocument doc;
+  JsonArray arr = doc.to<JsonArray>();
+  int16_t n = WiFi.scanNetworks(false, false, false, 150);
+  for (int16_t i = 0; i < n && (int)arr.size() < 40; i++) {
+    String s = WiFi.SSID(i);
+    if (s.length() == 0) continue;
+    bool dup = false;
+    for (JsonVariant v : arr) { if (v.as<String>() == s) { dup = true; break; } }
+    if (!dup) arr.add(s);
+  }
+  WiFi.scanDelete();
+  String out;
+  serializeJson(doc, out);
+  server.send(200, "application/json", out);
+}
+
+void handleSetupConnect() {
+  if (!portalActive) { server.send(403, "text/plain", ""); return; }
+  String ssid = server.hasArg("ssid") ? server.arg("ssid") : "";
+  String pass = server.hasArg("pass") ? server.arg("pass") : "";
+  ssid.trim();
+  if (ssid.length() == 0) { server.send(400, "text/plain; charset=utf-8", TXTW(L_PORTAL_PICK)); return; }
+  if (ssid.length() > 32) ssid = ssid.substring(0, 32);
+  // Store into the first empty slot, else overwrite slot 0; make it preferred.
+  int slot = -1;
+  for (int i = 0; i < WIFI_SLOT_COUNT; i++) { if (wifiSlotSsid[i].length() == 0) { slot = i; break; } }
+  if (slot < 0) slot = 0;
+  wifiSlotSsid[slot] = ssid;
+  wifiSlotPass[slot] = pass;
+  wifiActiveIndex = slot;
+  persistRuntimeConfiguration();
+  server.send(200, "text/plain; charset=utf-8", TXTW(L_PORTAL_RESULT));
+  beginWiFiConnect();  // try the new creds (stays AP_STA); serviceSetupPortal() closes the AP on success
+}
+
+// Manual trigger from the WebGUI (auth + CSRF): open the portal on demand, e.g.
+// to move the device to a new network. Drops STA so the portal stays up.
+void handleSetupStart() {
+  if (!requireAuthAndCsrf()) return;
+  server.send(200, "text/plain", "OK");
+  startSetupPortal();
+  WiFi.disconnect();
+}
+
+void handleNotFound() {
+  // While the portal is active, redirect every unknown request to the portal
+  // page so OS captive-portal probes pop the setup page automatically.
+  if (portalActive) {
+    server.sendHeader("Location", "http://192.168.4.1/");
+    server.send(302, "text/plain", "");
+    return;
+  }
+  server.send(404, "text/plain", "Not found");
+}
+
 void setupWebServer() {
   ensureCsrfToken();
   server.on("/", HTTP_GET, handleRoot);
+  server.on("/setup/scan", HTTP_GET, handleSetupScan);
+  server.on("/setup/connect", HTTP_POST, handleSetupConnect);
+  server.on("/setup/start", HTTP_POST, handleSetupStart);
+  server.onNotFound(handleNotFound);
   server.on("/datapoints", HTTP_GET, handleDataPointsPage);
   server.on("/save", HTTP_POST, handleSave);
   server.on("/mqtt/delete", HTTP_POST, handleMqttDelete);

@@ -272,6 +272,16 @@ enum LanguageKey {
   L_JS_WIFI_SCANNING,
   L_JS_WIFI_FOUND,
   L_JS_WIFI_SCAN_FAILED,
+  // --- SoftAP onboarding portal (1.0.6) ---
+  L_PORTAL_TITLE,
+  L_PORTAL_INTRO,
+  L_PORTAL_FOUND,
+  L_PORTAL_PICK,
+  L_PORTAL_CONNECTING,
+  L_PORTAL_RESULT,
+  L_PORTAL_DISP_HINT,
+  L_WEB_PORTAL_START,
+  L_JS_PORTAL_CONFIRM,
   L_COUNT
 };
 
@@ -520,7 +530,17 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"(leer)", "(empty)", "(vide)", "(vacío)", "(vuoto)", "(пусто)", "(खाली)", "（空）"}},
   {{"Suche Netze...", "Scanning networks...", "Recherche des réseaux...", "Buscando redes...", "Ricerca reti...", "Поиск сетей...", "नेटवर्क खोज रहे हैं...", "正在扫描网络..."}},
   {{"WLANs gefunden, im SSID-Feld auswählen", "networks found, select in an SSID field", "réseaux trouvés, à choisir dans un champ SSID", "redes encontradas, elígela en un campo SSID", "reti trovate, selezionala in un campo SSID", "сетей найдено, выберите в поле SSID", "नेटवर्क मिले, SSID फ़ील्ड में चुनें", "个网络，在 SSID 字段中选择"}},
-  {{"Suche fehlgeschlagen.", "Scan failed.", "Échec de la recherche.", "Error al buscar.", "Ricerca non riuscita.", "Поиск не удался.", "खोज विफल।", "扫描失败。"}}
+  {{"Suche fehlgeschlagen.", "Scan failed.", "Échec de la recherche.", "Error al buscar.", "Ricerca non riuscita.", "Поиск не удался.", "खोज विफल।", "扫描失败。"}},
+  // --- SoftAP onboarding portal (1.0.6) ---
+  {{"WLAN-Einrichtung", "WiFi setup", "Configuration WiFi", "Configuración WiFi", "Configurazione WiFi", "Настройка WiFi", "वाईफ़ाई सेटअप", "WiFi 设置"}},
+  {{"Wähle dein WLAN aus der Liste, gib das Passwort ein und verbinde. Das InfoTerm startet danach im gewählten Netz.", "Pick your Wi-Fi from the list, enter the password and connect. InfoTerm will then join the selected network.", "Choisissez votre WiFi dans la liste, saisissez le mot de passe et connectez-vous. InfoTerm rejoindra ensuite le réseau sélectionné.", "Elige tu WiFi de la lista, introduce la contraseña y conecta. InfoTerm se unirá a la red seleccionada.", "Scegli la tua rete WiFi dall'elenco, inserisci la password e connetti. InfoTerm si unirà alla rete selezionata.", "Выберите свою сеть WiFi из списка, введите пароль и подключитесь. Затем InfoTerm подключится к выбранной сети.", "सूची से अपना वाईफ़ाई चुनें, पासवर्ड डालें और कनेक्ट करें। InfoTerm फिर चयनित नेटवर्क से जुड़ जाएगा।", "从列表中选择你的 WiFi，输入密码并连接。InfoTerm 随后将加入所选网络。"}},
+  {{"Netze gefunden", "networks found", "réseaux trouvés", "redes encontradas", "reti trovate", "сетей найдено", "नेटवर्क मिले", "个网络"}},
+  {{"Bitte ein Netz wählen.", "Please pick a network.", "Veuillez choisir un réseau.", "Elige una red.", "Scegli una rete.", "Выберите сеть.", "कृपया एक नेटवर्क चुनें।", "请选择一个网络。"}},
+  {{"Verbinde...", "Connecting...", "Connexion...", "Conectando...", "Connessione...", "Подключение...", "कनेक्ट हो रहा है...", "正在连接..."}},
+  {{"Zugangsdaten gespeichert - das InfoTerm verbindet sich jetzt. Der Setup-AP wird beendet, sobald die Verbindung steht.", "Credentials saved - InfoTerm is connecting now. The setup AP closes once the connection is up.", "Identifiants enregistrés - InfoTerm se connecte. Le point d'accès de configuration se ferme une fois la connexion établie.", "Credenciales guardadas - InfoTerm se está conectando. El AP de configuración se cierra cuando haya conexión.", "Credenziali salvate - InfoTerm si sta connettendo. L'AP di configurazione si chiude appena la connessione è attiva.", "Данные сохранены - InfoTerm подключается. Точка доступа настройки закроется, как только связь установится.", "क्रेडेंशियल सहेजे गए - InfoTerm अब कनेक्ट हो रहा है। कनेक्शन बनते ही सेटअप AP बंद हो जाएगा।", "凭据已保存 - InfoTerm 正在连接。连接建立后设置热点将关闭。"}},
+  {{"Handy mit diesem WLAN verbinden:", "Connect your phone to this WiFi:", "Connectez votre téléphone à ce WiFi :", "Conecta tu móvil a este WiFi:", "Collega il telefono a questo WiFi:", "Подключите телефон к этому WiFi:", "अपना फ़ोन इस वाईफ़ाई से कनेक्ट करें:", "将手机连接到此 WiFi："}},
+  {{"Setup-Portal starten", "Start setup portal", "Démarrer le portail de config", "Iniciar portal de config.", "Avvia portale di setup", "Запустить портал настройки", "सेटअप पोर्टल शुरू करें", "启动设置门户"}},
+  {{"Setup-Portal jetzt starten? Das Gerät trennt die WLAN-Verbindung und oeffnet einen Setup-Access-Point - die WebGUI ist dann nur ueber diesen erreichbar, bis die Einrichtung abgeschlossen ist.", "Start the setup portal now? The device disconnects from Wi-Fi and opens a setup access point - the WebGUI is then only reachable via that AP until setup is done.", "Démarrer le portail de configuration maintenant ? L'appareil se déconnecte du WiFi et ouvre un point d'accès de configuration - l'interface web n'est alors accessible que via ce point d'accès jusqu'à la fin de la configuration.", "¿Iniciar el portal de configuración ahora? El dispositivo se desconecta del WiFi y abre un punto de acceso de configuración; la interfaz web solo será accesible por ese AP hasta terminar.", "Avviare ora il portale di setup? Il dispositivo si disconnette dal WiFi e apre un access point di configurazione - la WebGUI sarà raggiungibile solo tramite quello fino al termine.", "Запустить портал настройки сейчас? Устройство отключится от WiFi и откроет точку доступа настройки - WebGUI будет доступна только через неё до завершения настройки.", "सेटअप पोर्टल अभी शुरू करें? डिवाइस वाईफ़ाई से डिस्कनेक्ट होकर एक सेटअप एक्सेस पॉइंट खोलेगा - सेटअप पूरा होने तक WebGUI केवल उसी के माध्यम से पहुँच योग्य होगी।", "现在启动设置门户？设备将断开 WiFi 并开启设置热点 - 在完成设置前，WebGUI 只能通过该热点访问。"}}
 };
 
 static_assert(sizeof(LANGUAGE_TABLE) / sizeof(LANGUAGE_TABLE[0]) == L_COUNT,

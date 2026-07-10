@@ -291,6 +291,10 @@ void setup() {
 
   setupWebServer();
 
+  // If no configured Wi-Fi connected at boot, open the SoftAP onboarding portal
+  // (1.0.6) so the device can be set up without editing config files.
+  maybeStartSetupPortal();
+
   pageDirty = true;
   dataDirty = true;
 
@@ -332,6 +336,7 @@ void loop() {
   InfoTermWebGui::update();
 
   updateWiFiConnectionState();
+  serviceSetupPortal();  // captive DNS + auto-close the onboarding portal
 
   int tx = 0, ty = 0;
   if (touchNewPress(tx, ty)) {

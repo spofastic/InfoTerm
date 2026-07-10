@@ -62,6 +62,21 @@ static const int WIFI_SLOT_COUNT = (WIFI_NETWORK_COUNT > 3) ? WIFI_NETWORK_COUNT
   #define INFOTERM_STATIC_DNS ""
 #endif
 
+// SoftAP onboarding portal (1.0.6). If no configured Wi-Fi network connects at
+// boot, the device opens a WPA2-protected setup access point so a phone can
+// pick a network and enter its password without editing config files. The AP
+// name and password are shown on the device display. All overridable in
+// include/Config.local.h. INFOTERM_AP_PASSWORD must be >= 8 chars (WPA2).
+#ifndef INFOTERM_PORTAL_ENABLED
+  #define INFOTERM_PORTAL_ENABLED 1
+#endif
+#ifndef INFOTERM_AP_SSID
+  #define INFOTERM_AP_SSID "InfoTerm-Setup"
+#endif
+#ifndef INFOTERM_AP_PASSWORD
+  #define INFOTERM_AP_PASSWORD "infoterm"
+#endif
+
 // WebGUI authentication (HTTP Basic) for mutating/sensitive routes (/save,
 // /backup/*, /ota/upload, /vpn/*, /mqtt/delete, /mqtt/move). Real values
 // belong in include/Config.local.h. If WEBGUI_PASS is empty the login is

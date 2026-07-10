@@ -2,8 +2,16 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.5**  
-Diese Version: **1.0.5** (stable)
+Aktuelle stabile Basis: **1.0.6**  
+Diese Version: **1.0.6** (stable)
+
+1.0.6 SoftAP-Onboarding-Portal: verbindet sich beim Start kein hinterlegtes
+WLAN, oeffnet das Geraet einen WPA2-Setup-Access-Point mit Captive-Portal
+(SSID/Passwort/URL auf dem Display) - so laesst sich das InfoTerm ohne
+Config-Dateien in ein WLAN aufnehmen. Auto-Exit sobald verbunden; manueller
+Trigger im Netzwerk-Block. Ausserdem Bugfix: JS-Strings mit Apostroph
+(FR/IT) brachen die WebGUI - jetzt via jsQuote escaped. Details siehe
+`CHANGELOG.md`.
 
 1.0.5 WLAN-Auswahl in der WebGUI: drei editierbare WLAN-Slots (SSID + Passwort),
 "WLAN suchen"-Scan der sichtbaren Netze, Auswahl im SSID-Feld - InfoTerm kann so

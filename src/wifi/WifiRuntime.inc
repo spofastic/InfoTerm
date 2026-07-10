@@ -123,7 +123,10 @@ void startWifiAttempt(int index) {
   // Must run before mode()/begin() so the name reaches the DHCP request
   // (ESP32 core applies the stored hostname when the STA netif starts).
   WiFi.setHostname(networkHostname().c_str());
-  WiFi.mode(WIFI_STA);
+  // Keep the setup access point alive while the onboarding portal is active so
+  // connect attempts (from the portal or the reconnect scheduler) don't tear it
+  // down; otherwise plain STA.
+  WiFi.mode(portalActive ? WIFI_AP_STA : WIFI_STA);
   WiFi.setSleep(false);
   applyIpConfiguration();  // static IP or DHCP; must precede WiFi.begin()
   WiFi.begin(wifiSlotSsid[wifiAttemptIndex].c_str(), wifiSlotPass[wifiAttemptIndex].c_str());
@@ -205,6 +208,54 @@ void updateWiFiConnectionState() {
     wifiConnectInProgress = false;
     dataDirty = true;  // status change only (see reconnect note above)
   }
+}
+
+// --- SoftAP onboarding portal (1.0.6) ---
+// Opens a WPA2 setup access point + captive DNS so a phone can pick a network
+// and enter its password without editing config files. Started automatically at
+// boot when no configured network connects, or manually from the WebGUI.
+void startSetupPortal() {
+  if (portalActive) return;
+  portalActive = true;
+  String mac = WiFi.macAddress();
+  mac.replace(":", "");
+  String suffix = mac.length() >= 4 ? mac.substring(mac.length() - 4) : "";
+  portalApSsid = String(INFOTERM_AP_SSID) + (suffix.length() ? ("-" + suffix) : "");
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(portalApSsid.c_str(), INFOTERM_AP_PASSWORD);
+  delay(100);
+  IPAddress apIp = WiFi.softAPIP();
+  dnsServer.start(53, "*", apIp);  // catch-all: every lookup -> the portal IP
+  Logger::warning(String("[Portal] Setup-AP aktiv: ") + portalApSsid + " -> http://" + apIp.toString());
+  pageDirty = true;
+}
+
+void stopSetupPortal() {
+  if (!portalActive) return;
+  portalActive = false;
+  dnsServer.stop();
+  WiFi.softAPdisconnect(true);
+  WiFi.mode(WIFI_STA);
+  Logger::info("[Portal] beendet");
+  pageDirty = true;
+}
+
+// Called once after setupWebServer() at boot: if no configured network could be
+// joined, open the onboarding portal.
+void maybeStartSetupPortal() {
+  if (!INFOTERM_PORTAL_ENABLED) return;
+  if (!wifiEnabled) return;
+  if (WiFi.status() == WL_CONNECTED) return;
+  startSetupPortal();
+}
+
+// Called every loop(): drive the captive DNS and auto-close the portal as soon
+// as the STA side reaches a real network (the network returned, or credentials
+// entered via the portal connected successfully).
+void serviceSetupPortal() {
+  if (!portalActive) return;
+  dnsServer.processNextRequest();
+  if (WiFi.status() == WL_CONNECTED) stopSetupPortal();
 }
 
 void setWifiEnabled(bool enabled) {
