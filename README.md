@@ -3,6 +3,8 @@
 **InfoTerm** is a multilingual ESP32-based information dashboard for weather data,
 MQTT values, DataPoints, widgets, device status and an inline WebGUI.
 
+![InfoTerm WebGUI — dashboard and widget selection](docs/images/webgui-home.png)
+
 The current version is maintained centrally in `include/Version.h`; see
 [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) and
 [CHANGELOG.md](CHANGELOG.md) for the version history and per-release details.
@@ -17,7 +19,8 @@ https://a.aliexpress.com/_EQB88PY
 ## Features
 
 - Touchscreen dashboard with configurable pages, widgets and custom tabs
-- Multilingual user interface (German and English)
+- Multilingual user interface — 8 languages (DE, EN, FR, ES, IT, RU, HI, ZH;
+  the TFT display falls back to English for non-Latin scripts)
 - Weather via MQTT weather station (WeatherFlow2MQTT) with Open-Meteo fallback
 - Dynamic MQTT DataPoints with per-value formatting and a live DataPoints tab
 - Inline WebGUI (no separate filesystem upload needed) with login,
@@ -26,9 +29,28 @@ https://a.aliexpress.com/_EQB88PY
 - OTA firmware update with automatic rollback guard
 - Configuration backup/restore as JSON (secrets are never exported)
 - Optional on-demand WireGuard VPN client
-- Multi-WiFi with automatic fallback
+- Multi-WiFi with automatic fallback and a SoftAP onboarding portal for
+  first-time setup without editing any config files
 - Persistent configuration (NVS) that survives reflash cycles
 - PlatformIO-based build with host-side unit tests and CI
+
+## Screenshots
+
+**MQTT DataPoints** — map any MQTT topic to a named value with unit,
+decimals and visibility, then place it on the display as a widget:
+
+![MQTT broker settings and DataPoints editor](docs/images/webgui-mqtt.png)
+
+**Design** — 22-color palette for accent, borders, text and backgrounds,
+plus night mode and 180° display rotation:
+
+![Design tab with color palette](docs/images/webgui-design.png)
+
+**Settings** — language, sleep mode, tab rotation (burn-in guard) and more;
+network, location, backup/restore, OTA update, log view and VPN live on the
+same page:
+
+![General settings](docs/images/webgui-settings.png)
 
 ## Project Structure
 
@@ -53,18 +75,36 @@ InfoTerm/
 Project documentation lives in `docs/`. Version history lives in `CHANGELOG.md`
 and `docs/RELEASE_NOTES.md`.
 
-## Quick Start with PlatformIO
+## Quick Start
+
+### Option 1: Prebuilt firmware (existing InfoTerm device)
+
+Each [release](https://github.com/spofastic/InfoTerm/releases) ships an
+`InfoTerm_x_y_z_public.bin` with no credentials baked in. On a device already
+running InfoTerm (1.0.4 or newer), upload it via the WebGUI
+(Settings → Firmware). Wi-Fi is configured through the SoftAP setup portal
+or the WebGUI; the default WebGUI login is `admin` / `infoterm` — change it
+under Settings → Network → WebGUI access.
+
+(The release `.bin` is the application image only — a factory-fresh board
+needs one initial build-and-upload from source, see Option 2.)
+
+### Option 2: Build from source with PlatformIO
 
 1. Open the `InfoTerm` folder in VS Code.
 2. Install the PlatformIO IDE extension.
-3. Create `include/Config.local.h` (git-ignored) with your local Wi-Fi networks and the WebGUI login (`WEBGUI_USER` / `WEBGUI_PASS`) — see `docs/CONFIGURATION.md`. `include/Config.h` keeps placeholders only.
+3. Optional: create `include/Config.local.h` (git-ignored) with pre-seeded
+   Wi-Fi networks and your own WebGUI login — see `docs/CONFIGURATION.md`.
+   Without it, the first boot opens the SoftAP setup portal
+   (`InfoTerm-Setup-XXXX`, password `infoterm`) so you can join your Wi-Fi
+   from a phone; no config files needed.
 4. Build and upload the firmware:
 
 ```bash
 platformio run --environment esp32_2432s028r -t upload
 ```
 
-5. Open the device IP address in your browser.
+5. Open the device IP address (or `http://<devicename>.local`) in your browser.
 
 ## Build Check
 
