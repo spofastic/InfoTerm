@@ -12,9 +12,11 @@ The current version is maintained centrally in `include/Version.h`; see
 ## Hardware
 
 ESP32 Touchscreen 2.8 inch TFT LCD display ESP-WROOM-32 ILI9341/ST7789
-compatible board, commonly sold as ESP32-2432S028R.
+compatible board, commonly sold as ESP32-2432S028R (a.k.a. "Cheap Yellow
+Display").
 
-https://a.aliexpress.com/_EQB88PY
+**[Buy on AliExpress](https://a.aliexpress.com/_Ew4l8bc)** — no affiliation,
+just the board this project is built and tested on.
 
 ## Features
 
