@@ -680,6 +680,28 @@ String wifiSlotPass[WIFI_SLOT_COUNT];
 DNSServer dnsServer;
 bool portalActive = false;
 String portalApSsid;
+// While the portal is active, STA connect attempts drag the shared radio
+// across channels and the SoftAP beacon follows - phones then cannot see or
+// hold the setup network. The reconnect scheduler is therefore throttled to
+// this slow cadence while portalActive (1.0.7); /setup/connect still triggers
+// an immediate attempt via beginWiFiConnect().
+unsigned long portalLastAttemptMs = 0;
+const unsigned long PORTAL_RECONNECT_INTERVAL_MS = 90000UL;
+
+// Deferred WebGUI-requested restart (1.0.7): handleRestart() only sets the
+// flag; loop() reboots after a short grace period so the HTTP "OK" response
+// reaches the browser before the connection dies.
+bool restartPending = false;
+unsigned long restartPendingAtMs = 0;
+const unsigned long RESTART_GRACE_MS = 750UL;
+
+// WebGUI login (1.0.7): runtime credentials, stored in NVS and editable in
+// the settings tab. Seeded from the compile-time WEBGUI_USER/WEBGUI_PASS on
+// first boot, so the public build's documented default (admin/infoterm) only
+// applies until the user changes it. An empty password disables the login
+// gate (see webAuthOk() in WebGuiRuntime.inc). Never part of a backup export.
+String webUser = WEBGUI_USER;
+String webPass = WEBGUI_PASS;
 
 // IP configuration (0.9.31). "dhcp" (default) or "static". The static fields
 // are applied via WiFi.config() before WiFi.begin(); see applyIpConfiguration()
@@ -1786,7 +1808,16 @@ void drawSetupPortalPage() {
 }
 
 void drawCurrentPageFull() {
-  if (portalActive) { drawSetupPortalPage(); return; }
+  if (portalActive) {
+    drawSetupPortalPage();
+    // Must mark the page as drawn: the loop() redraw trigger is
+    // "pageDirty || lastDrawnPage != currentPage", and only the regular page
+    // draw functions update lastDrawnPage. Without this the portal page was
+    // redrawn (fillScreen) every loop iteration - visible as heavy flicker
+    // (1.0.7 fix).
+    lastDrawnPage = currentPage;
+    return;
+  }
   switch (currentPage) {
     case PAGE_HOME: drawHomePageFull(); break;
     case PAGE_TAB1: drawCustomTabPageFull(0); break;

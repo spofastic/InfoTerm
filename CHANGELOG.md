@@ -4,6 +4,58 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.7] — Stable
+
+### Added
+
+- **WebGUI-Login zur Laufzeit änderbar / veröffentlichbares Firmware-Binary.**
+  Benutzername und Passwort der WebGUI liegen jetzt in der Laufzeit-Config
+  (NVS) und sind im Einstellungen-Tab unter „Netzwerk → WebGUI-Zugang"
+  änderbar (Passwort write-only wie beim MQTT-Passwort: leer = behalten,
+  Checkbox = entfernen; leeres Passwort deaktiviert die Anmeldung). Die
+  compile-time-Werte aus `Config.h`/`Config.local.h` sind nur noch
+  First-Boot-Seeds. Neues PlatformIO-Env `esp32_2432s028r_public`
+  (`-D INFOTERM_PUBLIC_BUILD`): ignoriert `Config.local.h` vollständig —
+  keine WLAN-Seeds (Erstinbetriebnahme über das SoftAP-Setup-Portal) und der
+  dokumentierte Standard-Login `admin`/`infoterm`. `tools/make_release.py`
+  baut daraus zusätzlich `InfoTerm_x_y_z_public.bin`; nur diese Datei darf an
+  ein GitHub-Release angehängt werden (die private `_stable`/`_nonstable`-Bin
+  enthält weiterhin lokale Seeds und bleibt lokal). Der Backup-Export enthält
+  den Benutzernamen, nie das Passwort. Quellcode-Builds ohne `Config.local.h`
+  haben jetzt ebenfalls Login `admin`/`infoterm` als Default (vorher offen)
+  und keine Platzhalter-SSID mehr.
+- **Neustart-Button in der WebGUI.** Auf der Einstellungsseite neben dem
+  Speichern-Button; mit Bestätigungsdialog (lokalisiert in allen 8 Sprachen).
+  Der `POST /restart`-Endpunkt ist durch Login + CSRF-Token geschützt; der
+  eigentliche `ESP.restart()` läuft verzögert in `loop()`, damit die
+  HTTP-Antwort den Browser noch erreicht. Die Seite lädt nach ~20 s
+  automatisch neu.
+
+### Fixed
+
+- **Setup-Portal: Display flimmerte stark.** Der Portal-Bildschirm setzte
+  `lastDrawnPage` nicht, dadurch feuerte der Redraw-Trigger in `loop()`
+  (`pageDirty || lastDrawnPage != currentPage`) in jeder Iteration und die
+  Portal-Seite wurde ~100× pro Sekunde inkl. `fillScreen` neu gezeichnet.
+- **Setup-Portal: AP war vom Handy aus kaum bzw. gar nicht zu finden.** Der
+  WiFi-Reconnect-Scheduler startete alle 5 s einen bis zu 15 s laufenden
+  STA-Verbindungsversuch; im `WIFI_AP_STA`-Modus zieht das das gemeinsame Radio
+  über alle Kanäle und der SoftAP-Beacon wird für Telefone praktisch
+  unsichtbar. Dazu kam: Der Arduino-Core wiederholt einen fehlgeschlagenen
+  Verbindungsversuch von sich aus endlos (Auto-Reconnect ist per Default an
+  und `NO_AP_FOUND` gilt als „reconnectable"), sodass selbst ein einzelner
+  `WiFi.begin()` das Radio dauerhaft über die Kanäle zog — das Netz war zwar
+  zeitweise sichtbar, aber der Beitritt (Handshake) schlug fehl. Fix: Bei
+  aktivem Portal wird der Core-Auto-Reconnect deaktiviert und die STA-Seite
+  nach jedem fehlgeschlagenen Zyklus per `WiFi.disconnect()` stillgelegt;
+  die periodischen Reconnect-Versuche des Schedulers sind auf einen Versuch
+  pro 90 s gedrosselt (`PORTAL_RECONNECT_INTERVAL_MS`). Der Setup-AP bleibt
+  damit stabil sichtbar und beitretbar. Das automatische Schließen des
+  Portals, wenn ein konfiguriertes Netz zurückkehrt, bleibt erhalten (nur
+  verzögert); über das Portal eingegebene Zugangsdaten verbinden weiterhin
+  sofort, und beim Schließen des Portals wird Auto-Reconnect wieder
+  aktiviert.
+
 ## [1.0.6] — Stable
 
 ### Added

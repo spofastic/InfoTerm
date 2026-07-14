@@ -2,8 +2,22 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.6**  
-Diese Version: **1.0.6** (stable)
+Aktuelle stabile Basis: **1.0.7**  
+Diese Version: **1.0.7** (stable, vollstaendig hardware-verifiziert)
+
+1.0.7 Setup-Portal-Fixes, Neustart-Button und oeffentliches Firmware-Binary:
+Das Setup-Portal ist jetzt praktisch nutzbar - das Display flimmert nicht
+mehr (Redraw-Schleife behoben) und der Setup-AP bleibt vom Handy aus
+beitretbar (Core-Auto-Reconnect wird bei aktivem Portal stillgelegt,
+Reconnect-Versuche auf einen pro 90 s gedrosselt). Neuer Neustart-Button
+neben "Speichern" (Login + CSRF, Bestaetigungsdialog). WebGUI-Login
+(Benutzername/Passwort) liegt jetzt in der Laufzeit-Config und ist unter
+"Netzwerk -> WebGUI-Zugang" aenderbar; die Compile-Zeit-Werte sind nur noch
+First-Boot-Seeds. Neues Build-Env `esp32_2432s028r_public` erzeugt ein
+Binary ohne lokale Secrets (`InfoTerm_x_y_z_public.bin`) - erstmals liegt
+damit eine fertige Firmware beim GitHub-Release bei (Erstinbetriebnahme
+ueber das Setup-Portal, Login admin/infoterm, danach aendern). Details
+siehe `CHANGELOG.md`.
 
 1.0.6 SoftAP-Onboarding-Portal: verbindet sich beim Start kein hinterlegtes
 WLAN, oeffnet das Geraet einen WPA2-Setup-Access-Point mit Captive-Portal

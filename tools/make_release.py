@@ -1,4 +1,5 @@
 import argparse
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -9,6 +10,23 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "include" / "Version.h"
 BUILD_ENV = "esp32_2432s028r"
 FIRMWARE_BIN = ROOT / ".pio" / "build" / BUILD_ENV / "firmware.bin"
+# Public build (1.0.7): same firmware without include/Config.local.h baked in
+# (see platformio.ini env esp32_2432s028r_public) - the only .bin that may be
+# attached to a GitHub release.
+PUBLIC_ENV = "esp32_2432s028r_public"
+PUBLIC_BIN = ROOT / ".pio" / "build" / PUBLIC_ENV / "firmware.bin"
+
+
+def platformio_exe():
+    """PlatformIO CLI, mirroring the PATH fallback documented in platformio.ini."""
+    exe = shutil.which("platformio") or shutil.which("pio")
+    if exe:
+        return exe
+    fallback = (
+        Path(os.environ.get("USERPROFILE", ""))
+        / ".platformio" / "penv" / "Scripts" / "platformio.exe"
+    )
+    return str(fallback) if fallback.exists() else None
 
 parser = argparse.ArgumentParser(description="InfoTerm Release-ZIP und OTA-Firmware-Datei erzeugen.")
 parser.add_argument(
@@ -114,3 +132,20 @@ else:
         f"WARNUNG: {FIRMWARE_BIN} nicht gefunden - keine OTA-Firmware-Datei erzeugt. "
         f"Vorher 'platformio run --environment {BUILD_ENV}' ausfuehren."
     )
+
+# Public bin for GitHub: built fresh from the public env so Config.local.h is
+# guaranteed absent from the binary. The private *_stable/_nonstable.bin above
+# stays local-only (it bakes in local Wi-Fi/login seeds); ONLY the *_public.bin
+# may be attached to a GitHub release.
+pio = platformio_exe()
+if pio is None:
+    print("WARNUNG: PlatformIO nicht gefunden - keine oeffentliche Firmware-Datei erzeugt.")
+else:
+    print(f"Baue oeffentliche Firmware (env {PUBLIC_ENV}, ohne Config.local.h) ...")
+    build = subprocess.run([pio, "run", "--environment", PUBLIC_ENV], cwd=ROOT)
+    if build.returncode == 0 and PUBLIC_BIN.exists():
+        public_path = release_dir / f"InfoTerm_{zip_version}_public.bin"
+        shutil.copy2(PUBLIC_BIN, public_path)
+        print(f"Oeffentliche OTA-Firmware erstellt (GitHub-tauglich): {public_path}")
+    else:
+        print("WARNUNG: Public-Build fehlgeschlagen - keine oeffentliche Firmware-Datei erzeugt.")

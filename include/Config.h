@@ -22,13 +22,19 @@ struct WifiCredential {
   const char* pass;
 };
 
-#if __has_include("Config.local.h")
+// INFOTERM_PUBLIC_BUILD (1.0.7, set by the esp32_2432s028r_public PlatformIO
+// env) ignores Config.local.h entirely, so a release binary for GitHub never
+// carries local secrets: no Wi-Fi seeds (first boot opens the SoftAP setup
+// portal) and only the documented default WebGUI login below.
+#if !defined(INFOTERM_PUBLIC_BUILD) && __has_include("Config.local.h")
   // Real credentials live in the git-ignored Config.local.h (see header).
   #include "Config.local.h"
 #else
-  // Placeholder values only - create include/Config.local.h to override.
+  // No Wi-Fi seeds: since 1.0.6 the SoftAP onboarding portal handles the
+  // first-boot setup, so builds without Config.local.h need no credentials
+  // here at all (create include/Config.local.h if you want pre-seeded ones).
   static const WifiCredential WIFI_NETWORKS[] = {
-    {"YOUR_WIFI_SSID", "YOUR_WIFI_PASSWORD"},
+    {"", ""},
   };
 #endif
 
@@ -78,13 +84,15 @@ static const int WIFI_SLOT_COUNT = (WIFI_NETWORK_COUNT > 3) ? WIFI_NETWORK_COUNT
 #endif
 
 // WebGUI authentication (HTTP Basic) for mutating/sensitive routes (/save,
-// /backup/*, /ota/upload, /vpn/*, /mqtt/delete, /mqtt/move). Real values
-// belong in include/Config.local.h. If WEBGUI_PASS is empty the login is
-// disabled (open) - acceptable for placeholder/public builds, but set a
-// real password on any device that is actually reachable on your network.
+// /backup/*, /ota/upload, /vpn/*, /mqtt/delete, /mqtt/move, /restart).
+// Since 1.0.7 these are only FIRST-BOOT SEEDS: the runtime credentials live
+// in NVS (webUser/webPass) and are editable in the WebGUI settings tab.
+// The documented public-build default is admin/infoterm - change it in the
+// WebGUI on any device that is actually reachable on your network. An empty
+// password disables the login gate entirely.
 #ifndef WEBGUI_USER
   #define WEBGUI_USER "admin"
 #endif
 #ifndef WEBGUI_PASS
-  #define WEBGUI_PASS ""
+  #define WEBGUI_PASS "infoterm"
 #endif

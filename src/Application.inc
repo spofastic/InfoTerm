@@ -72,9 +72,16 @@ static void schedulerDataPointSync() {
 // existing beginWiFiConnect()/updateWiFiConnectionState() pair whenever the
 // device is disconnected and no attempt is already in progress.
 static void schedulerWiFiReconnect() {
-  if (wifiEnabled && WiFi.status() != WL_CONNECTED && !wifiConnectInProgress) {
-    beginWiFiConnect();
-  }
+  if (!wifiEnabled || WiFi.status() == WL_CONNECTED || wifiConnectInProgress) return;
+  // While the setup portal is active, every STA connect attempt pulls the
+  // shared radio across channels and the SoftAP beacon becomes invisible to
+  // phones (AP+STA share one radio). Throttle the periodic retry to
+  // PORTAL_RECONNECT_INTERVAL_MS so the setup network stays joinable; the
+  // "configured network came back -> portal auto-closes" behavior is kept,
+  // just slower. Credentials submitted via /setup/connect bypass this by
+  // calling beginWiFiConnect() directly (1.0.7 fix).
+  if (portalActive && millis() - portalLastAttemptMs < PORTAL_RECONNECT_INTERVAL_MS) return;
+  beginWiFiConnect();
 }
 
 // 0.9.15: periodic background WiFi scan so the WebGUI network dropdown can
@@ -337,6 +344,13 @@ void loop() {
 
   updateWiFiConnectionState();
   serviceSetupPortal();  // captive DNS + auto-close the onboarding portal
+
+  // Restart requested via the WebGUI (1.0.7, see handleRestart()): the grace
+  // period lets the HTTP response reach the browser before the reboot.
+  if (restartPending && millis() - restartPendingAtMs >= RESTART_GRACE_MS) {
+    Logger::warning("[System] Neustart wird ausgefuehrt");
+    ESP.restart();
+  }
 
   int tx = 0, ty = 0;
   if (touchNewPress(tx, ty)) {

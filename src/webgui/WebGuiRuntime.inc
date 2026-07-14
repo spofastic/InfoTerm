@@ -29,16 +29,18 @@ String vpnStatusText();
 // =========================================================
 
 // HTTP Basic auth gate for mutating/sensitive routes (see Config.h for the
-// route list and WEBGUI_USER/WEBGUI_PASS). Read-only pages (/, /datapoints)
-// stay open so the dashboard remains glanceable.
+// route list). Read-only pages (/, /datapoints) stay open so the dashboard
+// remains glanceable. Since 1.0.7 the credentials are the runtime globals
+// webUser/webPass (NVS-stored, editable in the settings tab); the compile-time
+// WEBGUI_USER/WEBGUI_PASS are only their first-boot seeds.
 //
 // webAuthOk() only checks (no 401 challenge) - used inside multipart upload
 // callbacks to decide whether to accept streamed bytes. requireAuth() checks
 // and, on failure, sends the 401 challenge and returns false so the caller
-// can bail out. An empty WEBGUI_PASS disables the gate entirely.
+// can bail out. An empty webPass disables the gate entirely.
 static bool webAuthOk() {
-  if (strlen(WEBGUI_PASS) == 0) return true;
-  return server.authenticate(WEBGUI_USER, WEBGUI_PASS);
+  if (webPass.length() == 0) return true;
+  return server.authenticate(webUser.c_str(), webPass.c_str());
 }
 
 static bool requireAuth() {
@@ -531,6 +533,17 @@ void handleRoot() {
   page += "<div><label class='label'>Gateway</label><input name='ipGw' value='" + htmlEscape(staticGateway) + "' placeholder='192.168.1.1'></div>";
   page += "<div><label class='label'>" + String(TXTW(L_WEB_DNS)) + "</label><input name='ipDns' value='" + htmlEscape(staticDns) + "' placeholder='192.168.1.1'></div>";
   page += "</div></div>";
+  // WebGUI login (1.0.7): runtime credentials with the same write-only
+  // password semantics as the MQTT broker password above.
+  page += "<div class='settings-block' style='margin-top:16px;'><span class='settings-title'>" + String(TXTW(L_WEB_ACCESS_TITLE)) + "</span>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_ACCESS_DESC)) + "</div>";
+  page += "<div class='grid'>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_USER)) + "</label><input name='webUser' maxlength='24' value='" + htmlEscape(webUser) + "'></div>";
+  page += "<div><label class='label'>" + String(TXTW(L_WEB_PASSWORD)) + "</label><input name='webPass' type='password' value='' autocomplete='new-password' placeholder='" + String(webPass.length() > 0 ? TXTW(L_WEB_PASSWORD_KEEP_HINT) : "") + "'>";
+  if (webPass.length() > 0) {
+    page += "<label class='muted' style='display:flex;align-items:center;gap:6px;margin-top:6px;'><input type='checkbox' name='webPassClear' value='1' style='width:auto;'>" + String(TXTW(L_WEB_PASSWORD_CLEAR)) + "</label>";
+  }
+  page += "</div></div></div>";
   page += "<div style='margin-top:12px;'><button type='button' class='secondary-button' onclick='startPortal()'>" + String(TXTW(L_WEB_PORTAL_START)) + "</button></div>";
   page += "</div>";
 
@@ -587,8 +600,9 @@ void handleRoot() {
   page += "</div></div>";
 
   if (activeTab == "settings") {
-    page += "<div class='savebar' style='margin-bottom:22px;'>";
+    page += "<div class='savebar' style='margin-bottom:22px;display:flex;gap:10px;flex-wrap:wrap;'>";
     page += "<button type='submit'>" + String(TXTW(L_WEB_SAVE)) + "</button>";
+    page += "<button type='button' class='secondary-button' id='restartBtn' onclick='submitRestart()'>" + String(TXTW(L_WEB_RESTART)) + "</button>";
     page += "</div>";
   }
 
@@ -776,11 +790,14 @@ void handleRoot() {
   page += "wifiScanning:" + jsQuote(TXTW(L_JS_WIFI_SCANNING)) + ",";
   page += "wifiFound:" + jsQuote(TXTW(L_JS_WIFI_FOUND)) + ",";
   page += "wifiScanFailed:" + jsQuote(TXTW(L_JS_WIFI_SCAN_FAILED)) + ",";
-  page += "portalConfirm:" + jsQuote(TXTW(L_JS_PORTAL_CONFIRM));
+  page += "portalConfirm:" + jsQuote(TXTW(L_JS_PORTAL_CONFIRM)) + ",";
+  page += "restartConfirm:" + jsQuote(TXTW(L_JS_RESTART_CONFIRM)) + ",";
+  page += "restarting:" + jsQuote(TXTW(L_JS_RESTARTING));
   page += "};";
   page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
   page += "function scanWifi(){var res=document.getElementById('wifiScanResult');var dl=document.getElementById('wifiScanList');if(res)res.textContent=T.wifiScanning;fetch('/wifi/scan?csrf='+csrfToken,{method:'POST'}).then(function(r){return r.json();}).then(function(list){if(dl){dl.innerHTML='';list.forEach(function(n){var o=document.createElement('option');o.value=n;dl.appendChild(o);});}if(res)res.textContent=list.length+' '+T.wifiFound;}).catch(function(){if(res)res.textContent=T.wifiScanFailed;});}";
   page += "function startPortal(){if(!confirm(T.portalConfirm))return;fetch('/setup/start?csrf='+csrfToken,{method:'POST'}).catch(function(){});}";
+  page += "function submitRestart(){if(!confirm(T.restartConfirm))return;fetch('/restart?csrf='+csrfToken,{method:'POST'}).then(function(r){if(!r.ok)return;var b=document.getElementById('restartBtn');if(b){b.disabled=true;b.textContent=T.restarting;}setTimeout(function(){location.href='/?tab=settings';},20000);}).catch(function(){});}";
   page += "function mqttRowAction(path,idx,dir){var p=new URLSearchParams();p.append('idx',idx);if(dir)p.append('dir',dir);p.append('csrf',csrfToken);fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=mqtt';}).catch(function(){});}";
   page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert(T.backupSelect);return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert(T.restoreFailed);});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert(T.fwSelect);return;}if(!confirm(T.fwConfirm)){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent=T.uploading+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent=T.updateOk;setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);}};xhr.onerror=function(){if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);};if(status)status.textContent=T.uploading+'0%';xhr.send(fd);}";
   page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
@@ -1427,6 +1444,20 @@ void handleSave() {
     postedMqttPass.trim();
     if (postedMqttPass.length() > 0) newMqttPass = postedMqttPass;
   }
+  // WebGUI login (1.0.7): same write-only password semantics as above. An
+  // empty username field keeps the current one (never save an empty user).
+  String newWebUser = server.hasArg("webUser") ? server.arg("webUser") : webUser;
+  newWebUser.trim();
+  if (newWebUser.length() == 0) newWebUser = webUser;
+  if (newWebUser.length() > 24) newWebUser = newWebUser.substring(0, 24);
+  String newWebPass = webPass;
+  if (server.hasArg("webPassClear")) {
+    newWebPass = "";
+  } else if (server.hasArg("webPass")) {
+    String postedWebPass = server.arg("webPass");
+    postedWebPass.trim();
+    if (postedWebPass.length() > 0) newWebPass = postedWebPass;
+  }
   String newMqttTopic = server.hasArg("mqttTopic") ? server.arg("mqttTopic") : mqttWeatherflowTopic;
   String newMqttLabels[MQTT_VALUE_COUNT];
   String newMqttTopics[MQTT_VALUE_COUNT];
@@ -1550,6 +1581,10 @@ void handleSave() {
   }
 
   deviceName = newNickname;
+  // A changed login applies to the NEXT request: this response still goes
+  // out, then the browser re-prompts (401) with the new credentials.
+  webUser = newWebUser;
+  webPass = newWebPass;
   wifiActiveIndex = newWifiActiveIndex;
   for (int i = 0; i < WIFI_SLOT_COUNT; i++) {
     wifiSlotSsid[i] = newWifiSsid[i];
@@ -1753,6 +1788,17 @@ void handleSetupStart() {
   WiFi.disconnect();
 }
 
+// Restart button on the settings tab (1.0.7). Only sets the deferred-restart
+// flag - the actual ESP.restart() happens in loop() (see Application.inc)
+// after a short grace period so the HTTP response still reaches the browser.
+void handleRestart() {
+  if (!requireAuthAndCsrf()) return;
+  Logger::warning("[System] Neustart ueber WebGUI angefordert");
+  restartPending = true;
+  restartPendingAtMs = millis();
+  server.send(200, "text/plain", "OK");
+}
+
 void handleNotFound() {
   // While the portal is active, redirect every unknown request to the portal
   // page so OS captive-portal probes pop the setup page automatically.
@@ -1770,6 +1816,7 @@ void setupWebServer() {
   server.on("/setup/scan", HTTP_GET, handleSetupScan);
   server.on("/setup/connect", HTTP_POST, handleSetupConnect);
   server.on("/setup/start", HTTP_POST, handleSetupStart);
+  server.on("/restart", HTTP_POST, handleRestart);
   server.onNotFound(handleNotFound);
   server.on("/datapoints", HTTP_GET, handleDataPointsPage);
   server.on("/save", HTTP_POST, handleSave);

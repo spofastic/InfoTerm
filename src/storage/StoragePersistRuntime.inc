@@ -38,6 +38,8 @@ void persistGeneralConfiguration() {
     cfgPutString(String("wifiSsid") + String(i), wifiSlotSsid[i]);
     cfgPutString(String("wifiPass") + String(i), wifiSlotPass[i]);
   }
+  cfgPutString("webUser", webUser);
+  cfgPutString("webPass", webPass);
   cfgPutString("ipMode", ipMode);
   cfgPutString("ipStatic", staticIp);
   cfgPutString("ipGw", staticGateway);

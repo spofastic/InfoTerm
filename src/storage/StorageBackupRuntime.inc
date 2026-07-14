@@ -87,6 +87,9 @@ bool serializeConfigurationToJson(String& jsonOut) {
   general["mqttPort"] = mqttPort;
   general["mqttUser"] = mqttUser;
   general["mqttTopic"] = mqttWeatherflowTopic;
+  // WebGUI login (1.0.7): the username is exported like mqttUser; the
+  // password is a secret and deliberately NOT exported (see note above).
+  general["webUser"] = webUser;
 
   doc["mqttValueCount"] = mqttValueCount;
   JsonArray mqttValues = doc["mqttValues"].to<JsonArray>();
@@ -209,6 +212,12 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
     if (v && *v) mqttPass = v;  // see secret-restore note above
   }
   mqttWeatherflowTopic = general["mqttTopic"] | mqttWeatherflowTopic;
+  {
+    const char* v = general["webUser"];
+    if (v && *v) webUser = v;  // never restore an empty username
+    v = general["webPass"];
+    if (v && *v) webPass = v;  // secret-restore note above: normal exports never carry it
+  }
 
   mqttValueCount = constrain((int)(doc["mqttValueCount"] | mqttValueCount), 1, MQTT_VALUE_MAX);
   JsonArray mqttValues = doc["mqttValues"];

@@ -84,6 +84,10 @@ void loadStoredSettings() {
     wifiSlotSsid[i] = cfgGetString(kS, kS, seedSsid);
     wifiSlotPass[i] = cfgGetString(kP, kP, seedPass);
   }
+  // WebGUI login (1.0.7): runtime credentials, seeded from the compile-time
+  // WEBGUI_USER/WEBGUI_PASS on first boot, then editable in the WebGUI.
+  webUser = cfgGetString("webUser", "webUser", WEBGUI_USER);
+  webPass = cfgGetString("webPass", "webPass", WEBGUI_PASS);
   ipMode           = cfgGetString("ipMode", "ipMode", INFOTERM_IP_MODE);
   staticIp         = cfgGetString("ipStatic", "ipStatic", INFOTERM_STATIC_IP);
   staticGateway    = cfgGetString("ipGw", "ipGw", INFOTERM_STATIC_GATEWAY);

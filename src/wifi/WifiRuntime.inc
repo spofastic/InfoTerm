@@ -132,6 +132,10 @@ void startWifiAttempt(int index) {
   WiFi.begin(wifiSlotSsid[wifiAttemptIndex].c_str(), wifiSlotPass[wifiAttemptIndex].c_str());
   wifiConnectInProgress = true;
   wifiConnectStartedMs = millis();
+  // Every attempt start restarts the portal's quiet window (see
+  // schedulerWiFiReconnect) so the SoftAP gets PORTAL_RECONNECT_INTERVAL_MS
+  // minus the attempt duration of undisturbed beacon time between retries.
+  if (portalActive) portalLastAttemptMs = millis();
   Logger::info(String("[WiFi] Verbindungsversuch: ") + wifiSlotSsid[wifiAttemptIndex]);
 }
 
@@ -206,6 +210,10 @@ void updateWiFiConnectionState() {
       return;
     }
     wifiConnectInProgress = false;
+    // While the portal is active, idle the STA after a failed cycle so the
+    // setup AP beacons stay on a stable channel until the next throttled
+    // retry (see startSetupPortal for the full explanation).
+    if (portalActive) WiFi.disconnect();
     dataDirty = true;  // status change only (see reconnect note above)
   }
 }
@@ -217,6 +225,19 @@ void updateWiFiConnectionState() {
 void startSetupPortal() {
   if (portalActive) return;
   portalActive = true;
+  // Give the phone a full quiet window to find and join the AP before the
+  // first throttled STA retry (see schedulerWiFiReconnect).
+  portalLastAttemptMs = millis();
+  // The Arduino core retries a failed connect ENDLESSLY on its own:
+  // NO_AP_FOUND is a "reconnectable reason" in WiFiGeneric.cpp and
+  // auto-reconnect defaults to on, so after one WiFi.begin() against an
+  // unreachable network the core keeps rescanning all channels forever.
+  // AP+STA share one radio - those background scans drag the beacon off the
+  // portal's channel and clients fail to associate even though they can see
+  // the SSID. Silence the STA while the portal is up; retries happen only
+  // via the throttled schedulerWiFiReconnect().
+  WiFi.setAutoReconnect(false);
+  WiFi.disconnect();
   String mac = WiFi.macAddress();
   mac.replace(":", "");
   String suffix = mac.length() >= 4 ? mac.substring(mac.length() - 4) : "";
@@ -233,6 +254,7 @@ void startSetupPortal() {
 void stopSetupPortal() {
   if (!portalActive) return;
   portalActive = false;
+  WiFi.setAutoReconnect(true);  // restore the normal core behavior
   dnsServer.stop();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
