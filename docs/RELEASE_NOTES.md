@@ -2,8 +2,8 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.7**  
-Diese Version: **1.0.8** (in Entwicklung)
+Aktuelle stabile Basis: **1.0.8**  
+Diese Version: **1.0.8** (stable)
 
 1.0.8 Nachtmodus-Ausbau: neues Dropdown "Nacht-Helligkeit" im Design-Tab
 (10/25/50/75/100 %, Standard 25 %) - solange die Nachtpalette aktiv ist,
