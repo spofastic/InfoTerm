@@ -257,7 +257,10 @@ void setup() {
   registerBuiltInDataPoints();
   syncDataPointsFromRuntime();
   InfoTermDataPoints::updateRuntimeValues();
-  setBacklight(BL_FULL);
+  // loadStoredSettings() above already decided nightModeActive (usually
+  // false right after boot until the first weather fetch delivers
+  // sunrise/sunset - checkNightModeTransition() dims later in that case).
+  setBacklight(awakeBacklightLevel());
   lastInteractionMs = millis();
 
   delay(200);

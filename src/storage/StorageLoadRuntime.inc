@@ -102,6 +102,8 @@ void loadStoredSettings() {
   vpnAllowedIps    = cfgGetString("vpnAllowed", "vpnAllowed", "");
   vpnName          = cfgGetString("vpnName", "vpnName", "");
   nightModeEnabled = cfgGetBool("nightMode", "nightMode", false);
+  nightModeForced = cfgGetBool("nightForce", "nightForce", false);
+  nightBrightnessPct = constrain(cfgGetInt("nightBrightPct", "nightBrightPct", 25), 10, 100);
   displayRotated180 = cfgGetBool("rotate180", "rotate180", false);
   tabCycleEnabled = cfgGetBool("tabCycle", "tabCycle", false);
   tabCycleIntervalSec = cfgGetInt("tabCycleSec", "tabCycleSec", 60);
@@ -169,8 +171,9 @@ void loadStoredSettings() {
   // sunriseMin/sunsetMin are still -1 this early (no weather fetch yet), so
   // isNightNow() will be false right after boot even during a real night
   // window; checkNightModeTransition() (schedulerWeatherUpdate) corrects
-  // this within DATA_TICK_MS of the first successful weather fetch.
-  nightModeActive = nightModeEnabled && isNightNow();
+  // this within DATA_TICK_MS of the first successful weather fetch. A
+  // persisted nightModeForced activates the overlay immediately, though.
+  nightModeActive = shouldNightBeActive();
   if (nightModeActive) applyNightModeColors();
 
   // If this device only has legacy Preference keys, migrate the currently

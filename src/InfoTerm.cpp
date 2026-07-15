@@ -165,8 +165,16 @@ String widgetBgColorKey = "theme";
 bool widgetBordersEnabled = true;
 bool nightModeEnabled = false;  // persisted - user opt-in for the feature
 bool nightModeActive = false;   // runtime-only - whether the red overlay is
-                                 // currently applied; never persisted so a
-                                 // reboot always starts in day colors
+                                 // currently applied; never persisted, a
+                                 // reboot re-derives it (day colors unless
+                                 // nightModeForced is set)
+int nightBrightnessPct = 25;    // persisted - awake backlight level (percent)
+                                 // while the night palette is active; valid
+                                 // values 10/25/50/75/100
+bool nightModeForced = false;   // persisted - "Nachtmodus erzwingen": night
+                                 // palette + dimming active regardless of the
+                                 // sunset/sunrise window (also for daytime
+                                 // testing of the night settings)
 String unitKey = "metric"; // metric = C/mm, imperial = F/in
 String regionFormatKey = "europe"; // europe = 24h + dd.mm.yyyy, us = 12h + mm/dd/yyyy
 String timezoneKey = "europe_central";
@@ -792,6 +800,14 @@ const int BL_OFF  = 0;
 const int FLASH_BL_LOW = 20;
 const int FLASH_BL_HIGH = 255;
 
+// Awake-state backlight level: while the night palette is active the panel
+// is dimmed to the persisted percentage, otherwise full brightness. Sleep
+// dim/off (BL_DIM/BL_OFF) are separate states and continue to apply on top.
+int awakeBacklightLevel() {
+  if (!nightModeActive) return BL_FULL;
+  return constrain((nightBrightnessPct * BL_FULL) / 100, BL_DIM, BL_FULL);
+}
+
 
 // Forward declarations needed by Arduino IDE / ESP32 core 3.x
 void setBacklight(int value);
@@ -1261,6 +1277,10 @@ void applyNightModeColors() {
   // instead of pure TFT_RED - full-brightness red rendered visibly
   // orange-ish on this ST7789 panel; the lower brightness plus a touch of
   // blue removes the orange cast.
+  // 1.0.8 (user request): text considerably darker - blended toward black
+  // instead of the former 15% lightening; COL_DIM pushed further down so
+  // primary and secondary text stay distinguishable. On top of that the
+  // backlight itself is dimmed at night (see awakeBacklightLevel()).
   const uint16_t base = 0xB004;
   COL_BG        = TFT_BLACK;
   COL_PANEL     = TFT_BLACK;
@@ -1269,8 +1289,8 @@ void applyNightModeColors() {
   COL_BUTTON_BG = TFT_BLACK;
   COL_STROKE    = mixRgb565(base, 0, 0, 0, 0.35f);
   COL_ACCENT    = mixRgb565(base, 0, 0, 0, 0.10f);
-  COL_TEXT      = mixRgb565(base, 255, 30, 60, 0.15f);
-  COL_DIM       = mixRgb565(base, 0, 0, 0, 0.45f);
+  COL_TEXT      = mixRgb565(base, 0, 0, 0, 0.35f);
+  COL_DIM       = mixRgb565(base, 0, 0, 0, 0.60f);
 }
 
 // sunriseMin/sunsetMin are -1 until the first successful weather fetch -
@@ -1280,16 +1300,28 @@ bool isNightNow() {
   return infoterm::isNightWindow(minutesNowLocal(), sunriseMin, sunsetMin);
 }
 
+// Single decision point for the night overlay: forced mode wins regardless
+// of the sun window (and independent of the auto checkbox, so daytime
+// testing needs only the one switch). Used by boot load, WebGUI save and
+// the periodic transition check alike.
+bool shouldNightBeActive() {
+  return nightModeForced || (nightModeEnabled && isNightNow());
+}
+
 // Periodic check (called from schedulerWeatherUpdate(), see Application.inc)
 // for the sunset/sunrise transition. Only acts on an actual state change -
 // toggling the feature checkbox itself and reasserting the night palette
 // after a WebGUI save are handled directly in handleSave()/loadStoredSettings().
 void checkNightModeTransition() {
-  bool shouldBeNight = nightModeEnabled && isNightNow();
+  bool shouldBeNight = shouldNightBeActive();
   if (shouldBeNight == nightModeActive) return;
   nightModeActive = shouldBeNight;
   if (nightModeActive) applyNightModeColors();
   else applyStoredDesignColors();
+  // Follow the transition with the matching panel brightness, but never
+  // override an active sleep dim/off state - those wake up through
+  // wakeDisplay(), which asks awakeBacklightLevel() itself.
+  if (!sleepDimmed && !sleepOff) setBacklight(awakeBacklightLevel());
   pageDirty = true;
 }
 

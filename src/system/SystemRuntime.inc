@@ -19,7 +19,7 @@ void wakeDisplay(bool clearManualMode) {
   sleepOff = false;
   if (clearManualMode) manualDimMode = false;
   lastInteractionMs = millis();
-  setBacklight(BL_FULL);
+  setBacklight(awakeBacklightLevel());
   pageDirty = true;
 }
 

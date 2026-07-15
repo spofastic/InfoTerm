@@ -3,7 +3,18 @@
 ## Aktueller Stand
 
 Aktuelle stabile Basis: **1.0.7**  
-Diese Version: **1.0.7** (stable, vollstaendig hardware-verifiziert)
+Diese Version: **1.0.8** (in Entwicklung)
+
+1.0.8 Nachtmodus-Ausbau: neues Dropdown "Nacht-Helligkeit" im Design-Tab
+(10/25/50/75/100 %, Standard 25 %) - solange die Nachtpalette aktiv ist,
+wird das Display-Backlight per PWM entsprechend gedimmt; die Sleep-Stufen
+(Dimmen/Aus) greifen unveraendert zusaetzlich. Ausserdem wird die Schrift
+im Nachtmodus deutlich dunkler dargestellt (Haupttext 35 % Richtung
+Schwarz statt 15 % aufgehellt, Sekundaertext 60 % statt 45 %). Neuer
+Schalter "Nachtmodus erzwingen" aktiviert die Nachtpalette samt Dimmung
+sofort auch tagsueber, unabhaengig vom Sonnenfenster (z. B. zum Testen
+oder fuer dauerhaft dunklen Betrieb). Alle Werte sind persistiert und
+Teil von Backup/Restore. Details siehe `CHANGELOG.md`.
 
 1.0.7 Setup-Portal-Fixes, Neustart-Button und oeffentliches Firmware-Binary:
 Das Setup-Portal ist jetzt praktisch nutzbar - das Display flimmert nicht

@@ -54,6 +54,8 @@ void persistGeneralConfiguration() {
   cfgPutString("vpnAllowed", vpnAllowedIps);
   cfgPutString("vpnName", vpnName);
   cfgPutBool("nightMode", nightModeEnabled);
+  cfgPutBool("nightForce", nightModeForced);
+  cfgPutInt("nightBrightPct", nightBrightnessPct);
   cfgPutBool("rotate180", displayRotated180);
   cfgPutBool("tabCycle", tabCycleEnabled);
   cfgPutInt("tabCycleSec", tabCycleIntervalSec);

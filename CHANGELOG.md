@@ -4,6 +4,38 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.8] — In Entwicklung
+
+### Added
+
+- **Wählbare Nacht-Helligkeit.** Im Design-Tab unter dem Nachtmodus-Schalter
+  gibt es ein neues Dropdown „Nacht-Helligkeit" (10 / 25 / 50 / 75 / 100 %,
+  Standard 25 %). Solange die Nachtpalette aktiv ist, wird das
+  Display-Backlight per PWM auf diesen Wert gedimmt (`awakeBacklightLevel()`);
+  beim Übergang zurück zum Tag, beim Aufwachen aus dem Sleep und nach dem
+  Speichern in der WebGUI wird der jeweils passende Wert gesetzt. Die
+  Sleep-Stufen (Dimmen/Aus) bleiben unverändert und greifen weiterhin
+  zusätzlich. Der Wert wird in NVS persistiert (`nightBrightPct`) und ist
+  Teil von Backup/Restore. Neue Sprachstrings in allen 8 Sprachen.
+- **Schalter „Nachtmodus erzwingen".** Neuer Schalter im Design-Tab zwischen
+  Nachtmodus und Nacht-Helligkeit: aktiviert die Nachtpalette samt Dimmung
+  sofort und unabhängig vom Sonnenauf-/-untergangsfenster — auch tagsüber,
+  z. B. zum Testen der Nachtmodus-Einstellungen oder für dauerhaft dunklen
+  Betrieb. Wirkt unabhängig vom Automatik-Häkchen (ein Schalter genügt),
+  wird persistiert (`nightForce`, überlebt Reboots) und ist Teil von
+  Backup/Restore. Die Nacht/Tag-Entscheidung läuft jetzt zentral über
+  `shouldNightBeActive()` (Boot, WebGUI-Speichern und periodischer
+  Übergangs-Check nutzen dieselbe Logik).
+
+### Changed
+
+- **Nachtmodus-Schrift deutlich dunkler.** Der Haupttext der Nachtpalette
+  wird nicht mehr um 15 % aufgehellt, sondern um 35 % Richtung Schwarz
+  abgedunkelt (Basiston bleibt Crimson rgb(176,0,32)); Sekundärtext
+  (`COL_DIM`) geht von 45 % auf 60 % Richtung Schwarz, damit Haupt- und
+  Zweittext unterscheidbar bleiben. Zusammen mit dem gedimmten Backlight
+  ergibt das ein erheblich dunkleres Nachtbild.
+
 ## [1.0.7] — Stable
 
 ### Added

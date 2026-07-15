@@ -318,6 +318,8 @@ void handleRoot() {
   String widgetBg = cfgGetString("widgetBg", "widgetBg", "theme");
   bool webWidgetBordersEnabled = widgetBordersEnabled;
   bool webNightModeEnabled = nightModeEnabled;
+  bool webNightModeForced = nightModeForced;
+  int webNightBrightnessPct = nightBrightnessPct;
   bool webDisplayRotated180 = displayRotated180;
   String units  = unitKey;
   String region = regionFormatKey;
@@ -648,6 +650,15 @@ void handleRoot() {
   page += "<div style='grid-column:1 / -1;' class='color-stack'>";
   page += "<b>" + String(TXTW(L_WEB_NIGHT_MODE)) + "</b>";
   page += "<label class='switch-row'><input type='checkbox' name='nightMode' value='1'" + String(webNightModeEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_NIGHT_MODE_HINT)) + "</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_NIGHT_FORCE)) + "</b>";
+  page += "<label class='switch-row'><input type='checkbox' name='nightForce' value='1'" + String(webNightModeForced ? " checked" : "") + "><small>" + String(TXTW(L_WEB_NIGHT_FORCE_HINT)) + "</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_NIGHT_BRIGHTNESS)) + "</b>";
+  page += "<label class='switch-row'><select name='nightBrightness'>";
+  const int nightBrightnessSteps[] = {10, 25, 50, 75, 100};
+  for (int nb : nightBrightnessSteps) {
+    page += "<option value='" + String(nb) + "'" + String(webNightBrightnessPct == nb ? " selected" : "") + ">" + String(nb) + " %</option>";
+  }
+  page += "</select><small>" + String(TXTW(L_WEB_NIGHT_BRIGHTNESS_HINT)) + "</small></label>";
   page += "<b>" + String(TXTW(L_WEB_WIDGET_BORDER)) + "</b>";
   page += "<label class='switch-row'><input type='checkbox' name='widgetBorder' value='1'" + String(webWidgetBordersEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_WIDGET_BORDER_HINT)) + "</small></label>";
   page += "<b>" + String(TXTW(L_WEB_ROTATE)) + "</b>";
@@ -1541,6 +1552,12 @@ void handleSave() {
   Logger::setLevel(logLevelValue);
   widgetBordersEnabled = server.hasArg("widgetBorder");
   bool newNightMode = server.hasArg("nightMode");
+  bool newNightForce = server.hasArg("nightForce");
+  int newNightBrightness = server.hasArg("nightBrightness") ? server.arg("nightBrightness").toInt() : nightBrightnessPct;
+  if (newNightBrightness != 10 && newNightBrightness != 25 && newNightBrightness != 50 &&
+      newNightBrightness != 75 && newNightBrightness != 100) {
+    newNightBrightness = 25;
+  }
   bool newRotate180 = server.hasArg("rotate180");
   bool newFlashMode = false;
 
@@ -1655,9 +1672,11 @@ void handleSave() {
   // already-active night overlay if this save happens during a real night
   // window.
   nightModeEnabled = newNightMode;
-  nightModeActive = nightModeEnabled && isNightNow();
+  nightModeForced = newNightForce;
+  nightBrightnessPct = newNightBrightness;
+  nightModeActive = shouldNightBeActive();
   if (nightModeActive) applyNightModeColors();
-  if (!sleepDimmed && !sleepOff) setBacklight(BL_FULL);
+  if (!sleepDimmed && !sleepOff) setBacklight(awakeBacklightLevel());
 
   // Apply a rotation change immediately - must run before
   // persistRuntimeConfiguration() (which persists the globals' current

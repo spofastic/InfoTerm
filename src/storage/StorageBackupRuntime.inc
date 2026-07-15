@@ -78,6 +78,8 @@ bool serializeConfigurationToJson(String& jsonOut) {
   general["vpnAllowedIps"] = vpnAllowedIps;
   general["vpnName"] = vpnName;
   general["nightMode"] = nightModeEnabled;
+  general["nightForce"] = nightModeForced;
+  general["nightBrightPct"] = nightBrightnessPct;
   general["rotate180"] = displayRotated180;
   general["tabCycle"] = tabCycleEnabled;
   general["tabCycleSec"] = tabCycleIntervalSec;
@@ -199,6 +201,8 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
   vpnAllowedIps = general["vpnAllowedIps"] | vpnAllowedIps;
   vpnName = general["vpnName"] | vpnName;
   nightModeEnabled = general["nightMode"] | nightModeEnabled;
+  nightModeForced = general["nightForce"] | nightModeForced;
+  nightBrightnessPct = constrain((int)(general["nightBrightPct"] | nightBrightnessPct), 10, 100);
   displayRotated180 = general["rotate180"] | displayRotated180;
   tabCycleEnabled = general["tabCycle"] | tabCycleEnabled;
   tabCycleIntervalSec = general["tabCycleSec"] | tabCycleIntervalSec;

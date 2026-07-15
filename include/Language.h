@@ -197,6 +197,10 @@ enum LanguageKey {
   // --- Design tab ---
   L_WEB_NIGHT_MODE,
   L_WEB_NIGHT_MODE_HINT,
+  L_WEB_NIGHT_FORCE,
+  L_WEB_NIGHT_FORCE_HINT,
+  L_WEB_NIGHT_BRIGHTNESS,
+  L_WEB_NIGHT_BRIGHTNESS_HINT,
   L_WEB_WIDGET_BORDER,
   L_WEB_WIDGET_BORDER_HINT,
   L_WEB_ROTATE,
@@ -463,6 +467,10 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   // --- Design tab ---
   {{"Nachtmodus", "Night mode", "Mode nuit", "Modo nocturno", "Modalità notte", "Ночной режим", "नाइट मोड", "夜间模式"}},
   {{"Automatisch zwischen Sonnenuntergang und -aufgang auf gedämpfte Rottöne umschalten", "Automatically switch to dimmed red tones between sunset and sunrise", "Passer automatiquement à des tons rouges atténués entre le coucher et le lever du soleil", "Cambiar automáticamente a tonos rojos atenuados entre el atardecer y el amanecer", "Passa automaticamente a toni rossi attenuati tra il tramonto e l'alba", "Автоматически переключаться на приглушённые красные тона между закатом и восходом", "सूर्यास्त और सूर्योदय के बीच स्वचालित रूप से मंद लाल रंगों में बदलें", "在日落和日出之间自动切换为柔和的红色调"}},
+  {{"Nachtmodus erzwingen", "Force night mode", "Forcer le mode nuit", "Forzar modo nocturno", "Forza modalità notte", "Принудительный ночной режим", "नाइट मोड बाध्य करें", "强制夜间模式"}},
+  {{"Nachtmodus sofort aktivieren, auch tagsüber (unabhängig von Sonnenauf- und -untergang)", "Activate night mode immediately, even during the day (ignores sunrise and sunset)", "Activer immédiatement le mode nuit, même en journée (ignore le lever et le coucher du soleil)", "Activar el modo nocturno de inmediato, incluso de día (ignora el amanecer y el atardecer)", "Attiva subito la modalità notte, anche di giorno (ignora alba e tramonto)", "Включить ночной режим сразу, даже днём (независимо от восхода и заката)", "नाइट मोड तुरंत सक्रिय करें, दिन में भी (सूर्योदय और सूर्यास्त की परवाह किए बिना)", "立即启用夜间模式，即使在白天（忽略日出和日落）"}},
+  {{"Nacht-Helligkeit", "Night brightness", "Luminosité nocturne", "Brillo nocturno", "Luminosità notturna", "Ночная яркость", "रात की चमक", "夜间亮度"}},
+  {{"Display-Helligkeit, solange der Nachtmodus aktiv ist", "Display brightness while night mode is active", "Luminosité de l'écran tant que le mode nuit est actif", "Brillo de la pantalla mientras el modo nocturno está activo", "Luminosità del display quando la modalità notte è attiva", "Яркость дисплея, пока активен ночной режим", "जब नाइट मोड सक्रिय हो तब डिस्प्ले की चमक", "夜间模式激活时的显示亮度"}},
   {{"Rahmen um Widgets", "Widget borders", "Bordures des widgets", "Bordes de widgets", "Bordi dei widget", "Рамки виджетов", "विजेट बॉर्डर", "小部件边框"}},
   {{"Rahmen auf Display-Widgets anzeigen", "Show borders on display widgets", "Afficher les bordures sur les widgets de l'écran", "Mostrar bordes en los widgets de la pantalla", "Mostra i bordi sui widget del display", "Показывать рамки на виджетах дисплея", "डिस्प्ले विजेट पर बॉर्डर दिखाएँ", "在显示屏小部件上显示边框"}},
   {{"Anzeige drehen", "Rotate display", "Pivoter l'affichage", "Girar pantalla", "Ruota display", "Повернуть дисплей", "डिस्प्ले घुमाएँ", "旋转显示"}},
