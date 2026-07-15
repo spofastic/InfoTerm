@@ -317,6 +317,7 @@ void handleRoot() {
   String buttonBg = cfgGetString("buttonBg", "buttonBg", "theme");
   String widgetBg = cfgGetString("widgetBg", "widgetBg", "theme");
   bool webWidgetBordersEnabled = widgetBordersEnabled;
+  String webWidgetFontKey = widgetFontKey;
   bool webNightModeEnabled = nightModeEnabled;
   bool webNightModeForced = nightModeForced;
   int webNightBrightnessPct = nightBrightnessPct;
@@ -661,6 +662,12 @@ void handleRoot() {
   page += "</select><small>" + String(TXTW(L_WEB_NIGHT_BRIGHTNESS_HINT)) + "</small></label>";
   page += "<b>" + String(TXTW(L_WEB_WIDGET_BORDER)) + "</b>";
   page += "<label class='switch-row'><input type='checkbox' name='widgetBorder' value='1'" + String(webWidgetBordersEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_WIDGET_BORDER_HINT)) + "</small></label>";
+  page += "<b>" + String(TXTW(L_WEB_WIDGET_FONT)) + "</b>";
+  page += "<label class='switch-row'><select name='widgetFont'>";
+  page += "<option value='small'" + String(webWidgetFontKey == "small" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_SMALL)) + "</option>";
+  page += "<option value='normal'" + String(webWidgetFontKey == "normal" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_NORMAL)) + "</option>";
+  page += "<option value='large'" + String(webWidgetFontKey == "large" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_LARGE)) + "</option>";
+  page += "</select><small>" + String(TXTW(L_WEB_WIDGET_FONT_HINT)) + "</small></label>";
   page += "<b>" + String(TXTW(L_WEB_ROTATE)) + "</b>";
   page += "<label class='switch-row'><input type='checkbox' name='rotate180' value='1'" + String(webDisplayRotated180 ? " checked" : "") + "><small>" + String(TXTW(L_WEB_ROTATE_HINT)) + "</small></label>";
 
@@ -1551,6 +1558,12 @@ void handleSave() {
   logLevelValue = constrain(server.hasArg("logLevel") ? server.arg("logLevel").toInt() : logLevelValue, 0, 3);
   Logger::setLevel(logLevelValue);
   widgetBordersEnabled = server.hasArg("widgetBorder");
+  if (server.hasArg("widgetFont")) {
+    String newWidgetFont = server.arg("widgetFont");
+    if (newWidgetFont == "small" || newWidgetFont == "normal" || newWidgetFont == "large") {
+      widgetFontKey = newWidgetFont;
+    }
+  }
   bool newNightMode = server.hasArg("nightMode");
   bool newNightForce = server.hasArg("nightForce");
   int newNightBrightness = server.hasArg("nightBrightness") ? server.arg("nightBrightness").toInt() : nightBrightnessPct;

@@ -163,6 +163,11 @@ String menuBgColorKey = "theme";
 String buttonBgColorKey = "theme";
 String widgetBgColorKey = "theme";
 bool widgetBordersEnabled = true;
+String widgetFontKey = "normal"; // persisted - "Widget-Schriftgröße":
+                                 // small = font 2 (16 px), normal = font 4
+                                 // (26 px), large = font 2 at 2x scale
+                                 // (32 px); large values too wide for the
+                                 // card fall back to normal per widget
 bool nightModeEnabled = false;  // persisted - user opt-in for the feature
 bool nightModeActive = false;   // runtime-only - whether the red overlay is
                                  // currently applied; never persisted, a

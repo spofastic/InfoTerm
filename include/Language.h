@@ -293,6 +293,13 @@ enum LanguageKey {
   // --- WebGUI login settings (1.0.7) ---
   L_WEB_ACCESS_TITLE,
   L_WEB_ACCESS_DESC,
+  // --- Free heap DataPoint + widget font size (1.0.9) ---
+  L_STATUS_FREEHEAP,
+  L_WEB_WIDGET_FONT,
+  L_WEB_WIDGET_FONT_HINT,
+  L_WEB_FONT_NORMAL,
+  L_WEB_FONT_LARGE,
+  L_WEB_FONT_SMALL,
   L_COUNT
 };
 
@@ -561,6 +568,12 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"Neustart läuft – die Seite lädt in ca. 20 Sekunden neu ...", "Restarting – the page will reload in about 20 seconds ...", "Redémarrage – la page se rechargera dans environ 20 secondes ...", "Reiniciando – la página se recargará en unos 20 segundos ...", "Riavvio in corso – la pagina si ricaricherà tra circa 20 secondi ...", "Перезапуск – страница обновится примерно через 20 секунд ...", "पुनः प्रारंभ हो रहा है – पेज लगभग 20 सेकंड में फिर से लोड होगा ...", "正在重启 – 页面将在约 20 秒后重新加载……"}},
   {{"WebGUI-Zugang", "WebGUI access", "Accès WebGUI", "Acceso WebGUI", "Accesso WebGUI", "Доступ к WebGUI", "WebGUI एक्सेस", "WebGUI 访问"}},
   {{"Benutzername und Passwort für die Anmeldung an dieser Oberfläche. Leeres Passwort deaktiviert die Anmeldung.", "Username and password for logging in to this interface. An empty password disables the login.", "Nom d'utilisateur et mot de passe pour la connexion à cette interface. Un mot de passe vide désactive la connexion.", "Usuario y contraseña para iniciar sesión en esta interfaz. Una contraseña vacía desactiva el inicio de sesión.", "Nome utente e password per l'accesso a questa interfaccia. Una password vuota disattiva il login.", "Имя пользователя и пароль для входа в этот интерфейс. Пустой пароль отключает вход.", "इस इंटरफ़ेस में लॉगिन के लिए उपयोगकर्ता नाम और पासवर्ड। खाली पासवर्ड लॉगिन को निष्क्रिय कर देता है।", "用于登录此界面的用户名和密码。密码为空将禁用登录。"}},
+  {{"Freier Speicher", "Free heap", "Mémoire libre", "Memoria libre", "Memoria libera", "Свободная память", "मुक्त मेमोरी", "可用内存"}},
+  {{"Widget-Schriftgröße", "Widget font size", "Taille de police des widgets", "Tamaño de fuente de widgets", "Dimensione carattere widget", "Размер шрифта виджетов", "विजेट फ़ॉन्ट आकार", "小部件字体大小"}},
+  {{"Schriftgröße der Widget-Werte auf dem Display. Bei „Groß“ fallen zu breite Werte automatisch auf Normal zurück.", "Font size of the widget values on the display. With “Large”, values that are too wide automatically fall back to normal.", "Taille de police des valeurs des widgets à l'écran. Avec « Grand », les valeurs trop larges reviennent automatiquement à la taille normale.", "Tamaño de fuente de los valores de los widgets en la pantalla. Con «Grande», los valores demasiado anchos vuelven automáticamente al tamaño normal.", "Dimensione del carattere dei valori dei widget sul display. Con “Grande”, i valori troppo larghi tornano automaticamente alla dimensione normale.", "Размер шрифта значений виджетов на дисплее. При выборе «Крупный» слишком широкие значения автоматически возвращаются к обычному размеру.", "डिस्प्ले पर विजेट मानों का फ़ॉन्ट आकार। “बड़ा” चुनने पर बहुत चौड़े मान स्वतः सामान्य आकार में दिखते हैं।", "显示屏上小部件数值的字体大小。选择“大”时，过宽的数值会自动恢复为正常大小。"}},
+  {{"Normal", "Normal", "Normale", "Normal", "Normale", "Обычный", "सामान्य", "正常"}},
+  {{"Groß", "Large", "Grand", "Grande", "Grande", "Крупный", "बड़ा", "大"}},
+  {{"Klein", "Small", "Petit", "Pequeño", "Piccolo", "Мелкий", "छोटा", "小"}},
 };
 
 static_assert(sizeof(LANGUAGE_TABLE) / sizeof(LANGUAGE_TABLE[0]) == L_COUNT,

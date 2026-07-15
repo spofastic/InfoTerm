@@ -2,8 +2,17 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.8**  
-Diese Version: **1.0.8** (stable)
+Aktuelle stabile Basis: **1.0.9**  
+Diese Version: **1.0.9** (stable, vollstaendig hardware-verifiziert)
+
+1.0.9 Widget-Schriftgroesse + freeHeap-DataPoint: Neues Dropdown
+"Widget-Schriftgroesse" (Klein/Normal/Gross) im Design-Tab - "Klein"
+zeichnet die Widget-Werte in 16 px, "Normal" wie bisher in 26 px, "Gross"
+in 32 px; fuer "Gross" zu breite Werte fallen automatisch pro Widget auf
+Normal zurueck statt abgeschnitten zu werden. Layout und Widget-Anzahl
+bleiben unveraendert. Ausserdem neuer
+System-Datenpunkt `system.freeHeap` (freier Heap in KB) fuer den
+DataPoints-Tab und als Widget. Details siehe `CHANGELOG.md`.
 
 1.0.8 Nachtmodus-Ausbau: neues Dropdown "Nacht-Helligkeit" im Design-Tab
 (10/25/50/75/100 %, Standard 25 %) - solange die Nachtpalette aktiv ist,

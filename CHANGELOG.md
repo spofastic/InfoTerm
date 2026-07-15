@@ -4,6 +4,23 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.9] — Stable
+
+### Added
+
+- **Wählbare Widget-Schriftgröße.** Neues Dropdown „Widget-Schriftgröße"
+  (Klein / Normal / Groß) im Design-Tab (Issue #1). „Klein" zeichnet die
+  Widget-Werte in 16 px (Font 2), „Normal" wie bisher in 26 px (Font 4),
+  „Groß" in 32 px (Font 2 mit 2×-Skalierung); Werte, die für „Groß" zu breit
+  für die 108-px-Karte sind, fallen automatisch pro Widget auf Normal zurück,
+  statt am Kartenrand abgeschnitten zu werden. Das Layout (Anzahl und Größe
+  der Widgets) bleibt unverändert; die Uhr-Karte ist nicht betroffen. Der
+  Wert wird in NVS persistiert (`widgetFont`) und ist Teil von
+  Backup/Restore. Neue Sprachstrings in allen 8 Sprachen.
+- **Freier Heap als System-DataPoint.** Neuer Datenpunkt `system.freeHeap`
+  (Issue #2) zeigt den freien Heap in KB im DataPoints-Tab und ist als Widget
+  auf Home/Tabs wählbar — für die Langzeitbeobachtung des Speicherverbrauchs.
+
 ## [1.0.8] — Stable
 
 ### Added

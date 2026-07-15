@@ -151,6 +151,7 @@ void registerBuiltInDataPoints() {
   dataPointManager.registerPoint("system.ip", TXT(L_STATUS_IP), "", DATA_SOURCE_SYSTEM);
   dataPointManager.registerPoint("system.uptime", TXT(L_STATUS_UPTIME), "", DATA_SOURCE_SYSTEM);
   dataPointManager.registerPoint("system.version", "Firmware", "", DATA_SOURCE_SYSTEM);
+  dataPointManager.registerPoint("system.freeHeap", TXT(L_STATUS_FREEHEAP), "KB", DATA_SOURCE_SYSTEM);
 
   for (int i = 0; i < mqttValueCount; i++) {
     String id = "mqtt." + String(i + 1);
@@ -171,6 +172,7 @@ void syncDataPointsFromRuntime() {
   dataPointManager.setValue("system.ip", ipText(), "", WiFi.status() == WL_CONNECTED);
   dataPointManager.setValue("system.uptime", uptimeText(), "", true);
   dataPointManager.setValue("system.version", String(INFOTERM_APP_VERSION), "", true);
+  dataPointManager.setValue("system.freeHeap", String(ESP.getFreeHeap() / 1024), "KB", true);
 
   for (int i = 0; i < mqttValueCount; i++) {
     String id = "mqtt." + String(i + 1);

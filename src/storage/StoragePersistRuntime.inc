@@ -14,6 +14,7 @@ void persistGeneralConfiguration() {
   cfgPutString("buttonBg", buttonBgColorKey);
   cfgPutString("widgetBg", widgetBgColorKey);
   cfgPutBool("widgetBorder", widgetBordersEnabled);
+  cfgPutString("widgetFont", widgetFontKey);
   cfgPutString("units", unitKey);
   cfgPutString("region", regionFormatKey);
   cfgPutString("lang", languageCode());

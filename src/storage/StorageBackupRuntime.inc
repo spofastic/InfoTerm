@@ -43,6 +43,7 @@ bool serializeConfigurationToJson(String& jsonOut) {
   general["buttonBg"] = buttonBgColorKey;
   general["widgetBg"] = widgetBgColorKey;
   general["widgetBorder"] = widgetBordersEnabled;
+  general["widgetFont"] = widgetFontKey;
   general["units"] = unitKey;
   general["region"] = regionFormatKey;
   general["lang"] = languageCode();
@@ -156,6 +157,7 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
   buttonBgColorKey = general["buttonBg"] | buttonBgColorKey;
   widgetBgColorKey = general["widgetBg"] | widgetBgColorKey;
   widgetBordersEnabled = general["widgetBorder"] | widgetBordersEnabled;
+  widgetFontKey = general["widgetFont"] | widgetFontKey;
   unitKey = general["units"] | unitKey;
   regionFormatKey = general["region"] | regionFormatKey;
   uiLanguage = languageFromCode(general["lang"] | String(languageCode()));

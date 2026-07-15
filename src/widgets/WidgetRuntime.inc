@@ -130,6 +130,31 @@ int drawWrappedTextLimited(int x, int y, int maxW, const String& text, int font,
   return y;
 }
 
+// Draws a widget value honoring the global font-size setting ("Widget-
+// Schriftgröße"): small = font 2 (16 px), normal = font 4 (26 px), large =
+// font 2 at 2x scale (32 px) at a fixed y so label (y=8, 16 px) + value stay
+// inside the 58 px card. A large value too wide for the card falls back to
+// the normal font for that widget instead of clipping at the sprite edge.
+// Returns the drawn pixel width so callers can append a suffix behind the
+// value.
+int drawWidgetValueString(TFT_eSprite& spr, const String& value, int x, int yNormal, int cardW) {
+  if (widgetFontKey == "small") {
+    spr.drawString(value, x, yNormal, 2);
+    return spr.textWidth(value, 2);
+  }
+  if (widgetFontKey == "large") {
+    int scaledW = spr.textWidth(value, 2) * 2;
+    if (scaledW <= cardW - x - 6) {
+      spr.setTextSize(2);
+      spr.drawString(value, x, 24, 2);
+      spr.setTextSize(1);
+      return scaledW;
+    }
+  }
+  spr.drawString(value, x, yNormal, 4);
+  return spr.textWidth(value, 4);
+}
+
 // =========================================================
 // HOME SPRITES
 // =========================================================
@@ -185,7 +210,7 @@ void drawClockCardSprite(bool force = false) {
 
 void drawMetricSprite(int x, int y, int w, int h, const char* label, const String& value, String& cache, bool force = false, const String& detail = "") {
   String combined = String(label) + "|" + value + "|" + detail + "|" + String(COL_PANEL) + "|" +
-                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(widgetBordersEnabled ? 1 : 0);
+                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(widgetBordersEnabled ? 1 : 0) + "|" + widgetFontKey;
 
   if (!force && combined == cache) return;
   cache = combined;
@@ -197,7 +222,7 @@ void drawMetricSprite(int x, int y, int w, int h, const char* label, const Strin
   sprSmall.drawString(label, 10, 8, 2);
 
   sprSmall.setTextColor(COL_TEXT, COL_PANEL);
-  sprSmall.drawString(value, 10, 31, 4);
+  drawWidgetValueString(sprSmall, value, 10, 31, w);
 
   if (detail.length() > 0) {
     sprSmall.setTextColor(COL_ACCENT, COL_PANEL);
@@ -209,7 +234,7 @@ void drawMetricSprite(int x, int y, int w, int h, const char* label, const Strin
 
 void drawWeatherStyleMetricSprite(int x, int y, int w, int h, const char* label, const String& value, String& cache, bool force = false, const String& detail = "") {
   String combined = String(label) + "|" + value + "|" + detail + "|" + String(COL_PANEL) + "|" +
-                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(widgetBordersEnabled ? 1 : 0);
+                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(widgetBordersEnabled ? 1 : 0) + "|" + widgetFontKey;
 
   if (!force && combined == cache) return;
   cache = combined;
@@ -221,7 +246,7 @@ void drawWeatherStyleMetricSprite(int x, int y, int w, int h, const char* label,
   sprSmall.drawString(label, 10, 8, 2);
 
   sprSmall.setTextColor(COL_TEXT, COL_PANEL);
-  sprSmall.drawString(value, 10, 28, 4);
+  drawWidgetValueString(sprSmall, value, 10, 28, w);
 
   if (detail.length() > 0) {
     sprSmall.setTextColor(COL_ACCENT, COL_PANEL);
@@ -235,7 +260,7 @@ void drawSunEventWidget(int x, int y, int w, int h, String& cache, bool force = 
   String label = nextSunLabel();
   String value = nextSunTimeText();
   String combined = label + "|" + value + "|" + String(COL_PANEL) + "|" +
-                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(COL_ACCENT) + "|" + String(widgetBordersEnabled ? 1 : 0);
+                    String(COL_STROKE) + "|" + String(COL_TEXT) + "|" + String(COL_ACCENT) + "|" + String(widgetBordersEnabled ? 1 : 0) + "|" + widgetFontKey;
 
   if (!force && combined == cache) return;
   cache = combined;
@@ -251,13 +276,15 @@ void drawSunEventWidget(int x, int y, int w, int h, String& cache, bool force = 
     int splitAt = value.lastIndexOf(' ');
     String mainValue = splitAt > 0 ? value.substring(0, splitAt) : value;
     String suffix = splitAt > 0 ? value.substring(splitAt + 1) : "";
-    sprSmall.drawString(mainValue, 10, 30, 4);
+    // Reserve room for the am/pm suffix in the large-font fit check so the
+    // suffix never clips at the card edge.
+    int mainW = drawWidgetValueString(sprSmall, mainValue, 10, 30, suffix.length() > 0 ? w - 26 : w);
     if (suffix.length() > 0) {
-      int suffixX = 10 + sprSmall.textWidth(mainValue, 4) + 3;
+      int suffixX = 10 + mainW + 3;
       sprSmall.drawString(suffix, suffixX, 35, 2);
     }
   } else {
-    sprSmall.drawString(value, 10, 30, 4);
+    drawWidgetValueString(sprSmall, value, 10, 30, w);
   }
 
   pushSpriteAndDelete(sprSmall, x, y);

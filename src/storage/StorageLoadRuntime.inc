@@ -17,6 +17,7 @@ void cleanupLegacyConfigKeys();
 void sanitizeGeneralConfig() {
   if (unitKey != "metric" && unitKey != "imperial") unitKey = "metric";
   if (regionFormatKey != "europe" && regionFormatKey != "us") regionFormatKey = "europe";
+  if (widgetFontKey != "small" && widgetFontKey != "normal" && widgetFontKey != "large") widgetFontKey = "normal";
 
   mqttHost.trim();
   mqttUser.trim();
@@ -61,6 +62,7 @@ void loadStoredSettings() {
   String buttonBg = cfgGetString("buttonBg", "buttonBg", "theme");
   String widgetBg = cfgGetString("widgetBg", "widgetBg", "theme");
   widgetBordersEnabled = cfgGetBool("widgetBorder", "widgetBorder", true);
+  widgetFontKey = cfgGetString("widgetFont", "widgetFont", "normal");
 
   deviceName    = cfgGetString("deviceName", "deviceName", "");
   locationName     = prefs.isKey(CFG_LOCATION_NAME_KEY) ? prefs.getString(CFG_LOCATION_NAME_KEY, "Berlin") : cfgGetString("locname", "locname", "Berlin");
