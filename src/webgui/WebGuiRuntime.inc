@@ -298,7 +298,7 @@ void handleRoot() {
   String query = server.hasArg("q") ? server.arg("q") : "";
   query.trim();
   String activeTab = server.hasArg("tab") ? server.arg("tab") : "home";
-  bool activeTabKnown = activeTab == "home" || activeTab == "mqtt" || activeTab == "settings" || activeTab == "design" || activeTab == "datapoints";
+  bool activeTabKnown = activeTab == "home" || activeTab == "mqtt" || activeTab == "settings" || activeTab == "design" || activeTab == "datapoints" || activeTab == "rss";
   if (!activeTabKnown) {
     for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
       if (activeTab == String("tab") + String(t + 1)) {
@@ -397,6 +397,7 @@ void handleRoot() {
   }
   page += "<a class='" + tabButtonClass(activeTab, "mqtt") + "' href='/?tab=mqtt' data-target-tab='mqtt'>MQTT</a>";
   page += "<a class='" + tabButtonClass(activeTab, "datapoints") + "' href='/?tab=datapoints' data-target-tab='datapoints'>" + String(TXTW(L_WEB_DATAPOINTS)) + "</a>";
+  page += "<a class='" + tabButtonClass(activeTab, "rss") + "' href='/?tab=rss' data-target-tab='rss'>RSS Feed</a>";
   page += "<a class='" + tabButtonClass(activeTab, "design") + "' href='/?tab=design' data-target-tab='design'>" + String(TXTW(L_WEB_THEME_TITLE)) + "</a>";
   page += "<a class='" + tabButtonClass(activeTab, "settings") + "' href='/?tab=settings' data-target-tab='settings'>" + String(TXTW(L_WEB_SETTINGS)) + "</a>";
   page += "</div>";
@@ -723,6 +724,38 @@ void handleRoot() {
   page += "</div>";
   page += "</div></div>";
 
+  // RSS feed editor (1.0.10, issue #7): same row-editor idea as the MQTT
+  // DataPoints table, capped at RSS_FEED_COUNT rows. Rows are part of the
+  // main save form; delete goes through POST /rss/delete like /mqtt/delete.
+  page += "<div class='" + tabPanelClass(activeTab, "rss") + "' data-panel='rss' data-tab='rss'>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_RSS_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<div class='panel-body'>";
+  page += "<div class='settings-block'><div class='settings-desc'>" + String(TXTW(L_WEB_RSS_DESC)) + "</div>";
+  page += "<input type='hidden' name='rssFeedCount' value='" + String(rssFeedCount) + "'>";
+  page += "<div class='datapoint-scroll'><table class='mqtt-config-table'><thead><tr><th></th><th>" + String(TXTW(L_WEB_RSS_URL)) + "</th><th>Status</th></tr></thead><tbody>";
+  for (int i = 0; i < rssFeedCount; i++) {
+    page += "<tr>";
+    page += "<td><div class='mqtt-row-actions'>";
+    page += "<button type='button' class='mqtt-trash' title='" + String(TXTW(L_WEB_RSS_DELETE_TITLE)) + "' onclick='if(confirm(T.rssDeleteConfirm))rssRowAction(" + String(i) + ")'>&#128465;</button>";
+    page += "</div></td>";
+    page += "<td><input type='text' name='rssUrl" + String(i) + "' maxlength='200' value='" + htmlEscape(rssFeedUrls[i]) + "' placeholder='https://...'></td>";
+    String rssStatus;
+    if (rssFeedUrls[i].length() == 0) rssStatus = "&ndash;";
+    else if (!rssFetchTried[i]) rssStatus = "...";
+    else if (rssFetchOk[i]) rssStatus = "&#10003; " + htmlEscape(rssFeedOptionLabel(i));
+    else rssStatus = "&#10007; " + String(TXTW(L_RSS_ERROR));
+    page += "<td class='muted'>" + rssStatus + "</td>";
+    page += "</tr>";
+    htmlFlush(page);
+  }
+  page += "</tbody></table></div>";
+  if (rssFeedCount < RSS_FEED_COUNT) {
+    page += "<button type='submit' class='secondary-button' name='rssAdd' value='1'>" + String(TXTW(L_WEB_RSS_ADD)) + "</button>";
+  }
+  page += "</div>";
+  page += "</div></div>";
+  htmlFlush(page);
+
   page += "<div class='" + tabPanelClass(activeTab, "home") + "' data-panel='widgets' data-tab='home'>";
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_WIDGETS_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
@@ -757,6 +790,22 @@ void handleRoot() {
     page += "<p class='muted'>" + String(TXTW(L_WEB_TAB_CFG_DESC)) + "</p>";
     page += "<div class='grid'>";
     page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_NAME)) + "</label><input name='tabName" + String(t) + "' maxlength='10' value='" + htmlEscape(customTabNames[t]) + "'></div>";
+    // Content selector (1.0.10, issue #7): the tab shows either its widget
+    // grid (DataPoints) or the newest entry of one configured RSS feed.
+    bool tabIsRss = (customTabContent[t] == "rss");
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_CONTENT)) + "</label><select name='tabContent" + String(t) + "'>";
+    page += "<option value='widgets'" + String(!tabIsRss ? " selected" : "") + ">" + String(TXTW(L_WEB_DATAPOINTS)) + "</option>";
+    page += "<option value='rss'" + String(tabIsRss ? " selected" : "") + ">" + String(TXTW(L_WEB_TAB_FEED)) + "</option>";
+    page += "</select></div>";
+    page += "<div><label class='label'>" + String(TXTW(L_WEB_TAB_FEED)) + "</label><select name='tabFeed" + String(t) + "'>";
+    if (rssFeedCount == 0) {
+      page += "<option value='0' selected>" + String(TXTW(L_RSS_NO_FEED)) + "</option>";
+    } else {
+      for (int f = 0; f < rssFeedCount; f++) {
+        page += "<option value='" + String(f) + "'" + String(customTabFeedIndex[t] == f ? " selected" : "") + ">" + String(f + 1) + ": " + htmlEscape(rssFeedOptionLabel(f)) + "</option>";
+      }
+    }
+    page += "</select></div>";
     page += "<label class='mqtt-check' style='align-self:end;'><input type='checkbox' name='tabEnabled" + String(t) + "' value='1'" + String(customTabEnabled[t] ? " checked" : "") + " style='width:auto;'>" + String(TXTW(L_WEB_ACTIVE)) + "</label>";
     page += "</div>";
     page += "<div class='settings-block'><span class='settings-title'>Widgets</span><div class='grid'>";
@@ -810,13 +859,15 @@ void handleRoot() {
   page += "wifiScanFailed:" + jsQuote(TXTW(L_JS_WIFI_SCAN_FAILED)) + ",";
   page += "portalConfirm:" + jsQuote(TXTW(L_JS_PORTAL_CONFIRM)) + ",";
   page += "restartConfirm:" + jsQuote(TXTW(L_JS_RESTART_CONFIRM)) + ",";
-  page += "restarting:" + jsQuote(TXTW(L_JS_RESTARTING));
+  page += "restarting:" + jsQuote(TXTW(L_JS_RESTARTING)) + ",";
+  page += "rssDeleteConfirm:" + jsQuote(TXTW(L_WEB_RSS_DELETE_CONFIRM));
   page += "};";
   page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
   page += "function scanWifi(){var res=document.getElementById('wifiScanResult');var dl=document.getElementById('wifiScanList');if(res)res.textContent=T.wifiScanning;fetch('/wifi/scan?csrf='+csrfToken,{method:'POST'}).then(function(r){return r.json();}).then(function(list){if(dl){dl.innerHTML='';list.forEach(function(n){var o=document.createElement('option');o.value=n;dl.appendChild(o);});}if(res)res.textContent=list.length+' '+T.wifiFound;}).catch(function(){if(res)res.textContent=T.wifiScanFailed;});}";
   page += "function startPortal(){if(!confirm(T.portalConfirm))return;fetch('/setup/start?csrf='+csrfToken,{method:'POST'}).catch(function(){});}";
   page += "function submitRestart(){if(!confirm(T.restartConfirm))return;fetch('/restart?csrf='+csrfToken,{method:'POST'}).then(function(r){if(!r.ok)return;var b=document.getElementById('restartBtn');if(b){b.disabled=true;b.textContent=T.restarting;}setTimeout(function(){location.href='/?tab=settings';},20000);}).catch(function(){});}";
   page += "function mqttRowAction(path,idx,dir){var p=new URLSearchParams();p.append('idx',idx);if(dir)p.append('dir',dir);p.append('csrf',csrfToken);fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=mqtt';}).catch(function(){});}";
+  page += "function rssRowAction(idx){var p=new URLSearchParams();p.append('idx',idx);p.append('csrf',csrfToken);fetch('/rss/delete',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(){location.href='/?tab=rss';}).catch(function(){});}";
   page += "document.body.classList.add('js-tabs');function showTab(tab){document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target-tab')===tab);});document.querySelectorAll('.panel[data-tab]').forEach(function(panel){panel.classList.toggle('tab-visible',panel.getAttribute('data-tab')===tab);});try{localStorage.setItem('infoterm-active-tab',tab);}catch(e){}}function submitBackupImport(){var input=document.getElementById('backupFileInput');if(!input||!input.files||!input.files.length){alert(T.backupSelect);return;}var fd=new FormData();fd.append('backupFile',input.files[0]);fetch('/backup/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&importError=1');}).catch(function(){alert(T.restoreFailed);});}function submitOtaUpload(){var input=document.getElementById('otaFileInput');var status=document.getElementById('otaStatus');if(!input||!input.files||!input.files.length){alert(T.fwSelect);return;}if(!confirm(T.fwConfirm)){return;}var fd=new FormData();fd.append('firmware',input.files[0]);var xhr=new XMLHttpRequest();xhr.open('POST','/ota/upload?csrf='+csrfToken);xhr.upload.onprogress=function(e){if(status&&e.lengthComputable){status.textContent=T.uploading+Math.round(e.loaded*100/e.total)+'%';}};xhr.onload=function(){if(xhr.status===200&&xhr.responseText==='OK'){if(status)status.textContent=T.updateOk;setTimeout(function(){location.href='/?tab=settings';},8000);}else{if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);}};xhr.onerror=function(){if(status)status.textContent=T.updateFailed;alert(T.fwUpdateFailed);};if(status)status.textContent=T.uploading+'0%';xhr.send(fd);}";
   page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
   page += "function submitVpnConnect(){if(!confirm(T.vpnConnectConfirm)){return;}fetch('/vpn/connect?csrf='+csrfToken,{method:'POST'}).then(function(){setTimeout(function(){location.href='/?tab=settings';},1500);}).catch(function(){});}";
@@ -1316,6 +1367,39 @@ void handleMqttDelete() {
 }
 
 
+// 1.0.10 (issue #7): removes one RSS feed row (POST /rss/delete, auth+CSRF,
+// same pattern as /mqtt/delete). Tab feed references above the removed index
+// shift down so they keep pointing at the same feed; references to the
+// removed feed clamp to the nearest remaining one.
+void handleRssDelete() {
+  if (!requireAuthAndCsrf()) return;
+  int idx = server.hasArg("idx") ? server.arg("idx").toInt() : -1;
+  if (idx >= 0 && idx < rssFeedCount) {
+    for (int i = idx; i < rssFeedCount - 1; i++) {
+      rssFeedUrls[i] = rssFeedUrls[i + 1];
+      rssChannelTitle[i] = rssChannelTitle[i + 1];
+      rssEntryTitle[i] = rssEntryTitle[i + 1];
+      rssEntryText[i] = rssEntryText[i + 1];
+      rssEntryDate[i] = rssEntryDate[i + 1];
+      rssFetchOk[i] = rssFetchOk[i + 1];
+      rssFetchTried[i] = rssFetchTried[i + 1];
+      rssLastFetchMs[i] = rssLastFetchMs[i + 1];
+    }
+    rssFeedCount--;
+    rssFeedUrls[rssFeedCount] = "";
+    rssResetFeedState(rssFeedCount);
+    for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+      if (customTabFeedIndex[t] > idx) customTabFeedIndex[t]--;
+      else if (customTabFeedIndex[t] >= rssFeedCount) customTabFeedIndex[t] = rssFeedCount > 0 ? rssFeedCount - 1 : 0;
+    }
+    persistRuntimeConfiguration();
+    InfoTermEventBusIntegration::publishConfigurationChanged("webgui", "rss.delete");
+    pageDirty = true;
+    dataDirty = true;
+  }
+  server.send(200, "text/plain", "OK");
+}
+
 void handleMqttMove() {
   if (!requireAuthAndCsrf()) return;
   int idx = server.hasArg("idx") ? server.arg("idx").toInt() : -1;
@@ -1386,6 +1470,29 @@ static int parseMqttValueForm(String labels[], String topics[], String units[],
     decimals[0] = MQTT_DECIMALS_AUTO;
     enabled[0] = false;
     count = 1;
+  }
+  return count;
+}
+
+// Parses the RSS feed rows from the save form (1.0.10, issue #7), mirroring
+// parseMqttValueForm. Empty rows are kept (a just-added row the user has not
+// filled in yet must survive the save); non-http(s) URLs are cleared instead
+// of stored. Returns the resulting row count.
+static int parseRssFeedForm(String urls[]) {
+  int postedCount = server.hasArg("rssFeedCount") ? server.arg("rssFeedCount").toInt() : rssFeedCount;
+  postedCount = constrain(postedCount, 0, RSS_FEED_COUNT);
+  for (int i = 0; i < RSS_FEED_COUNT; i++) urls[i] = "";
+  int count = 0;
+  for (int i = 0; i < postedCount; i++) {
+    String key = String("rssUrl") + String(i);
+    String url = server.hasArg(key) ? server.arg(key) : rssFeedUrls[i];
+    url.trim();
+    if (url.length() > 200) url = url.substring(0, 200);
+    if (url.length() > 0 && !url.startsWith("http://") && !url.startsWith("https://")) url = "";
+    urls[count++] = url;
+  }
+  if (server.hasArg("rssAdd") && count < RSS_FEED_COUNT) {
+    urls[count++] = "";
   }
   return count;
 }
@@ -1491,14 +1598,24 @@ void handleSave() {
     String currentKey = widgetSelectionKey(homeWidgetSlots[i], homeWidgetDataPointIds[i]);
     applyWidgetSelectionKey(server.hasArg(key) ? server.arg(key) : currentKey, newHomeSlots[i], newHomeWidgetDataPointIds[i]);
   }
+  String newRssFeedUrls[RSS_FEED_COUNT];
+  int newRssFeedCount = parseRssFeedForm(newRssFeedUrls);
   String newCustomTabNames[CUSTOM_TAB_COUNT];
   bool newCustomTabEnabled[CUSTOM_TAB_COUNT];
+  String newCustomTabContent[CUSTOM_TAB_COUNT];
+  int newCustomTabFeedIndex[CUSTOM_TAB_COUNT];
   HomeWidgetType newCustomTabWidgets[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
   String newCustomTabWidgetDataPointIds[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     String tabIdx = String(t);
     newCustomTabNames[t] = server.hasArg(String("tabName") + tabIdx) ? server.arg(String("tabName") + tabIdx) : customTabNames[t];
     newCustomTabEnabled[t] = server.hasArg(String("tabEnabled") + tabIdx);
+    // Tab content selector (1.0.10): whitelist-validated like widgetFont -
+    // anything but the two known values falls back to the widget grid.
+    newCustomTabContent[t] = server.hasArg(String("tabContent") + tabIdx) ? server.arg(String("tabContent") + tabIdx) : customTabContent[t];
+    if (newCustomTabContent[t] != "widgets" && newCustomTabContent[t] != "rss") newCustomTabContent[t] = "widgets";
+    newCustomTabFeedIndex[t] = server.hasArg(String("tabFeed") + tabIdx) ? server.arg(String("tabFeed") + tabIdx).toInt() : customTabFeedIndex[t];
+    newCustomTabFeedIndex[t] = constrain(newCustomTabFeedIndex[t], 0, RSS_FEED_COUNT - 1);
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       String key = String("tab") + tabIdx + String("Slot") + String(i);
       String currentKey = widgetSelectionKey(customTabWidgets[t][i], customTabWidgetDataPointIds[t][i]);
@@ -1599,6 +1716,7 @@ void handleSave() {
   }
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     if (customTabNames[t] != newCustomTabNames[t] || customTabEnabled[t] != newCustomTabEnabled[t]) widgetConfigChanged = true;
+    if (customTabContent[t] != newCustomTabContent[t] || customTabFeedIndex[t] != newCustomTabFeedIndex[t]) widgetConfigChanged = true;
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       if (customTabWidgets[t][i] != newCustomTabWidgets[t][i] || customTabWidgetDataPointIds[t][i] != newCustomTabWidgetDataPointIds[t][i]) widgetConfigChanged = true;
     }
@@ -1658,11 +1776,20 @@ void handleSave() {
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     customTabNames[t] = newCustomTabNames[t];
     customTabEnabled[t] = newCustomTabEnabled[t];
+    customTabContent[t] = newCustomTabContent[t];
+    customTabFeedIndex[t] = newCustomTabFeedIndex[t];
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       customTabWidgets[t][i] = newCustomTabWidgets[t][i];
       customTabWidgetDataPointIds[t][i] = newCustomTabWidgetDataPointIds[t][i];
     }
   }
+  // RSS feeds (1.0.10): a changed URL resets that feed's fetch state so the
+  // scheduler refetches it within its next 60 s tick.
+  for (int i = 0; i < RSS_FEED_COUNT; i++) {
+    if (rssFeedUrls[i] != newRssFeedUrls[i]) rssResetFeedState(i);
+    rssFeedUrls[i] = newRssFeedUrls[i];
+  }
+  rssFeedCount = newRssFeedCount;
   sanitizeWidgetSlotsForMqttCount();
 
   // Apply the new color keys to their runtime globals (accentColorKey,
@@ -1854,6 +1981,7 @@ void setupWebServer() {
   server.on("/save", HTTP_POST, handleSave);
   server.on("/mqtt/delete", HTTP_POST, handleMqttDelete);
   server.on("/mqtt/move", HTTP_POST, handleMqttMove);
+  server.on("/rss/delete", HTTP_POST, handleRssDelete);
   server.on("/mqtt/test", HTTP_POST, handleMqttTest);
   server.on("/wifi/scan", HTTP_POST, handleWifiScan);
   server.on("/mqtt/export", HTTP_GET, handleMqttExport);

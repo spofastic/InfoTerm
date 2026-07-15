@@ -67,6 +67,10 @@ void persistGeneralConfiguration() {
   cfgPutString("mqttUser", mqttUser);
   cfgPutString("mqttPass", mqttPass);
   cfgPutString("mqttTopic", mqttWeatherflowTopic);
+  cfgPutInt("rssFeedCount", rssFeedCount);
+  for (int i = 0; i < RSS_FEED_COUNT; i++) {
+    cfgPutString(String("rssUrl") + String(i), rssFeedUrls[i]);
+  }
   markConfigSaved();
 }
 
@@ -102,6 +106,8 @@ void persistWidgetConfiguration() {
     String tabEnabledKey = String("tabEnabled") + tabIdx;
     cfgPutString(tabNameKey, customTabNames[t]);
     cfgPutBool(tabEnabledKey, customTabEnabled[t]);
+    cfgPutString(String("tabContent") + tabIdx, customTabContent[t]);
+    cfgPutInt(String("tabFeed") + tabIdx, customTabFeedIndex[t]);
 
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       String key = String("tab") + tabIdx + String("Slot") + String(i);

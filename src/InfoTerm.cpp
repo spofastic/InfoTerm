@@ -255,6 +255,30 @@ String cacheCustomTabSlots[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
 String customTabWidgetDataPointIds[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
 
 // =========================================================
+// RSS FEEDS (1.0.10, issue #7)
+// =========================================================
+// Up to RSS_FEED_COUNT feed URLs, editable in the WebGUI. A custom tab can
+// show the newest entry of one feed instead of its widget grid
+// (customTabContent = "rss" + customTabFeedIndex).
+const int RSS_FEED_COUNT = 4;
+int rssFeedCount = 0;
+String rssFeedUrls[RSS_FEED_COUNT];
+String customTabContent[CUSTOM_TAB_COUNT] = {"widgets", "widgets", "widgets"};
+int customTabFeedIndex[CUSTOM_TAB_COUNT] = {0, 0, 0};
+
+// Runtime fetch state per feed (never persisted). rssEntry* hold the already
+// display-sanitized (entity-decoded, tag-stripped, Latin-transliterated)
+// newest entry of the feed.
+String rssChannelTitle[RSS_FEED_COUNT];
+String rssEntryTitle[RSS_FEED_COUNT];
+String rssEntryText[RSS_FEED_COUNT];
+String rssEntryDate[RSS_FEED_COUNT];
+bool rssFetchOk[RSS_FEED_COUNT] = {false, false, false, false};
+bool rssFetchTried[RSS_FEED_COUNT] = {false, false, false, false};
+unsigned long rssLastFetchMs[RSS_FEED_COUNT] = {0, 0, 0, 0};
+const unsigned long RSS_FETCH_INTERVAL_MS = 10UL * 60UL * 1000UL;
+
+// =========================================================
 // STATE
 // =========================================================
 
@@ -1547,6 +1571,7 @@ void drawNavBar() {
 
 #include "widgets/WidgetRuntime.inc"
 #include "vpn/VpnRuntime.inc"
+#include "rss/RssRuntime.inc"
 
 // =========================================================
 // PAGES
@@ -1581,6 +1606,10 @@ void updateHomeDynamic() {
 }
 
 void drawCustomTabPageFull(int tabIndex) {
+  if (customTabContent[tabIndex] == "rss") {
+    drawRssTabPageFull(tabIndex);
+    return;
+  }
   tft.fillScreen(COL_BG);
   drawNavBar();
 
@@ -1597,6 +1626,10 @@ void drawCustomTabPageFull(int tabIndex) {
 }
 
 void updateCustomTabDynamic(int tabIndex) {
+  if (customTabContent[tabIndex] == "rss") {
+    updateRssTabDynamic(tabIndex);
+    return;
+  }
   for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
     drawCustomTabWidget(tabIndex, i, false);
   }

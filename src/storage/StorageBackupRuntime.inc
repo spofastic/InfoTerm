@@ -110,11 +110,19 @@ bool serializeConfigurationToJson(String& jsonOut) {
     homeSlots.add(widgetSelectionKey(homeWidgetSlots[i], homeWidgetDataPointIds[i]));
   }
 
+  // RSS feed URLs (1.0.10, issue #7) - plain URLs, no secrets involved.
+  JsonArray rssFeeds = doc["rssFeeds"].to<JsonArray>();
+  for (int i = 0; i < rssFeedCount; i++) {
+    rssFeeds.add(rssFeedUrls[i]);
+  }
+
   JsonArray tabs = doc["tabs"].to<JsonArray>();
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     JsonObject tab = tabs.add<JsonObject>();
     tab["name"] = customTabNames[t];
     tab["enabled"] = customTabEnabled[t];
+    tab["content"] = customTabContent[t];
+    tab["feed"] = customTabFeedIndex[t];
     JsonArray slots = tab["slots"].to<JsonArray>();
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       slots.add(widgetSelectionKey(customTabWidgets[t][i], customTabWidgetDataPointIds[t][i]));
@@ -250,6 +258,22 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
     }
   }
 
+  // RSS feeds (1.0.10): the array in the backup replaces the stored list
+  // completely; fetch state is reset so all feeds are re-fetched.
+  if (doc["rssFeeds"].is<JsonArray>()) {
+    JsonArray rssFeeds = doc["rssFeeds"].as<JsonArray>();
+    int i = 0;
+    for (JsonVariant v : rssFeeds) {
+      if (i >= RSS_FEED_COUNT) break;
+      rssFeedUrls[i++] = v.as<String>();
+    }
+    rssFeedCount = i;
+    for (int k = 0; k < RSS_FEED_COUNT; k++) {
+      if (k >= rssFeedCount) rssFeedUrls[k] = "";
+      rssResetFeedState(k);
+    }
+  }
+
   JsonArray tabs = doc["tabs"];
   if (!tabs.isNull()) {
     int t = 0;
@@ -257,6 +281,8 @@ static bool applyConfigurationFromDoc(JsonDocument& doc) {
       if (t >= CUSTOM_TAB_COUNT) break;
       customTabNames[t] = tab["name"] | customTabNames[t];
       customTabEnabled[t] = tab["enabled"] | customTabEnabled[t];
+      customTabContent[t] = tab["content"] | customTabContent[t];
+      customTabFeedIndex[t] = tab["feed"] | customTabFeedIndex[t];
       JsonArray slots = tab["slots"];
       if (!slots.isNull()) {
         int i = 0;

@@ -18,6 +18,8 @@ const char* taskName(RuntimeTask task) {
     case RuntimeTask::SystemStatus: return "system.status";
     case RuntimeTask::WebServerHandle: return "webserver.handle";
     case RuntimeTask::WifiScan: return "wifi.scan";
+    case RuntimeTask::RssUpdate: return "rss.update";
+    case RuntimeTask::RssScroll: return "rss.scroll";
     default: return "unknown";
   }
 }
@@ -34,6 +36,8 @@ uint32_t defaultIntervalMs(RuntimeTask task) {
     case RuntimeTask::MQTTReconnect: return 5000;
     case RuntimeTask::WeatherUpdate: return 60000;
     case RuntimeTask::WifiScan: return 1000;
+    case RuntimeTask::RssUpdate: return 60000;
+    case RuntimeTask::RssScroll: return 100;
     default: return 1000;
   }
 }

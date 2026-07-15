@@ -2,8 +2,17 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.9**  
-Diese Version: **1.0.9** (stable, vollstaendig hardware-verifiziert)
+Aktuelle stabile Basis: **1.0.10**  
+Diese Version: **1.0.10** (stable, vollstaendig hardware-verifiziert)
+
+1.0.10 RSS-Feeds (Issue #7): Neuer WebGUI-Tab "RSS Feed" (zwischen
+DataPoints und Design) verwaltet bis zu 4 Feed-URLs. Jeder Custom-Tab
+kann per neuem "Inhalt"-Dropdown statt seiner Widgets den neuesten
+Eintrag eines gewaehlten Feeds anzeigen; zu lange Eintraege scrollen
+langsam vertikal ueber das Display. Abruf alle 10 Minuten (RSS 2.0 +
+Atom, HTTP/HTTPS), Inhalte werden fuer die Display-Fonts nach ASCII
+transliteriert. Feed-Liste und Tab-Auswahl persistiert + im Backup.
+Details siehe `CHANGELOG.md`.
 
 1.0.9 Widget-Schriftgroesse + freeHeap-DataPoint: Neues Dropdown
 "Widget-Schriftgroesse" (Klein/Normal/Gross) im Design-Tab - "Klein"

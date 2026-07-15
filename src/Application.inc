@@ -166,6 +166,19 @@ static void schedulerSystemStatus() {
   handleTabCycle();
 }
 
+// 1.0.10 RSS feeds (issue #7): rssFetchDueFeeds() fetches at most one due,
+// tab-referenced feed per 60 s tick (blocking HTTP, same accepted trade-off
+// as schedulerWeatherUpdate); serviceRssScroll() advances the vertical
+// entry scroll by one pixel per 100 ms tick while an overflowing RSS tab is
+// visible and returns immediately otherwise.
+static void schedulerRssUpdate() {
+  rssFetchDueFeeds();
+}
+
+static void schedulerRssScroll() {
+  serviceRssScroll();
+}
+
 void setup() {
 
   Logger::begin();
@@ -252,6 +265,12 @@ void setup() {
   InfoTermRuntimeSchedulerIntegration::registerTask(
       InfoTermRuntimeSchedulerIntegration::RuntimeTask::SystemStatus,
       schedulerSystemStatus);
+  InfoTermRuntimeSchedulerIntegration::registerTask(
+      InfoTermRuntimeSchedulerIntegration::RuntimeTask::RssUpdate,
+      schedulerRssUpdate);
+  InfoTermRuntimeSchedulerIntegration::registerTask(
+      InfoTermRuntimeSchedulerIntegration::RuntimeTask::RssScroll,
+      schedulerRssScroll);
 
   InfoTermDataPoints::registerDefaults();
   registerBuiltInDataPoints();

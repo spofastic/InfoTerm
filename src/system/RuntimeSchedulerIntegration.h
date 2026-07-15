@@ -19,7 +19,9 @@ enum class RuntimeTask : uint8_t {
   DataPointSync,
   SystemStatus,
   WebServerHandle,
-  WifiScan
+  WifiScan,
+  RssUpdate,
+  RssScroll
 };
 
 const char* taskName(RuntimeTask task);

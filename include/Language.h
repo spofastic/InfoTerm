@@ -300,6 +300,18 @@ enum LanguageKey {
   L_WEB_FONT_NORMAL,
   L_WEB_FONT_LARGE,
   L_WEB_FONT_SMALL,
+  // --- RSS feeds (1.0.10) ---
+  L_WEB_RSS_TITLE,
+  L_WEB_RSS_DESC,
+  L_WEB_RSS_URL,
+  L_WEB_RSS_ADD,
+  L_WEB_RSS_DELETE_TITLE,
+  L_WEB_RSS_DELETE_CONFIRM,
+  L_WEB_TAB_CONTENT,
+  L_WEB_TAB_FEED,
+  L_RSS_NO_FEED,
+  L_RSS_LOADING,
+  L_RSS_ERROR,
   L_COUNT
 };
 
@@ -574,6 +586,18 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"Normal", "Normal", "Normale", "Normal", "Normale", "Обычный", "सामान्य", "正常"}},
   {{"Groß", "Large", "Grand", "Grande", "Grande", "Крупный", "बड़ा", "大"}},
   {{"Klein", "Small", "Petit", "Pequeño", "Piccolo", "Мелкий", "छोटा", "小"}},
+  // --- RSS feeds (1.0.10) ---
+  {{"RSS-Feeds", "RSS feeds", "Flux RSS", "Fuentes RSS", "Feed RSS", "RSS-ленты", "RSS फ़ीड", "RSS 源"}},
+  {{"Bis zu 4 Feed-URLs. Ein Tab kann statt Widgets den neuesten Eintrag eines Feeds anzeigen — Auswahl unten in der Tab-Konfiguration unter „Inhalt“.", "Up to 4 feed URLs. A tab can show the latest entry of a feed instead of widgets — selected below in the tab configuration under \"Content\".", "Jusqu'à 4 URL de flux. Un onglet peut afficher la dernière entrée d'un flux au lieu des widgets — sélection ci-dessous dans la configuration de l'onglet sous « Contenu ».", "Hasta 4 URL de fuentes. Una pestaña puede mostrar la última entrada de una fuente en lugar de widgets — se elige abajo en la configuración de la pestaña, en «Contenido».", "Fino a 4 URL di feed. Una scheda può mostrare l'ultima voce di un feed invece dei widget — selezione qui sotto nella configurazione della scheda sotto \"Contenuto\".", "До 4 URL лент. Вкладка может показывать последнюю запись ленты вместо виджетов — выбор ниже в настройке вкладки в поле «Содержимое».", "अधिकतम 4 फ़ीड URL। टैब विजेट के बजाय किसी फ़ीड की नवीनतम प्रविष्टि दिखा सकता है — नीचे टैब कॉन्फ़िगरेशन में \"सामग्री\" के अंतर्गत चुनें।", "最多 4 个源 URL。标签页可以显示源的最新条目而不是小部件——在下方标签页配置的“内容”中选择。"}},
+  {{"Feed-URL", "Feed URL", "URL du flux", "URL de la fuente", "URL del feed", "URL ленты", "फ़ीड URL", "源 URL"}},
+  {{"Feed hinzufügen", "Add feed", "Ajouter un flux", "Añadir fuente", "Aggiungi feed", "Добавить ленту", "फ़ीड जोड़ें", "添加源"}},
+  {{"Feed löschen", "Delete feed", "Supprimer le flux", "Eliminar fuente", "Elimina feed", "Удалить ленту", "फ़ीड हटाएँ", "删除源"}},
+  {{"Diesen RSS-Feed löschen?", "Delete this RSS feed?", "Supprimer ce flux RSS ?", "¿Eliminar esta fuente RSS?", "Eliminare questo feed RSS?", "Удалить эту RSS-ленту?", "इस RSS फ़ीड को हटाएँ?", "删除此 RSS 源？"}},
+  {{"Inhalt", "Content", "Contenu", "Contenido", "Contenuto", "Содержимое", "सामग्री", "内容"}},
+  {{"RSS-Feed", "RSS feed", "Flux RSS", "Fuente RSS", "Feed RSS", "RSS-лента", "RSS फ़ीड", "RSS 源"}},
+  {{"Kein Feed konfiguriert", "No feed configured", "Aucun flux configuré", "Ninguna fuente configurada", "Nessun feed configurato", "Лента не настроена", "कोई फ़ीड कॉन्फ़िगर नहीं", "未配置源"}},
+  {{"Lade Feed...", "Loading feed...", "Chargement du flux...", "Cargando fuente...", "Caricamento feed...", "Загрузка ленты...", "फ़ीड लोड हो रहा है...", "正在加载源..."}},
+  {{"Feed nicht erreichbar", "Feed unreachable", "Flux inaccessible", "Fuente no accesible", "Feed non raggiungibile", "Лента недоступна", "फ़ीड उपलब्ध नहीं", "源不可用"}},
 };
 
 static_assert(sizeof(LANGUAGE_TABLE) / sizeof(LANGUAGE_TABLE[0]) == L_COUNT,

@@ -4,6 +4,27 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.10] — Stable
+
+### Added
+
+- **RSS-Feeds auf Custom-Tabs (Issue #7).** Neuer WebGUI-Tab „RSS Feed"
+  zwischen DataPoints und Design: dort lassen sich bis zu 4 Feed-URLs
+  pflegen (Editor nach dem Muster der MQTT-DataPoints-Tabelle, mit
+  Status-Spalte und Löschen-Button). In der Tab-Konfiguration wählt ein
+  neues Dropdown „Inhalt" zwischen dem Widget-Raster („DataPoints") und
+  „RSS-Feed"; daneben bestimmt ein Feed-Dropdown, welcher der
+  gespeicherten Feeds angezeigt wird. Das Display zeigt immer nur den
+  neuesten Eintrag des Feeds (Kanaltitel, Datum, Titel, Text); ist der
+  Eintrag höher als der Bildschirm, scrollt er langsam pixelweise nach
+  oben (Pause an Anfang und Ende, dann von vorn). Abruf alle 10 Minuten
+  pro referenziertem Feed (RSS 2.0 und Atom, HTTP und HTTPS), höchstens
+  ein Feed pro Scheduler-Tick, Leselimit 24 KB. HTML-Tags werden
+  entfernt, Entities dekodiert und Unicode für die Display-Fonts nach
+  ASCII transliteriert (ae/oe/ue/ss). Feed-Liste und Tab-Auswahl liegen
+  in NVS (`rssUrl0..3`, `tabContent<t>`, `tabFeed<t>`) und sind Teil von
+  Backup/Restore. Neue Sprachstrings in allen 8 Sprachen.
+
 ## [1.0.9] — Stable
 
 ### Added

@@ -42,6 +42,20 @@ void sanitizeGeneralConfig() {
   wifiActiveIndex = constrain(wifiActiveIndex, 0, WIFI_SLOT_COUNT - 1);
 
   if (vpnEndpointPort == 0) vpnEndpointPort = 51820;
+
+  // RSS feeds (1.0.10, issue #7): whitelist/clamp like widgetFont above -
+  // NVS and Backup/Restore both funnel through here.
+  rssFeedCount = constrain(rssFeedCount, 0, RSS_FEED_COUNT);
+  for (int i = 0; i < RSS_FEED_COUNT; i++) {
+    rssFeedUrls[i].trim();
+    if (i >= rssFeedCount) rssFeedUrls[i] = "";
+    if (rssFeedUrls[i].length() > 200) rssFeedUrls[i] = rssFeedUrls[i].substring(0, 200);
+    if (rssFeedUrls[i].length() > 0 && !rssFeedUrls[i].startsWith("http://") && !rssFeedUrls[i].startsWith("https://")) rssFeedUrls[i] = "";
+  }
+  for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+    if (customTabContent[t] != "widgets" && customTabContent[t] != "rss") customTabContent[t] = "widgets";
+    customTabFeedIndex[t] = constrain(customTabFeedIndex[t], 0, RSS_FEED_COUNT - 1);
+  }
 }
 
 void loadStoredSettings() {
@@ -145,6 +159,12 @@ void loadStoredSettings() {
     applyWidgetSelectionKey(storedSelection, homeWidgetSlots[i], homeWidgetDataPointIds[i]);
   }
 
+  rssFeedCount = cfgGetInt("rssFeedCount", "rssFeedCount", 0);
+  for (int i = 0; i < RSS_FEED_COUNT; i++) {
+    String key = String("rssUrl") + String(i);
+    rssFeedUrls[i] = cfgGetString(key, key, "");
+  }
+
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     String tabIdx = String(t);
     customTabNames[t] = cfgGetString(String("tabName") + tabIdx, String("tabName") + tabIdx, customTabNames[t]);
@@ -152,6 +172,8 @@ void loadStoredSettings() {
     if (customTabNames[t].length() == 0) customTabNames[t] = "Tab " + String(t + 1);
     if (customTabNames[t].length() > 10) customTabNames[t] = customTabNames[t].substring(0, 10);
     customTabEnabled[t] = cfgGetBool(String("tabEnabled") + tabIdx, String("tabEnabled") + tabIdx, customTabEnabled[t]);
+    customTabContent[t] = cfgGetString(String("tabContent") + tabIdx, String("tabContent") + tabIdx, customTabContent[t]);
+    customTabFeedIndex[t] = cfgGetInt(String("tabFeed") + tabIdx, String("tabFeed") + tabIdx, customTabFeedIndex[t]);
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
       String key = String("tab") + tabIdx + String("Slot") + String(i);
       String storedSelection = cfgGetString(key, key, widgetSelectionKey(customTabWidgets[t][i], customTabWidgetDataPointIds[t][i]));
