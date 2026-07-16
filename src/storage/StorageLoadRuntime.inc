@@ -50,7 +50,7 @@ void sanitizeGeneralConfig() {
     rssFeedUrls[i].trim();
     if (i >= rssFeedCount) rssFeedUrls[i] = "";
     if (rssFeedUrls[i].length() > 200) rssFeedUrls[i] = rssFeedUrls[i].substring(0, 200);
-    if (rssFeedUrls[i].length() > 0 && !rssFeedUrls[i].startsWith("http://") && !rssFeedUrls[i].startsWith("https://")) rssFeedUrls[i] = "";
+    if (rssFeedUrls[i].length() > 0 && !infoterm::isAllowedFeedUrl(rssFeedUrls[i].c_str())) rssFeedUrls[i] = "";
   }
   for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
     if (customTabContent[t] != "widgets" && customTabContent[t] != "rss") customTabContent[t] = "widgets";

@@ -2,11 +2,12 @@
 
 ## Supported Versions
 
-InfoTerm is currently in its 0.9.x development line.
+InfoTerm is currently in its 1.0.x release line.
 
 | Version | Supported |
 | --- | --- |
-| 0.9.x | Yes |
+| 1.0.x | Yes |
+| 0.9.x | No |
 
 ## Reporting a Vulnerability
 
@@ -41,6 +42,42 @@ HTTP is unencrypted: on a hostile network, Basic-Auth credentials could be
 sniffed. Keep the device on a trusted LAN (or reach it through the built-in
 WireGuard tunnel) and do not port-forward it to the internet.
 
+## Known, accepted limitations
+
+These are deliberate trade-offs for a personal appliance on a trusted LAN.
+They are listed here so nobody has to rediscover them (security review,
+2026-07-16); each would need to be revisited before deploying InfoTerm on a
+network you do not control.
+
+- **No TLS certificate verification on outbound fetches.** Weather, sun
+  times and RSS use `WiFiClientSecure::setInsecure()` — HTTPS provides
+  transport encryption but no server authenticity. A machine-in-the-middle
+  can forge weather/RSS content. Mitigations in place: fetched content is
+  treated as untrusted display data (size-capped streaming reads, 24 KiB
+  RSS limit, ASCII transliteration, no execution/markup path), and feed
+  URLs are restricted to plain http(s) without embedded credentials
+  (`infoterm::isAllowedFeedUrl`, host-tested). A pinned CA or CA bundle is
+  not shipped because flash is near its partition limit and an expiring
+  pinned root would silently kill the weather widget.
+- **OTA images are not cryptographically signed.** `Update.end(true)`
+  validates image structure, not origin. Anyone holding valid WebGUI
+  credentials can flash arbitrary firmware — treat the WebGUI login as
+  equivalent to physical ownership of the device. The NVS rollback guard
+  protects against non-booting images, not against malicious ones.
+- **MQTT is plaintext.** Broker credentials and payloads are readable on
+  the wire. Run the broker on the same trusted LAN segment; do not reuse
+  the MQTT password anywhere else.
+- **Setup portal (first boot / manual start).** While the portal is
+  active, `/setup/scan` and `/setup/connect` intentionally require neither
+  the WebGUI login nor a CSRF token — the gate is the WPA2 password of the
+  setup access point (default `infoterm`, shown on the device display,
+  overridable via `INFOTERM_AP_PASSWORD` in `Config.local.h`; the portal
+  can be disabled entirely with `INFOTERM_PORTAL_ENABLED 0`). Anyone who
+  joins the setup AP can configure Wi-Fi. Change the AP password in
+  `Config.local.h` if that default is not acceptable in your environment,
+  and close the portal (it closes itself once a station connection is
+  established) rather than leaving it running.
+
 ## Credentials
 
 - Do not commit real Wi-Fi or MQTT credentials. `include/Config.h` holds only
@@ -50,3 +87,8 @@ WireGuard tunnel) and do not port-forward it to the internet.
 - The configuration backup export (`/backup/export`) deliberately omits
   secrets (WireGuard private key, MQTT password). After restoring a backup,
   re-upload the WireGuard `.conf` and re-enter the MQTT password.
+- Exception: RSS feed URLs are exported verbatim (full backup and
+  `/rss/export`). The URL gate rejects `user:pass@host` credentials, but a
+  feed URL can still carry a secret in its query or path (e.g.
+  `?token=...`) — if you use such feeds, treat the backup files as
+  sensitive.

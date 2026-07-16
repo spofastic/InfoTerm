@@ -70,6 +70,10 @@ bool fetchRssFeed(int idx) {
   String url = rssFeedUrls[idx];
   url.trim();
   if (url.length() == 0 || WiFi.status() != WL_CONNECTED) return false;
+  // Belt and braces: every storage path already sanitizes via
+  // isAllowedFeedUrl, but the fetch is the security boundary - a URL that
+  // slipped in through a future import path must still not be contacted.
+  if (!infoterm::isAllowedFeedUrl(url.c_str())) return false;
 
   WiFiClientSecure secureClient;
   WiFiClient plainClient;

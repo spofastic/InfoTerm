@@ -2,7 +2,8 @@
 
 ## Current Baseline
 
-InfoTerm 0.9.31 is the current stable firmware line.
+InfoTerm 1.1.0 is the current stable firmware line (this line is updated
+on every stable release, see the stable checklist in `AGENTS.md`).
 The project is already split into focused runtime areas, but the migration
 remains conservative: existing behavior is preserved while responsibilities
 are gradually moved behind module boundaries and integration adapters.

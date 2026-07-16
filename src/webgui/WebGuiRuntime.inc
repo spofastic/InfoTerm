@@ -1749,7 +1749,7 @@ static int parseRssFeedForm(String urls[]) {
     String url = server.hasArg(key) ? server.arg(key) : rssFeedUrls[i];
     url.trim();
     if (url.length() > 200) url = url.substring(0, 200);
-    if (url.length() > 0 && !url.startsWith("http://") && !url.startsWith("https://")) url = "";
+    if (url.length() > 0 && !infoterm::isAllowedFeedUrl(url.c_str())) url = "";
     urls[count++] = url;
   }
   if (server.hasArg("rssAdd") && count < RSS_FEED_COUNT) {

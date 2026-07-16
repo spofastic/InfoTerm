@@ -4,6 +4,53 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.1.0] — Stable
+
+Härtungs-Release nach externem Software-Review (2026-07-16): keine neuen
+Funktionen, vier Review-Findings plus zwei Nacharbeiten aus der
+Review-Nachprüfung umgesetzt. (Die Entwicklungsversion lief zunächst als
+1.0.13 und wurde vor dem ersten Commit auf Wunsch des Maintainers in
+1.1.0 umbenannt — 1.0.13 wurde nie veröffentlicht.)
+
+### Fixed
+
+- **VPN: fehlgeschlagener Task-Start hinterlässt keinen hängenden Status
+  mehr.** `vpnRequestConnect()` prüft jetzt den Rückgabewert von
+  `xTaskCreate()` (wie der MQTT-Verbindungstest seit 1.0.11): schlägt der
+  Task-Start mangels Speicher fehl, werden `vpnConnectTaskRunning` und die
+  Statusmeldung zurückgesetzt statt dauerhaft „Verbindung wird
+  aufgebaut..." zu melden.
+
+### Changed
+
+- **RSS-Feed-URLs: eine zentrale, host-getestete Validierung.** Neues
+  Prädikat `infoterm::isAllowedFeedUrl()` in `include/InfoTermLogic.h`
+  (Issue-#5-Muster): nur `http://`/`https://`, Host darf nicht leer sein,
+  URLs mit eingebetteten Zugangsdaten (`user:pass@host`) werden abgelehnt.
+  Ersetzt die bisher dreifach duplizierte `startsWith`-Prüfung
+  (Formular-Speichern, NVS-Load/`sanitizeGeneralConfig`, RSS-Import) und
+  wird zusätzlich direkt vor dem Abruf in `fetchRssFeed()` durchgesetzt —
+  damit ist auch der Voll-Backup-Import abgedeckt. Nach der
+  Review-Nachprüfung ergänzt: Null-Guard und Kurz-Präfix-Tests (`"h"`,
+  `"http"`, `"http:/"`, …), die das Short-Circuit-Verhalten der
+  Präfix-Prüfung dokumentieren. 4 neue native Tests (36 gesamt).
+- **Backup-Doku zu Feed-URLs präzisiert.** Feed-URLs werden unverändert
+  exportiert und können selbst Secrets tragen (`?token=…`); der zu
+  absolute Kommentar „no secrets involved" im Backup-Export wurde
+  korrigiert und SECURITY.md um den Hinweis ergänzt, solche Backups als
+  sensibel zu behandeln.
+- **Dokumentierte Versionsstände repariert.** `docs/DEVELOPMENT_CONTEXT.md`
+  (stand auf 1.0.0) und `docs/ARCHITECTURE.md` (stand auf 0.9.31) nennen
+  wieder die tatsächliche Baseline; beide Dateien sind jetzt Teil der
+  Stable-Checkliste in `AGENTS.md`, damit die Drift nicht wiederkehrt.
+- **SECURITY.md beschreibt das reale Sicherheitsmodell.** Neuer Abschnitt
+  „Known, accepted limitations": keine TLS-Zertifikatsprüfung bei
+  Wetter/RSS (`setInsecure`), unsignierte OTA-Images (WebGUI-Login =
+  Gerätehoheit), Klartext-MQTT und das Pairing-Modell des Setup-Portals
+  (WPA2-Passwort des AP als einziges Gate) sind jetzt als bewusste
+  Trade-offs dokumentiert. Supported-Versions-Tabelle von 0.9.x auf 1.0.x
+  aktualisiert.
+
 ## [1.0.12] — Stable
 
 ### Added

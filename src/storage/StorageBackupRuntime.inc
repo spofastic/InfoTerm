@@ -110,7 +110,9 @@ bool serializeConfigurationToJson(String& jsonOut) {
     homeSlots.add(widgetSelectionKey(homeWidgetSlots[i], homeWidgetDataPointIds[i]));
   }
 
-  // RSS feed URLs (1.0.10, issue #7) - plain URLs, no secrets involved.
+  // RSS feed URLs (1.0.10, issue #7). Exported verbatim: a feed URL can
+  // itself carry a secret (?token=... query key, private path segment) -
+  // treat backups containing such feeds as sensitive, see SECURITY.md.
   JsonArray rssFeeds = doc["rssFeeds"].to<JsonArray>();
   for (int i = 0; i < rssFeedCount; i++) {
     rssFeeds.add(rssFeedUrls[i]);
@@ -657,7 +659,7 @@ static bool applyRssFeedsFromDoc(JsonDocument& doc) {
     String url = v.as<String>();
     url.trim();
     if (url.length() > 200) url = url.substring(0, 200);
-    if (url.length() > 0 && !url.startsWith("http://") && !url.startsWith("https://")) url = "";
+    if (url.length() > 0 && !infoterm::isAllowedFeedUrl(url.c_str())) url = "";
     rssFeedUrls[i++] = url;
   }
   rssFeedCount = i;

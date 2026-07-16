@@ -2,8 +2,22 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.12**  
-Diese Version: **1.0.12** (stable, vollstaendig hardware-verifiziert)
+Aktuelle stabile Basis: **1.1.0**  
+Diese Version: **1.1.0** (stable, vollstaendig hardware-verifiziert)
+
+1.1.0 Haertungs-Release nach externem Software-Review (lief als Dev
+zunaechst unter 1.0.13, vor dem ersten Commit auf 1.1.0 umbenannt):
+VPN-Task-Start prueft jetzt den xTaskCreate-Rueckgabewert (kein
+haengender "Verbindung wird aufgebaut..."-Status mehr bei
+Speichermangel); RSS-Feed-URLs laufen durch ein zentrales,
+host-getestetes Praedikat (nur http/https, keine eingebetteten
+Zugangsdaten, greift auch beim Voll-Backup-Import und direkt vor dem
+Abruf; inkl. Null-Guard und Kurz-Praefix-Tests, 4 neue native Tests);
+Baseline-Angaben in DEVELOPMENT_CONTEXT.md/ARCHITECTURE.md repariert
+und in die Stable-Checkliste aufgenommen; SECURITY.md dokumentiert die
+bewussten Grenzen (setInsecure, unsignierte OTA, Klartext-MQTT,
+Setup-Portal-Modell) und den Hinweis, dass Feed-URLs mit Query-Tokens
+im Backup landen. Details siehe `CHANGELOG.md`.
 
 1.0.12 Vierter Custom-Tab (Issue #9): "Tab 4" in der WebGUI-Tab-
 Konfiguration (Standard inaktiv), volle Unterstuetzung fuer Widgets/RSS,

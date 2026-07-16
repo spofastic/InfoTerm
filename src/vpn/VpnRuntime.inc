@@ -169,7 +169,14 @@ void vpnRequestConnect() {
   }
   vpnConnectTaskRunning = true;
   vpnStatusMessage = "Verbindung wird aufgebaut...";
-  xTaskCreate(vpnConnectTask, "vpnConnect", 8192, nullptr, 1, nullptr);
+  if (xTaskCreate(vpnConnectTask, "vpnConnect", 8192, nullptr, 1, nullptr) != pdPASS) {
+    // Without this reset a failed task creation (out of heap) would leave
+    // the state stuck on "Verbindung wird aufgebaut..." forever - the flag
+    // is only ever cleared by the task itself. Same guard as mqttTestTask.
+    vpnConnectTaskRunning = false;
+    vpnStatusMessage = "Verbindungsaufbau konnte nicht gestartet werden";
+    Logger::error("[VPN] xTaskCreate fehlgeschlagen (zu wenig freier Speicher)");
+  }
 }
 
 void vpnDisconnect() {

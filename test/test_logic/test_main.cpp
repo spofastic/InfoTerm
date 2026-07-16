@@ -192,6 +192,41 @@ void test_urlhost_without_scheme_and_empty() {
   TEST_ASSERT_EQUAL_STRING("", urlHost<std::string>("").c_str());
 }
 
+void test_feedurl_allows_plain_http_https() {
+  TEST_ASSERT_TRUE(isAllowedFeedUrl("https://abo.wettermail.de/wetter/current/x.rss"));
+  TEST_ASSERT_TRUE(isAllowedFeedUrl("http://host.local/feed"));
+  TEST_ASSERT_TRUE(isAllowedFeedUrl("https://example.org"));
+}
+
+void test_feedurl_rejects_foreign_schemes_and_empty_host() {
+  TEST_ASSERT_FALSE(isAllowedFeedUrl(""));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("example.org/feed"));       // no scheme
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("ftp://example.org/feed"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("file:///etc/passwd"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("https://"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("https:///path"));
+}
+
+// Short prefixes document the &&-short-circuit behavior: comparison stops
+// at the terminator, no read ever goes past the string end.
+void test_feedurl_short_prefixes_and_null() {
+  TEST_ASSERT_FALSE(isAllowedFeedUrl(nullptr));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("h"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("http"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("http:"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("http:/"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("https"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("https:/"));
+  TEST_ASSERT_TRUE(isAllowedFeedUrl("https://x"));  // 1-char host is valid
+}
+
+void test_feedurl_rejects_embedded_credentials() {
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("https://user:pass@example.org/feed"));
+  TEST_ASSERT_FALSE(isAllowedFeedUrl("http://admin@10.0.0.1/"));
+  // '@' after the first path slash is ordinary data, not credentials.
+  TEST_ASSERT_TRUE(isAllowedFeedUrl("https://example.org/feed?mail=a@b.de"));
+}
+
 void setUp() {}
 void tearDown() {}
 
@@ -229,5 +264,9 @@ int main(int, char**) {
   RUN_TEST(test_cycle_six_pages_full_round);
   RUN_TEST(test_urlhost_strips_scheme_and_path);
   RUN_TEST(test_urlhost_without_scheme_and_empty);
+  RUN_TEST(test_feedurl_allows_plain_http_https);
+  RUN_TEST(test_feedurl_rejects_foreign_schemes_and_empty_host);
+  RUN_TEST(test_feedurl_short_prefixes_and_null);
+  RUN_TEST(test_feedurl_rejects_embedded_credentials);
   return UNITY_END();
 }

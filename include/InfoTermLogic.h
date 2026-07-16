@@ -108,6 +108,28 @@ inline TString urlHost(const char* url) {
   return out;
 }
 
+// Gate for stored/fetched RSS feed URLs (1.1.0, security review): only
+// plain http(s) targets without embedded credentials are allowed. The
+// scheme must be literal lowercase "http://"/"https://" (matches the
+// previous startsWith checks), the host part must be non-empty, and an
+// '@' before the first path slash is rejected - user:pass@host URLs would
+// leak credentials into logs and feed labels. Every path that stores feed
+// URLs (form save, NVS load, backup/RSS import via sanitizeGeneralConfig)
+// and the fetch itself funnel through this one predicate.
+inline bool isAllowedFeedUrl(const char* url) {
+  if (!url) return false;  // callers pass c_str(), never null - pure defense
+  const char* host = nullptr;
+  if (url[0] == 'h' && url[1] == 't' && url[2] == 't' && url[3] == 'p') {
+    if (url[4] == ':' && url[5] == '/' && url[6] == '/') host = url + 7;
+    else if (url[4] == 's' && url[5] == ':' && url[6] == '/' && url[7] == '/') host = url + 8;
+  }
+  if (!host || *host == '\0' || *host == '/') return false;
+  for (const char* q = host; *q && *q != '/'; q++) {
+    if (*q == '@') return false;
+  }
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // RSS text pipeline (1.0.11, issue #5 increment): extracted from
 // src/rss/RssRuntime.inc so the parsing/cleanup logic - the newest pure
