@@ -355,7 +355,7 @@ void handleRoot() {
   page += "<meta charset='utf-8'>";
   page += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
   page += "<title>InfoTerm</title>";
-  page += "<style>body{margin:0;background:#0b1018;color:#edf2f7;font-family:system-ui,sans-serif;font-size:14px;line-height:1.35}.wrap{max-width:980px;margin:0 auto;padding:18px 14px}.hero,.panel{background:#171b22;border:1px solid #2d3748;border-radius:16px;padding:14px;margin-bottom:14px}.hero h1{font-size:28px;line-height:1.1;margin:0 0 10px}.tabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}.tab-button,button,.secondary-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;background:#111827;border:1px solid #334155;color:#cbd5e1;padding:0 14px;border-radius:12px;font-weight:700;font-size:14px;line-height:1;text-decoration:none}.tab-button.active,button[type=submit]{background:#38bdf8;color:#001018}.panel-toggle{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;min-height:28px;cursor:pointer;color:#edf2f7}.panel-toggle h2{margin:0;font-size:17px;line-height:1.2}.panel-body{margin-top:12px}.panel.collapsed .panel-body{display:none}.panel[data-tab]{display:none}.panel[data-tab].tab-visible{display:block}.grid,.grid-3{display:grid;grid-template-columns:1fr 1fr;gap:12px}input,select,textarea{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#edf2f7;padding:9px;font-size:14px}.label{display:block;margin:0 0 5px}.color-value{color:#a0aec0;font-size:12px}.color-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(148,163,184,.14)}.color-meta{display:flex;flex-direction:column;flex-shrink:0}.swatch-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.swatch{display:inline-block;width:18px;height:18px;border-radius:50%;border:1px solid #fff4}.swatch input{display:none}.swatch.active{outline:2px solid #67e8f9}.mqtt-config-table,.datapoint-table{width:100%;border-collapse:collapse;font-size:12px}.mqtt-config-table td,.mqtt-config-table th,.datapoint-table td,.datapoint-table th{border-bottom:1px solid #334155;padding:5px 6px}.mqtt-row-actions{display:flex;gap:5px}.mqtt-action-btn,.mqtt-trash{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:28px;padding:0;border:1px solid #334155;border-radius:8px;text-decoration:none;background:#111827;color:#cbd5e1;cursor:pointer;font-weight:400}.datapoint-link{display:inline-flex;align-items:center;min-height:32px;color:#7dd3fc;text-decoration:underline}.status-hero{display:grid;grid-template-columns:170px minmax(0,1fr);gap:24px;align-items:start;border-radius:14px;padding:15px 18px;background:#151922;border-color:#2b3545;min-width:0}.brand-block h1{margin:0;font-size:28px;line-height:1.05}.status-columns{display:grid;grid-template-columns:max-content max-content max-content max-content;column-gap:32px;align-items:start;min-width:0}.status-group{display:grid;grid-template-columns:max-content max-content;column-gap:10px;row-gap:4px;align-items:baseline;min-width:0}.status-group span{color:#fff;font-size:13px}.status-group b{font-size:13px;color:#7dd3fc;font-weight:800;white-space:nowrap}.switch-row{display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.14)}.switch-row b{display:block}.switch-row small{display:block;color:#8ea3ba;margin-top:3px}.switch-row input{width:auto}.settings-block{margin-top:16px}.muted,.settings-desc,.footer-note{color:#8ea3ba;font-size:13px;margin-top:4px}.settings-title{font-weight:700}.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}.card,.tablewrap{background:#171b22;border:1px solid #2d3748;border-radius:14px;padding:12px}.tablewrap{overflow-x:auto}.card b{display:block;font-size:18px;margin-top:4px}.btn.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;background:#111827;color:#cbd5e1;border:1px solid #334155;padding:0 14px;border-radius:10px;text-decoration:none;font-weight:700}.ok{color:#86efac}.bad{color:#fca5a5}@media(max-width:1000px){.status-columns{grid-template-columns:1fr 1fr}.status-group{grid-template-columns:96px 1fr}.status-group b{text-align:left}}@media(max-width:820px){.status-hero{grid-template-columns:1fr;gap:12px}.status-columns{grid-template-columns:1fr 1fr;gap:10px 18px}.grid,.grid-3{grid-template-columns:1fr}}@media(max-width:520px){.status-columns{grid-template-columns:1fr}.status-group{grid-template-columns:86px 1fr}}</style>";
+  page += "<style>body{margin:0;background:#0b1018;color:#edf2f7;font-family:system-ui,sans-serif;font-size:14px;line-height:1.35}.wrap{max-width:980px;margin:0 auto;padding:18px 14px}.hero,.panel{background:#171b22;border:1px solid #2d3748;border-radius:16px;padding:14px;margin-bottom:14px}.hero h1{font-size:28px;line-height:1.1;margin:0 0 10px}.tabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}.tab-button,button,.secondary-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;background:#111827;border:1px solid #334155;color:#cbd5e1;padding:0 14px;border-radius:12px;font-weight:700;font-size:14px;line-height:1;text-decoration:none}.tab-button.active,button[type=submit]{background:#38bdf8;color:#001018}.panel-toggle{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;min-height:28px;cursor:pointer;color:#edf2f7}.panel-toggle h2{margin:0;font-size:17px;line-height:1.2}.panel-body{margin-top:12px}.panel.collapsed .panel-body{display:none}.panel[data-tab]{display:none}.panel[data-tab].tab-visible{display:block}.grid,.grid-3{display:grid;grid-template-columns:1fr 1fr;gap:12px}input,select,textarea{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #334155;background:#0b1220;color:#edf2f7;padding:9px;font-size:14px}.label{display:block;margin:0 0 5px}.color-value{color:#a0aec0;font-size:12px}.color-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid rgba(148,163,184,.14)}.color-meta{display:flex;flex-direction:column;flex-shrink:0}.swatch-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.swatch{display:inline-block;width:18px;height:18px;border-radius:50%;border:1px solid #fff4}.swatch input{display:none}.swatch.active{outline:2px solid #67e8f9}.mqtt-config-table,.datapoint-table{width:100%;border-collapse:collapse;font-size:12px}.mqtt-config-table td,.mqtt-config-table th,.datapoint-table td,.datapoint-table th{border-bottom:1px solid #334155;padding:5px 6px}.mqtt-row-actions{display:flex;gap:5px}.mqtt-action-btn,.mqtt-trash{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:28px;padding:0;border:1px solid #334155;border-radius:8px;text-decoration:none;background:#111827;color:#cbd5e1;cursor:pointer;font-weight:400}.datapoint-link{display:inline-flex;align-items:center;min-height:32px;color:#7dd3fc;text-decoration:underline}.status-hero{display:grid;grid-template-columns:170px minmax(0,1fr);gap:24px;align-items:start;border-radius:14px;padding:15px 18px;background:#151922;border-color:#2b3545;min-width:0}.brand-block h1{margin:0;font-size:28px;line-height:1.05}.status-columns{display:grid;grid-template-columns:max-content max-content max-content max-content;column-gap:32px;align-items:start;min-width:0}.status-group{display:grid;grid-template-columns:max-content max-content;column-gap:10px;row-gap:4px;align-items:baseline;min-width:0}.status-group span{color:#fff;font-size:13px}.status-group b{font-size:13px;color:#7dd3fc;font-weight:800;white-space:nowrap}.switch-row{display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.14)}.switch-row b{display:block}.switch-row small{display:block;color:#8ea3ba;margin-top:3px}.switch-row input{width:auto}.settings-block{margin-top:16px}.muted,.settings-desc,.footer-note{color:#8ea3ba;font-size:13px;margin-top:4px}.settings-title{font-weight:700}.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}.card,.tablewrap{background:#171b22;border:1px solid #2d3748;border-radius:14px;padding:12px}.tablewrap{overflow-x:auto}.card b{display:block;font-size:18px;margin-top:4px}.btn.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;background:#111827;color:#cbd5e1;border:1px solid #334155;padding:0 14px;border-radius:10px;text-decoration:none;font-weight:700}.ok{color:#86efac}.bad{color:#fca5a5}.panel-head{display:flex;align-items:center}.panel-head .panel-toggle{width:auto;gap:10px}.panel-head-check{display:inline-flex;align-items:center;gap:7px;margin-left:16px;color:#cbd5e1;cursor:pointer;white-space:nowrap}.panel-head-check input{width:auto}.section-title{display:block;font-weight:700;margin:16px 0 2px}.color-stack .section-title:first-child{margin-top:0}@media(max-width:1000px){.status-columns{grid-template-columns:1fr 1fr}.status-group{grid-template-columns:96px 1fr}.status-group b{text-align:left}}@media(max-width:820px){.status-hero{grid-template-columns:1fr;gap:12px}.status-columns{grid-template-columns:1fr 1fr;gap:10px 18px}.grid,.grid-3{grid-template-columns:1fr}}@media(max-width:520px){.status-columns{grid-template-columns:1fr}.status-group{grid-template-columns:86px 1fr}}</style>";
   htmlFlush(page);  // the CSS block above is the single biggest append (~3.5 KB)
   page += "</head><body><div class='wrap'>";
   page += "<div class='hero status-hero'>";
@@ -395,9 +395,9 @@ void handleRoot() {
     String tabId = String("tab") + String(t + 1);
     page += "<a class='" + tabButtonClass(activeTab, tabId.c_str()) + "' href='/?tab=" + tabId + "' data-target-tab='" + tabId + "'>" + htmlEscape(tabLabel) + "</a>";
   }
+  page += "<a class='" + tabButtonClass(activeTab, "rss") + "' href='/?tab=rss' data-target-tab='rss'>RSS</a>";
   page += "<a class='" + tabButtonClass(activeTab, "mqtt") + "' href='/?tab=mqtt' data-target-tab='mqtt'>MQTT</a>";
   page += "<a class='" + tabButtonClass(activeTab, "datapoints") + "' href='/?tab=datapoints' data-target-tab='datapoints'>" + String(TXTW(L_WEB_DATAPOINTS)) + "</a>";
-  page += "<a class='" + tabButtonClass(activeTab, "rss") + "' href='/?tab=rss' data-target-tab='rss'>RSS Feed</a>";
   page += "<a class='" + tabButtonClass(activeTab, "design") + "' href='/?tab=design' data-target-tab='design'>" + String(TXTW(L_WEB_THEME_TITLE)) + "</a>";
   page += "<a class='" + tabButtonClass(activeTab, "settings") + "' href='/?tab=settings' data-target-tab='settings'>" + String(TXTW(L_WEB_SETTINGS)) + "</a>";
   page += "</div>";
@@ -649,28 +649,29 @@ void handleRoot() {
   page += "<p class='muted'>" + String(TXTW(L_WEB_THEME_DESC)) + "</p>";
   page += "<div class='grid'>";
 
+  // Design tab layout (1.0.11, user mockup): the per-control <b> labels
+  // became four bold section headings - Anzeige / Nachtmodus / Widgets /
+  // Farben - and each control keeps only its hint text as label.
   page += "<div style='grid-column:1 / -1;' class='color-stack'>";
-  page += "<b>" + String(TXTW(L_WEB_NIGHT_MODE)) + "</b>";
+  page += "<span class='section-title'>" + String(TXTW(L_WEB_SECTION_DISPLAY)) + "</span>";
+  page += "<label class='switch-row'><input type='checkbox' name='rotate180' value='1'" + String(webDisplayRotated180 ? " checked" : "") + "><small>" + String(TXTW(L_WEB_ROTATE_HINT)) + "</small></label>";
+  page += "<span class='section-title'>" + String(TXTW(L_WEB_NIGHT_MODE)) + "</span>";
   page += "<label class='switch-row'><input type='checkbox' name='nightMode' value='1'" + String(webNightModeEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_NIGHT_MODE_HINT)) + "</small></label>";
-  page += "<b>" + String(TXTW(L_WEB_NIGHT_FORCE)) + "</b>";
   page += "<label class='switch-row'><input type='checkbox' name='nightForce' value='1'" + String(webNightModeForced ? " checked" : "") + "><small>" + String(TXTW(L_WEB_NIGHT_FORCE_HINT)) + "</small></label>";
-  page += "<b>" + String(TXTW(L_WEB_NIGHT_BRIGHTNESS)) + "</b>";
   page += "<label class='switch-row'><select name='nightBrightness'>";
   const int nightBrightnessSteps[] = {10, 25, 50, 75, 100};
   for (int nb : nightBrightnessSteps) {
     page += "<option value='" + String(nb) + "'" + String(webNightBrightnessPct == nb ? " selected" : "") + ">" + String(nb) + " %</option>";
   }
   page += "</select><small>" + String(TXTW(L_WEB_NIGHT_BRIGHTNESS_HINT)) + "</small></label>";
-  page += "<b>" + String(TXTW(L_WEB_WIDGET_BORDER)) + "</b>";
+  page += "<span class='section-title'>Widgets</span>";
   page += "<label class='switch-row'><input type='checkbox' name='widgetBorder' value='1'" + String(webWidgetBordersEnabled ? " checked" : "") + "><small>" + String(TXTW(L_WEB_WIDGET_BORDER_HINT)) + "</small></label>";
-  page += "<b>" + String(TXTW(L_WEB_WIDGET_FONT)) + "</b>";
   page += "<label class='switch-row'><select name='widgetFont'>";
   page += "<option value='small'" + String(webWidgetFontKey == "small" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_SMALL)) + "</option>";
   page += "<option value='normal'" + String(webWidgetFontKey == "normal" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_NORMAL)) + "</option>";
   page += "<option value='large'" + String(webWidgetFontKey == "large" ? " selected" : "") + ">" + String(TXTW(L_WEB_FONT_LARGE)) + "</option>";
   page += "</select><small>" + String(TXTW(L_WEB_WIDGET_FONT_HINT)) + "</small></label>";
-  page += "<b>" + String(TXTW(L_WEB_ROTATE)) + "</b>";
-  page += "<label class='switch-row'><input type='checkbox' name='rotate180' value='1'" + String(webDisplayRotated180 ? " checked" : "") + "><small>" + String(TXTW(L_WEB_ROTATE_HINT)) + "</small></label>";
+  page += "<span class='section-title'>" + String(TXTW(L_WEB_SECTION_COLORS)) + "</span>";
 
   appendColorPaletteRow(page, String(TXTW(L_WEB_ACCENT)), "accent", accent, "accent-value", false);
   appendColorPaletteRow(page, String(TXTW(L_WEB_BORDER_COLOR)), "border", border, "border-value", false);
@@ -681,8 +682,23 @@ void handleRoot() {
   appendColorPaletteRow(page, String(TXTW(L_WEB_THEME)), "bg", bg, "bg-value", false);
 
   page += "</div>";
+  page += "</div>";
+  page += "</div></div>";
+  htmlFlush(page);
 
-  page += "</div></div></div>";
+  // Scoped design+tabs export/import (1.0.11, issue #8) - own collapsible
+  // "Backup" panel below the design settings (user mockup), same button
+  // block pattern as the MQTT DataPoints export.
+  page += "<div class='" + tabPanelClass(activeTab, "design") + "' data-panel='designbackup' data-tab='design'>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Backup</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<div class='panel-body'>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_DESIGN_EXPORT_DESC)) + "</div>";
+  page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;'>";
+  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/design/export'>" + String(TXTW(L_WEB_DESIGN_EXPORT)) + "</a>";
+  appendFilePicker(page, "designImportInput", ".json");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitDesignImport()'>" + String(TXTW(L_WEB_DESIGN_IMPORT)) + "</button>";
+  page += "</div>";
+  page += "</div></div>";
   htmlFlush(page);
 
   page += "<div class='" + tabPanelClass(activeTab, "mqtt") + "' data-panel='mqttvalues' data-tab='mqtt'>";
@@ -715,12 +731,20 @@ void handleRoot() {
   }
   page += "</tbody></table></div>";
   page += "<button type='submit' class='secondary-button' name='mqttAdd' value='1'>" + String(TXTW(L_WEB_DP_ADD)) + "</button>";
-  page += "<div class='settings-block'><div class='settings-desc'>" + String(TXTW(L_WEB_MQTT_EXPORT_DESC)) + "</div>";
-  page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;'>";
+  page += "</div>";
+  page += "</div></div>";
+  htmlFlush(page);
+
+  // DataPoints export/import in its own "Backup" panel (1.0.11) - same
+  // presentation as the Backup panel on the Design tab.
+  page += "<div class='" + tabPanelClass(activeTab, "mqtt") + "' data-panel='mqttbackup' data-tab='mqtt'>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Backup</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<div class='panel-body'>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_MQTT_EXPORT_DESC)) + "</div>";
+  page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;'>";
   page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/mqtt/export'>" + String(TXTW(L_WEB_DP_EXPORT)) + "</a>";
   appendFilePicker(page, "mqttImportInput", ".json");
   page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitMqttImport()'>" + String(TXTW(L_WEB_DP_IMPORT)) + "</button>";
-  page += "</div></div>";
   page += "</div>";
   page += "</div></div>";
 
@@ -756,6 +780,20 @@ void handleRoot() {
   page += "</div></div>";
   htmlFlush(page);
 
+  // RSS feed list export/import in its own "Backup" panel (1.0.11) -
+  // analogous to the DataPoints export on the MQTT tab.
+  page += "<div class='" + tabPanelClass(activeTab, "rss") + "' data-panel='rssbackup' data-tab='rss'>";
+  page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>Backup</h2><span class='panel-chevron'>&#9662;</span></button>";
+  page += "<div class='panel-body'>";
+  page += "<div class='settings-desc'>" + String(TXTW(L_WEB_RSS_EXPORT_DESC)) + "</div>";
+  page += "<div style='display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;'>";
+  page += "<a class='secondary-button' style='background:#38bdf8;color:#001018;' href='/rss/export'>" + String(TXTW(L_WEB_RSS_EXPORT)) + "</a>";
+  appendFilePicker(page, "rssImportInput", ".json");
+  page += "<button type='button' class='secondary-button' style='background:#38bdf8;color:#001018;' onclick='submitRssImport()'>" + String(TXTW(L_WEB_RSS_IMPORT)) + "</button>";
+  page += "</div>";
+  page += "</div></div>";
+  htmlFlush(page);
+
   page += "<div class='" + tabPanelClass(activeTab, "home") + "' data-panel='widgets' data-tab='home'>";
   page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + String(TXTW(L_WEB_WIDGETS_TITLE)) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
   page += "<div class='panel-body'>";
@@ -785,7 +823,14 @@ void handleRoot() {
     String panelTabLabel = customTabNames[t];
     panelTabLabel.trim();
     if (panelTabLabel.length() == 0) panelTabLabel = "Tab" + String(t + 1);
+    // 1.0.11: the "active" checkbox sits in the panel header next to the tab
+    // title (user request). It lives OUTSIDE the toggle button so a click on
+    // it changes the checkbox without collapsing the panel; the header is
+    // still inside the main form, so handleSave keeps receiving tabEnabled<t>.
+    page += "<div class='panel-head'>";
     page += "<button type='button' class='panel-toggle' aria-expanded='true'><h2>" + htmlEscape(panelTabLabel) + "</h2><span class='panel-chevron'>&#9662;</span></button>";
+    page += "<label class='panel-head-check'><input type='checkbox' name='tabEnabled" + String(t) + "' value='1'" + String(customTabEnabled[t] ? " checked" : "") + ">" + String(TXTW(L_WEB_ACTIVE)) + "</label>";
+    page += "</div>";
     page += "<div class='panel-body'>";
     page += "<p class='muted'>" + String(TXTW(L_WEB_TAB_CFG_DESC)) + "</p>";
     page += "<div class='grid'>";
@@ -806,7 +851,6 @@ void handleRoot() {
       }
     }
     page += "</select></div>";
-    page += "<label class='mqtt-check' style='align-self:end;'><input type='checkbox' name='tabEnabled" + String(t) + "' value='1'" + String(customTabEnabled[t] ? " checked" : "") + " style='width:auto;'>" + String(TXTW(L_WEB_ACTIVE)) + "</label>";
     page += "</div>";
     page += "<div class='settings-block'><span class='settings-title'>Widgets</span><div class='grid'>";
     for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
@@ -860,7 +904,11 @@ void handleRoot() {
   page += "portalConfirm:" + jsQuote(TXTW(L_JS_PORTAL_CONFIRM)) + ",";
   page += "restartConfirm:" + jsQuote(TXTW(L_JS_RESTART_CONFIRM)) + ",";
   page += "restarting:" + jsQuote(TXTW(L_JS_RESTARTING)) + ",";
-  page += "rssDeleteConfirm:" + jsQuote(TXTW(L_WEB_RSS_DELETE_CONFIRM));
+  page += "rssDeleteConfirm:" + jsQuote(TXTW(L_WEB_RSS_DELETE_CONFIRM)) + ",";
+  page += "designSelect:" + jsQuote(TXTW(L_JS_DESIGN_SELECT)) + ",";
+  page += "designImportConfirm:" + jsQuote(TXTW(L_JS_DESIGN_IMPORT_CONFIRM)) + ",";
+  page += "rssSelect:" + jsQuote(TXTW(L_JS_RSS_SELECT)) + ",";
+  page += "rssImportConfirm:" + jsQuote(TXTW(L_JS_RSS_IMPORT_CONFIRM));
   page += "};";
   page += "function fileName(inp){var s=document.getElementById(inp.id+'-name');if(s)s.textContent=(inp.files&&inp.files.length)?inp.files[0].name:T.noFile;}";
   page += "function scanWifi(){var res=document.getElementById('wifiScanResult');var dl=document.getElementById('wifiScanList');if(res)res.textContent=T.wifiScanning;fetch('/wifi/scan?csrf='+csrfToken,{method:'POST'}).then(function(r){return r.json();}).then(function(list){if(dl){dl.innerHTML='';list.forEach(function(n){var o=document.createElement('option');o.value=n;dl.appendChild(o);});}if(res)res.textContent=list.length+' '+T.wifiFound;}).catch(function(){if(res)res.textContent=T.wifiScanFailed;});}";
@@ -872,8 +920,11 @@ void handleRoot() {
   page += "function submitVpnUpload(){var input=document.getElementById('vpnFileInput');if(!input||!input.files||!input.files.length){alert(T.vpnSelect);return;}var fd=new FormData();fd.append('vpnFile',input.files[0]);fetch('/vpn/upload?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=settings'+(r.ok?'':'&vpnError=1');}).catch(function(){alert(T.vpnUploadFailed);});}";
   page += "function submitVpnConnect(){if(!confirm(T.vpnConnectConfirm)){return;}fetch('/vpn/connect?csrf='+csrfToken,{method:'POST'}).then(function(){setTimeout(function(){location.href='/?tab=settings';},1500);}).catch(function(){});}";
   page += "function loadLogView(){var out=document.getElementById('logOutput');if(!out)return;out.textContent=T.loading;fetch('/log').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){out.textContent=t;}).catch(function(){out.textContent=T.logFailed;});}";
-  page += "function submitMqttTest(){var res=document.getElementById('mqttTestResult');function val(n){var el=document.getElementsByName(n)[0];return el?el.value:'';}var p=new URLSearchParams();p.append('mqttHost',val('mqttHost'));p.append('mqttPort',val('mqttPort'));p.append('mqttUser',val('mqttUser'));p.append('mqttPass',val('mqttPass'));p.append('csrf',csrfToken);if(res)res.textContent=T.testing;fetch('/mqtt/test',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(r){return r.text();}).then(function(t){if(res)res.textContent=t;}).catch(function(){if(res)res.textContent=T.testFailed;});}";
+  page += "function pollMqttTestStatus(){fetch('/mqtt/test/status').then(function(r){if(r.status===202){setTimeout(pollMqttTestStatus,700);return null;}return r.text();}).then(function(t){if(t!==null){var res=document.getElementById('mqttTestResult');if(res)res.textContent=t;}}).catch(function(){var res=document.getElementById('mqttTestResult');if(res)res.textContent=T.testFailed;});}";
+  page += "function submitMqttTest(){var res=document.getElementById('mqttTestResult');function val(n){var el=document.getElementsByName(n)[0];return el?el.value:'';}var p=new URLSearchParams();p.append('mqttHost',val('mqttHost'));p.append('mqttPort',val('mqttPort'));p.append('mqttUser',val('mqttUser'));p.append('mqttPass',val('mqttPass'));p.append('csrf',csrfToken);if(res)res.textContent=T.testing;fetch('/mqtt/test',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p}).then(function(r){if(r.status===202){setTimeout(pollMqttTestStatus,700);return;}if(!r.ok)throw 0;return r.text().then(function(t){if(res)res.textContent=t;});}).catch(function(){if(res)res.textContent=T.testFailed;});}";
   page += "function submitMqttImport(){var input=document.getElementById('mqttImportInput');if(!input||!input.files||!input.files.length){alert(T.mqttSelect);return;}if(!confirm(T.mqttImportConfirm)){return;}var fd=new FormData();fd.append('mqttFile',input.files[0]);fetch('/mqtt/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=mqtt'+(r.ok&&r.url.indexOf('mqttImportError')<0?'':'&mqttImportError=1');}).catch(function(){alert(T.importFailed);});}";
+  page += "function submitDesignImport(){var input=document.getElementById('designImportInput');if(!input||!input.files||!input.files.length){alert(T.designSelect);return;}if(!confirm(T.designImportConfirm)){return;}var fd=new FormData();fd.append('designFile',input.files[0]);fetch('/design/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=design'+(r.ok&&r.url.indexOf('designImportError')<0?'':'&designImportError=1');}).catch(function(){alert(T.importFailed);});}";
+  page += "function submitRssImport(){var input=document.getElementById('rssImportInput');if(!input||!input.files||!input.files.length){alert(T.rssSelect);return;}if(!confirm(T.rssImportConfirm)){return;}var fd=new FormData();fd.append('rssFile',input.files[0]);fetch('/rss/import?csrf='+csrfToken,{method:'POST',body:fd}).then(function(r){location.href='/?tab=rss'+(r.ok&&r.url.indexOf('rssImportError')<0?'':'&rssImportError=1');}).catch(function(){alert(T.importFailed);});}";
   page += "function submitVpnDisconnect(){fetch('/vpn/disconnect?csrf='+csrfToken,{method:'POST'}).then(function(){location.href='/?tab=settings';}).catch(function(){location.href='/?tab=settings';});}";
   page += "var initialTab='home';try{initialTab=new URLSearchParams(location.search).get('tab')||localStorage.getItem('infoterm-active-tab')||'home';}catch(e){}if(!document.querySelector('.tab-button[data-target-tab=\"'+initialTab+'\"]')) initialTab='home';";
   page += "document.querySelectorAll('.tab-button').forEach(function(btn){btn.addEventListener('click',function(){showTab(btn.getAttribute('data-target-tab'));});});showTab(initialTab);";
@@ -1113,6 +1164,168 @@ void handleMqttImportDone() {
   server.send(303);
 }
 
+// Scoped design+tabs export/import (1.0.11, issue #8) - handler trio
+// mirroring the MQTT DataPoints export/import above.
+void handleDesignExport() {
+  if (!requireAuth()) return;
+  const char* path = "/design_tabs.json";
+  if (!serializeDesignTabsToFile(path) || !LittleFS.exists(path)) {
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
+    return;
+  }
+  File file = LittleFS.open(path, "r");
+  if (!file) {
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
+    return;
+  }
+  time_t nowT = time(nullptr);
+  struct tm tmNow;
+  localtime_r(&nowT, &tmNow);
+  char stamp[20];
+  strftime(stamp, sizeof(stamp), "%Y%m%d_%H%M%S", &tmNow);
+  String downloadName = String("InfoTerm_design_") + stamp + ".json";
+  server.sendHeader("Content-Disposition", "attachment; filename=\"" + downloadName + "\"");
+  server.streamFile(file, "application/json");
+  file.close();
+}
+
+static File designImportUploadFile;
+static const char* DESIGN_IMPORT_TMP_PATH = "/design_import.json";
+// Design keys + 3 tabs with 8 slots are ~1.5 KB; 16 KB is generous headroom.
+static const size_t DESIGN_IMPORT_MAX_BYTES = 16 * 1024;
+static size_t designImportUploadBytes = 0;
+static bool designImportUploadTooLarge = false;
+
+void handleDesignImportUpload() {
+  HTTPUpload& upload = server.upload();
+  if (!webAuthOk() || !csrfOk()) return;
+  if (upload.status == UPLOAD_FILE_START) {
+    designImportUploadBytes = 0;
+    designImportUploadTooLarge = false;
+    if (mountConfigFilesystem(false)) {
+      designImportUploadFile = LittleFS.open(DESIGN_IMPORT_TMP_PATH, "w");
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (designImportUploadTooLarge || !designImportUploadFile) return;
+    designImportUploadBytes += upload.currentSize;
+    if (designImportUploadBytes > DESIGN_IMPORT_MAX_BYTES) {
+      designImportUploadTooLarge = true;
+      designImportUploadFile.close();
+      LittleFS.remove(DESIGN_IMPORT_TMP_PATH);
+      Logger::warning("Design-Import abgelehnt: Datei groesser als 16 KB");
+      return;
+    }
+    designImportUploadFile.write(upload.buf, upload.currentSize);
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (designImportUploadFile) {
+      designImportUploadFile.close();
+    }
+  } else if (upload.status == UPLOAD_FILE_ABORTED) {
+    if (designImportUploadFile) {
+      designImportUploadFile.close();
+      LittleFS.remove(DESIGN_IMPORT_TMP_PATH);
+    }
+  }
+}
+
+void handleDesignImportDone() {
+  if (!requireAuthAndCsrf()) return;
+  bool ok = !designImportUploadTooLarge &&
+            deserializeDesignTabsFromFile(DESIGN_IMPORT_TMP_PATH);
+  designImportUploadTooLarge = false;
+  LittleFS.remove(DESIGN_IMPORT_TMP_PATH);
+  if (ok) {
+    // applyDesignTabsFromDoc already applied palette/rotation/night state,
+    // persisted and set pageDirty; here only the runtime caches and events.
+    InfoTermEventBusIntegration::publishConfigurationChanged("webgui", "design.import");
+    InfoTermEventBusIntegration::publishWidgetChanged("webgui", "design.import");
+    resetDataCaches();
+    // A tab that got disabled by the import must not stay on screen.
+    if (currentPage == PAGE_TAB1 && !customTabEnabled[0]) currentPage = PAGE_HOME;
+    if (currentPage == PAGE_TAB2 && !customTabEnabled[1]) currentPage = PAGE_HOME;
+    if (currentPage == PAGE_TAB3 && !customTabEnabled[2]) currentPage = PAGE_HOME;
+  }
+  server.sendHeader("Location", ok ? "/?tab=design" : "/?tab=design&designImportError=1");
+  server.send(303);
+}
+
+// RSS feed list export/import (1.0.11) - handler trio mirroring the MQTT
+// DataPoints export/import above.
+void handleRssExport() {
+  if (!requireAuth()) return;
+  const char* path = "/rss_feeds.json";
+  if (!serializeRssFeedsToFile(path) || !LittleFS.exists(path)) {
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
+    return;
+  }
+  File file = LittleFS.open(path, "r");
+  if (!file) {
+    server.send(500, "text/plain", TXTW(L_WEB_EXPORT_FAILED));
+    return;
+  }
+  time_t nowT = time(nullptr);
+  struct tm tmNow;
+  localtime_r(&nowT, &tmNow);
+  char stamp[20];
+  strftime(stamp, sizeof(stamp), "%Y%m%d_%H%M%S", &tmNow);
+  String downloadName = String("InfoTerm_rss_") + stamp + ".json";
+  server.sendHeader("Content-Disposition", "attachment; filename=\"" + downloadName + "\"");
+  server.streamFile(file, "application/json");
+  file.close();
+}
+
+static File rssImportUploadFile;
+static const char* RSS_IMPORT_TMP_PATH = "/rss_import.json";
+// 4 URLs of 200 chars are ~1 KB; 16 KB is generous headroom.
+static const size_t RSS_IMPORT_MAX_BYTES = 16 * 1024;
+static size_t rssImportUploadBytes = 0;
+static bool rssImportUploadTooLarge = false;
+
+void handleRssImportUpload() {
+  HTTPUpload& upload = server.upload();
+  if (!webAuthOk() || !csrfOk()) return;
+  if (upload.status == UPLOAD_FILE_START) {
+    rssImportUploadBytes = 0;
+    rssImportUploadTooLarge = false;
+    if (mountConfigFilesystem(false)) {
+      rssImportUploadFile = LittleFS.open(RSS_IMPORT_TMP_PATH, "w");
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (rssImportUploadTooLarge || !rssImportUploadFile) return;
+    rssImportUploadBytes += upload.currentSize;
+    if (rssImportUploadBytes > RSS_IMPORT_MAX_BYTES) {
+      rssImportUploadTooLarge = true;
+      rssImportUploadFile.close();
+      LittleFS.remove(RSS_IMPORT_TMP_PATH);
+      Logger::warning("RSS-Import abgelehnt: Datei groesser als 16 KB");
+      return;
+    }
+    rssImportUploadFile.write(upload.buf, upload.currentSize);
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (rssImportUploadFile) {
+      rssImportUploadFile.close();
+    }
+  } else if (upload.status == UPLOAD_FILE_ABORTED) {
+    if (rssImportUploadFile) {
+      rssImportUploadFile.close();
+      LittleFS.remove(RSS_IMPORT_TMP_PATH);
+    }
+  }
+}
+
+void handleRssImportDone() {
+  if (!requireAuthAndCsrf()) return;
+  bool ok = !rssImportUploadTooLarge &&
+            deserializeRssFeedsFromFile(RSS_IMPORT_TMP_PATH);
+  rssImportUploadTooLarge = false;
+  LittleFS.remove(RSS_IMPORT_TMP_PATH);
+  if (ok) {
+    InfoTermEventBusIntegration::publishConfigurationChanged("webgui", "rss.import");
+  }
+  server.sendHeader("Location", ok ? "/?tab=rss" : "/?tab=rss&rssImportError=1");
+  server.send(303);
+}
+
 static File vpnUploadFile;
 static const char* VPN_UPLOAD_TMP_PATH = "/vpn_upload.conf";
 // A WireGuard .conf is well under 1 KB; 8 KB is already generous.
@@ -1280,8 +1493,47 @@ void handleWifiScan() {
   server.send(200, "application/json", out);
 }
 
+// 1.0.11 (issue #3): the connect attempt runs in its own FreeRTOS task
+// (same pattern as vpnRequestConnect) instead of inline in the handler -
+// the old version blocked the cooperative main loop for up to ~5 s, which
+// froze display and touch for the duration of the test. POST /mqtt/test
+// only stores the parameters and starts the task (returns 202); the page
+// polls GET /mqtt/test/status, which answers 202 while the task runs and
+// 200 with the final localized message once it is done. The task writes
+// only plain volatile flags/ints; the message is composed on the reading
+// side, so no String crosses the task boundary.
+static volatile bool mqttTestRunning = false;
+static volatile bool mqttTestHasResult = false;
+static volatile bool mqttTestOk = false;
+static volatile int mqttTestStateCode = 0;
+static String mqttTestTaskHost;
+static uint16_t mqttTestTaskPort = 0;
+static String mqttTestTaskUser;
+static String mqttTestTaskPass;
+
+static void mqttTestTask(void*) {
+  WiFiClient testNet;
+  PubSubClient testClient(testNet);
+  testClient.setServer(mqttTestTaskHost.c_str(), mqttTestTaskPort);
+  testClient.setSocketTimeout(5);
+  String clientId = String("InfoTermTest-") + String((uint32_t)esp_random(), HEX);
+  bool ok = mqttTestTaskUser.length() > 0
+      ? testClient.connect(clientId.c_str(), mqttTestTaskUser.c_str(), mqttTestTaskPass.c_str())
+      : testClient.connect(clientId.c_str());
+  mqttTestStateCode = testClient.state();
+  if (ok) testClient.disconnect();
+  mqttTestOk = ok;
+  mqttTestHasResult = true;  // before running=false: status never sees a gap
+  mqttTestRunning = false;
+  vTaskDelete(nullptr);
+}
+
 void handleMqttTest() {
   if (!requireAuthAndCsrf()) return;
+  if (mqttTestRunning) {
+    server.send(202, "text/plain; charset=utf-8", TXTW(L_JS_TESTING));
+    return;
+  }
   String host = server.hasArg("mqttHost") ? server.arg("mqttHost") : mqttHost;
   uint16_t port = server.hasArg("mqttPort") ? (uint16_t)server.arg("mqttPort").toInt() : mqttPort;
   String user = server.hasArg("mqttUser") ? server.arg("mqttUser") : mqttUser;
@@ -1293,27 +1545,36 @@ void handleMqttTest() {
   if (port == 0) port = mqttPort;
   if (pass.length() == 0) pass = mqttPass;
 
-  WiFiClient testNet;
-  PubSubClient testClient(testNet);
-  testClient.setServer(host.c_str(), port);
-  testClient.setSocketTimeout(5);
-  String clientId = String("InfoTermTest-") + String((uint32_t)esp_random(), HEX);
-  bool ok = user.length() > 0
-      ? testClient.connect(clientId.c_str(), user.c_str(), pass.c_str())
-      : testClient.connect(clientId.c_str());
-  int state = testClient.state();
-  if (ok) testClient.disconnect();
+  mqttTestTaskHost = host;
+  mqttTestTaskPort = port;
+  mqttTestTaskUser = user;
+  mqttTestTaskPass = pass;
+  mqttTestHasResult = false;
+  mqttTestRunning = true;
+  if (xTaskCreate(mqttTestTask, "mqttTest", 8192, nullptr, 1, nullptr) != pdPASS) {
+    mqttTestRunning = false;
+    server.send(500, "text/plain; charset=utf-8", TXTW(L_JS_TEST_FAILED));
+    return;
+  }
+  server.send(202, "text/plain; charset=utf-8", TXTW(L_JS_TESTING));
+}
 
+void handleMqttTestStatus() {
+  if (!requireAuth()) return;
+  if (mqttTestRunning || !mqttTestHasResult) {
+    server.send(202, "text/plain; charset=utf-8", TXTW(L_JS_TESTING));
+    return;
+  }
   String msg;
-  if (ok) {
-    msg = String(TXTW(L_WEB_MQTT_TEST_OK)) + host + ":" + String(port) + ")";
+  if (mqttTestOk) {
+    msg = String(TXTW(L_WEB_MQTT_TEST_OK)) + mqttTestTaskHost + ":" + String(mqttTestTaskPort) + ")";
   } else {
-    switch (state) {
+    switch (mqttTestStateCode) {
       case -4: msg = TXTW(L_WEB_MQTT_TEST_TIMEOUT); break;
       case -2: msg = TXTW(L_WEB_MQTT_TEST_UNREACHABLE); break;
       case 4:  msg = TXTW(L_WEB_MQTT_TEST_AUTH); break;
       case 5:  msg = TXTW(L_WEB_MQTT_TEST_UNAUTHORIZED); break;
-      default: msg = String(TXTW(L_WEB_MQTT_TEST_CODE)) + String(state) + ")"; break;
+      default: msg = String(TXTW(L_WEB_MQTT_TEST_CODE)) + String(mqttTestStateCode) + ")"; break;
     }
   }
   server.send(200, "text/plain; charset=utf-8", msg);
@@ -1983,9 +2244,14 @@ void setupWebServer() {
   server.on("/mqtt/move", HTTP_POST, handleMqttMove);
   server.on("/rss/delete", HTTP_POST, handleRssDelete);
   server.on("/mqtt/test", HTTP_POST, handleMqttTest);
+  server.on("/mqtt/test/status", HTTP_GET, handleMqttTestStatus);
   server.on("/wifi/scan", HTTP_POST, handleWifiScan);
   server.on("/mqtt/export", HTTP_GET, handleMqttExport);
   server.on("/mqtt/import", HTTP_POST, handleMqttImportDone, handleMqttImportUpload);
+  server.on("/design/export", HTTP_GET, handleDesignExport);
+  server.on("/design/import", HTTP_POST, handleDesignImportDone, handleDesignImportUpload);
+  server.on("/rss/export", HTTP_GET, handleRssExport);
+  server.on("/rss/import", HTTP_POST, handleRssImportDone, handleRssImportUpload);
   server.on("/log", HTTP_GET, handleLogView);
   server.on("/backup/export", HTTP_GET, handleBackupExport);
   server.on("/backup/import", HTTP_POST, handleBackupImportDone, handleBackupImportUpload);

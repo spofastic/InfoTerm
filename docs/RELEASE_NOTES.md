@@ -2,8 +2,17 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.10**  
-Diese Version: **1.0.10** (stable, vollstaendig hardware-verifiziert)
+Aktuelle stabile Basis: **1.0.11**  
+Diese Version: **1.0.11** (stable, vollstaendig hardware-verifiziert)
+
+1.0.11 Design-&-Tabs-Export (Issue #8) + UI-Feinschliff: Neuer Block auf
+dem Design-Tab exportiert/importiert NUR die Design-Einstellungen
+(Farben, Nachtmodus, Widget-Rahmen/-Schriftgroesse, Rotation) und die
+Custom-Tab-Konfiguration als JSON — eigener Dateityp-Marker, Voll-Backups
+und DataPoints-Dateien werden abgelehnt; DataPoints, Feeds und
+Netzwerk/System bleiben aussen vor. Ausserdem sitzt der "Aktiv"-Haken
+der Custom-Tabs jetzt oben neben der Tab-Ueberschrift. Details siehe
+`CHANGELOG.md`.
 
 1.0.10 RSS-Feeds (Issue #7): Neuer WebGUI-Tab "RSS Feed" (zwischen
 DataPoints und Design) verwaltet bis zu 4 Feed-URLs. Jeder Custom-Tab

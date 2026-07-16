@@ -439,3 +439,251 @@ bool deserializeMqttDataPointsFromFile(const char* path) {
   if (err) return false;
   return applyMqttDataPointsFromDoc(doc);
 }
+
+// ---------------------------------------------------------------------------
+// Scoped export/import of ONLY the design settings (Design tab: colors,
+// night mode, widget border/font, rotation) plus the custom tab
+// configuration (1.0.11, issue #8) - to share the visual setup between
+// terminals without touching DataPoints, network or anything else on the
+// Settings tab. Own type marker so a full backup or a DataPoints file is
+// rejected, mirroring the MQTT DataPoints export above. Tab widget slots
+// reference DataPoints by key and RSS feeds by index only - the referenced
+// definitions themselves are deliberately NOT included (same philosophy as
+// the excluded DataPoints); missing targets degrade gracefully on the
+// importing device.
+// ---------------------------------------------------------------------------
+static const char* DESIGN_TABS_FILE_TYPE = "infoterm-design-tabs";
+
+bool serializeDesignTabsToJson(String& jsonOut) {
+  JsonDocument doc;
+  doc["type"] = DESIGN_TABS_FILE_TYPE;
+  doc["schemaVersion"] = InfoTermConfigSchema::CURRENT;
+  doc["firmwareVersion"] = INFOTERM_APP_VERSION;
+
+  JsonObject design = doc["design"].to<JsonObject>();
+  design["accent"] = accentColorKey;
+  design["border"] = borderColorKey;
+  design["bg"] = backgroundColorKey;
+  design["text"] = textColorKey;
+  design["menuBg"] = menuBgColorKey;
+  design["buttonBg"] = buttonBgColorKey;
+  design["widgetBg"] = widgetBgColorKey;
+  design["widgetBorder"] = widgetBordersEnabled;
+  design["widgetFont"] = widgetFontKey;
+  design["nightMode"] = nightModeEnabled;
+  design["nightForce"] = nightModeForced;
+  design["nightBrightPct"] = nightBrightnessPct;
+  design["rotate180"] = displayRotated180;
+
+  // Home widget slots belong to the visual setup too (first user test of
+  // the feature: widgets changed on the Home panel were not restored, which
+  // reads as "widget selection not restored" - the WebGUI presents Home as
+  // just another tab).
+  JsonArray homeSlots = doc["homeSlots"].to<JsonArray>();
+  for (int i = 0; i < HOME_SLOT_COUNT; i++) {
+    homeSlots.add(widgetSelectionKey(homeWidgetSlots[i], homeWidgetDataPointIds[i]));
+  }
+
+  JsonArray tabs = doc["tabs"].to<JsonArray>();
+  for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+    JsonObject tab = tabs.add<JsonObject>();
+    tab["name"] = customTabNames[t];
+    tab["enabled"] = customTabEnabled[t];
+    tab["content"] = customTabContent[t];
+    tab["feed"] = customTabFeedIndex[t];
+    JsonArray slots = tab["slots"].to<JsonArray>();
+    for (int i = 0; i < TAB_WIDGET_COUNT; i++) {
+      slots.add(widgetSelectionKey(customTabWidgets[t][i], customTabWidgetDataPointIds[t][i]));
+    }
+  }
+
+  serializeJson(doc, jsonOut);
+  return true;
+}
+
+bool serializeDesignTabsToFile(const char* path) {
+  String json;
+  if (!serializeDesignTabsToJson(json)) return false;
+  if (!mountConfigFilesystem(true)) return false;
+  File file = LittleFS.open(path, "w");
+  if (!file) return false;
+  size_t written = file.print(json);
+  file.close();
+  return written == json.length();
+}
+
+// Applies design + tab settings from a parsed document. Rejects any file
+// without the design-tabs type marker. Applies the color keys to the live
+// palette immediately (the full-backup path leaves that to its reboot-heavy
+// callers; this import must be visible right away), re-evaluates the night
+// overlay and persists.
+static bool applyDesignTabsFromDoc(JsonDocument& doc) {
+  const char* type = doc["type"];
+  if (!type || strcmp(type, DESIGN_TABS_FILE_TYPE) != 0) return false;
+  uint16_t storedSchema = doc["schemaVersion"] | 0;
+  if (storedSchema == 0 || storedSchema > InfoTermConfigSchema::CURRENT) return false;
+
+  JsonObject design = doc["design"];
+  if (design.isNull()) return false;
+
+  accentColorKey = design["accent"] | accentColorKey;
+  borderColorKey = design["border"] | borderColorKey;
+  backgroundColorKey = design["bg"] | backgroundColorKey;
+  textColorKey = design["text"] | textColorKey;
+  menuBgColorKey = design["menuBg"] | menuBgColorKey;
+  buttonBgColorKey = design["buttonBg"] | buttonBgColorKey;
+  widgetBgColorKey = design["widgetBg"] | widgetBgColorKey;
+  widgetBordersEnabled = design["widgetBorder"] | widgetBordersEnabled;
+  widgetFontKey = design["widgetFont"] | widgetFontKey;
+  nightModeEnabled = design["nightMode"] | nightModeEnabled;
+  nightModeForced = design["nightForce"] | nightModeForced;
+  nightBrightnessPct = constrain((int)(design["nightBrightPct"] | nightBrightnessPct), 10, 100);
+  displayRotated180 = design["rotate180"] | displayRotated180;
+
+  // Optional for compatibility with files exported before the home slots
+  // were added - absent array keeps the current home widgets.
+  JsonArray homeSlots = doc["homeSlots"];
+  if (!homeSlots.isNull()) {
+    int i = 0;
+    for (JsonVariant slot : homeSlots) {
+      if (i >= HOME_SLOT_COUNT) break;
+      applyWidgetSelectionKey(slot.as<String>(), homeWidgetSlots[i], homeWidgetDataPointIds[i]);
+      i++;
+    }
+  }
+
+  JsonArray tabs = doc["tabs"];
+  if (!tabs.isNull()) {
+    int t = 0;
+    for (JsonObject tab : tabs) {
+      if (t >= CUSTOM_TAB_COUNT) break;
+      customTabNames[t] = tab["name"] | customTabNames[t];
+      customTabEnabled[t] = tab["enabled"] | customTabEnabled[t];
+      customTabContent[t] = tab["content"] | customTabContent[t];
+      customTabFeedIndex[t] = tab["feed"] | customTabFeedIndex[t];
+      JsonArray slots = tab["slots"];
+      if (!slots.isNull()) {
+        int i = 0;
+        for (JsonVariant slot : slots) {
+          if (i >= TAB_WIDGET_COUNT) break;
+          applyWidgetSelectionKey(slot.as<String>(), customTabWidgets[t][i], customTabWidgetDataPointIds[t][i]);
+          i++;
+        }
+      }
+      t++;
+    }
+  }
+
+  sanitizeWidgetSlotsForMqttCount();
+  sanitizeGeneralConfig();
+
+  // Make the imported look take effect immediately (same sequence as the
+  // apply section of handleSave).
+  applyThemeByKey(accentColorKey, backgroundColorKey);
+  applyMenuBgColorByKey(menuBgColorKey);
+  applyButtonBgColorByKey(buttonBgColorKey);
+  applyWidgetBgColorByKey(widgetBgColorKey);
+  applyBorderColorByKey(borderColorKey);
+  applyTextColorByKey(textColorKey);
+  nightModeActive = shouldNightBeActive();
+  if (nightModeActive) applyNightModeColors();
+  if (!sleepDimmed && !sleepOff) setBacklight(awakeBacklightLevel());
+  applyDisplayRotation();
+
+  persistRuntimeConfiguration();
+  pageDirty = true;
+  dataDirty = true;
+  return true;
+}
+
+bool deserializeDesignTabsFromFile(const char* path) {
+  if (!mountConfigFilesystem(false)) return false;
+  if (!LittleFS.exists(path)) return false;
+  File file = LittleFS.open(path, "r");
+  if (!file) return false;
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return false;
+  return applyDesignTabsFromDoc(doc);
+}
+
+// ---------------------------------------------------------------------------
+// Scoped export/import of ONLY the RSS feed URL list (1.0.11), analogous to
+// the MQTT DataPoints export above: own type marker, everything else is
+// rejected. Which tab shows which feed is part of the design+tabs export.
+// ---------------------------------------------------------------------------
+static const char* RSS_FEEDS_FILE_TYPE = "infoterm-rss-feeds";
+
+bool serializeRssFeedsToJson(String& jsonOut) {
+  JsonDocument doc;
+  doc["type"] = RSS_FEEDS_FILE_TYPE;
+  doc["schemaVersion"] = InfoTermConfigSchema::CURRENT;
+  doc["firmwareVersion"] = INFOTERM_APP_VERSION;
+  doc["count"] = rssFeedCount;
+  JsonArray feeds = doc["feeds"].to<JsonArray>();
+  for (int i = 0; i < rssFeedCount && i < RSS_FEED_COUNT; i++) {
+    feeds.add(rssFeedUrls[i]);
+  }
+  serializeJson(doc, jsonOut);
+  return true;
+}
+
+bool serializeRssFeedsToFile(const char* path) {
+  String json;
+  if (!serializeRssFeedsToJson(json)) return false;
+  if (!mountConfigFilesystem(true)) return false;
+  File file = LittleFS.open(path, "w");
+  if (!file) return false;
+  size_t written = file.print(json);
+  file.close();
+  return written == json.length();
+}
+
+// Replaces the stored feed list with the file's list (the imported set
+// wins, like the DataPoints import), resets all fetch state and clamps the
+// tab feed references onto the new list.
+static bool applyRssFeedsFromDoc(JsonDocument& doc) {
+  const char* type = doc["type"];
+  if (!type || strcmp(type, RSS_FEEDS_FILE_TYPE) != 0) return false;
+  uint16_t storedSchema = doc["schemaVersion"] | 0;
+  if (storedSchema == 0 || storedSchema > InfoTermConfigSchema::CURRENT) return false;
+  JsonArray feeds = doc["feeds"];
+  if (feeds.isNull()) return false;
+
+  int i = 0;
+  for (JsonVariant v : feeds) {
+    if (i >= RSS_FEED_COUNT) break;
+    String url = v.as<String>();
+    url.trim();
+    if (url.length() > 200) url = url.substring(0, 200);
+    if (url.length() > 0 && !url.startsWith("http://") && !url.startsWith("https://")) url = "";
+    rssFeedUrls[i++] = url;
+  }
+  rssFeedCount = i;
+  for (int k = 0; k < RSS_FEED_COUNT; k++) {
+    if (k >= rssFeedCount) rssFeedUrls[k] = "";
+    rssResetFeedState(k);
+  }
+  for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+    if (customTabFeedIndex[t] >= rssFeedCount) customTabFeedIndex[t] = rssFeedCount > 0 ? rssFeedCount - 1 : 0;
+  }
+
+  sanitizeGeneralConfig();
+  persistRuntimeConfiguration();
+  pageDirty = true;
+  dataDirty = true;
+  return true;
+}
+
+bool deserializeRssFeedsFromFile(const char* path) {
+  if (!mountConfigFilesystem(false)) return false;
+  if (!LittleFS.exists(path)) return false;
+  File file = LittleFS.open(path, "r");
+  if (!file) return false;
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, file);
+  file.close();
+  if (err) return false;
+  return applyRssFeedsFromDoc(doc);
+}

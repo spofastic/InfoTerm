@@ -312,6 +312,20 @@ enum LanguageKey {
   L_RSS_NO_FEED,
   L_RSS_LOADING,
   L_RSS_ERROR,
+  // --- Design + tab settings export/import (1.0.11) ---
+  L_WEB_DESIGN_EXPORT,
+  L_WEB_DESIGN_IMPORT,
+  L_WEB_DESIGN_EXPORT_DESC,
+  L_JS_DESIGN_SELECT,
+  L_JS_DESIGN_IMPORT_CONFIRM,
+  // --- Design tab sections + RSS feed export/import (1.0.11) ---
+  L_WEB_SECTION_DISPLAY,
+  L_WEB_SECTION_COLORS,
+  L_WEB_RSS_EXPORT,
+  L_WEB_RSS_IMPORT,
+  L_WEB_RSS_EXPORT_DESC,
+  L_JS_RSS_SELECT,
+  L_JS_RSS_IMPORT_CONFIRM,
   L_COUNT
 };
 
@@ -598,6 +612,20 @@ static const LanguageEntry LANGUAGE_TABLE[] = {
   {{"Kein Feed konfiguriert", "No feed configured", "Aucun flux configuré", "Ninguna fuente configurada", "Nessun feed configurato", "Лента не настроена", "कोई फ़ीड कॉन्फ़िगर नहीं", "未配置源"}},
   {{"Lade Feed...", "Loading feed...", "Chargement du flux...", "Cargando fuente...", "Caricamento feed...", "Загрузка ленты...", "फ़ीड लोड हो रहा है...", "正在加载源..."}},
   {{"Feed nicht erreichbar", "Feed unreachable", "Flux inaccessible", "Fuente no accesible", "Feed non raggiungibile", "Лента недоступна", "फ़ीड उपलब्ध नहीं", "源不可用"}},
+  // --- Design + tab settings export/import (1.0.11) ---
+  {{"Design & Tabs exportieren", "Export design & tabs", "Exporter design & onglets", "Exportar diseño y pestañas", "Esporta design e schede", "Экспорт дизайна и вкладок", "डिज़ाइन और टैब निर्यात करें", "导出设计和标签页"}},
+  {{"Design & Tabs importieren", "Import design & tabs", "Importer design & onglets", "Importar diseño y pestañas", "Importa design e schede", "Импорт дизайна и вкладок", "डिज़ाइन और टैब आयात करें", "导入设计和标签页"}},
+  {{"Design- und Tab-Einstellungen (Farben, Nachtmodus, Home-Widgets, Tab-Konfiguration) als JSON-Datei exportieren oder aus einer Datei übernehmen — z. B. um mehrere InfoTerms gleich aussehen zu lassen. DataPoints und Netzwerk-/Systemeinstellungen sind nicht enthalten.", "Export the design and tab settings (colors, night mode, home widgets, tab configuration) as a JSON file or import them from a file — e.g. to make several InfoTerms look the same. DataPoints and network/system settings are not included.", "Exporter les réglages de design et d'onglets (couleurs, mode nuit, widgets d'accueil, configuration des onglets) en fichier JSON ou les importer depuis un fichier — p. ex. pour uniformiser plusieurs InfoTerms. Les points de données et les réglages réseau/système ne sont pas inclus.", "Exportar los ajustes de diseño y pestañas (colores, modo nocturno, widgets de inicio, configuración de pestañas) como archivo JSON o importarlos desde un archivo — p. ej. para que varios InfoTerms se vean iguales. Los puntos de datos y los ajustes de red/sistema no se incluyen.", "Esporta le impostazioni di design e schede (colori, modalità notte, widget della home, configurazione delle schede) come file JSON o importale da un file — ad es. per rendere uguali più InfoTerm. I punti dati e le impostazioni di rete/sistema non sono inclusi.", "Экспорт настроек дизайна и вкладок (цвета, ночной режим, виджеты главной, конфигурация вкладок) в JSON-файл или импорт из файла — например, чтобы несколько InfoTerm выглядели одинаково. Точки данных и настройки сети/системы не включаются.", "डिज़ाइन और टैब सेटिंग्स (रंग, नाइट मोड, होम विजेट, टैब कॉन्फ़िगरेशन) को JSON फ़ाइल के रूप में निर्यात करें या फ़ाइल से आयात करें — जैसे कई InfoTerm को एक जैसा दिखाने के लिए। डेटा पॉइंट और नेटवर्क/सिस्टम सेटिंग्स शामिल नहीं हैं।", "将设计和标签页设置（颜色、夜间模式、主页小部件、标签页配置）导出为 JSON 文件或从文件导入——例如让多台 InfoTerm 外观一致。数据点和网络/系统设置不包含在内。"}},
+  {{"Bitte eine Design-&-Tabs-Datei auswaehlen.", "Please select a design & tabs file.", "Veuillez choisir un fichier design & onglets.", "Selecciona un archivo de diseño y pestañas.", "Seleziona un file design e schede.", "Выберите файл дизайна и вкладок.", "कृपया डिज़ाइन और टैब फ़ाइल चुनें।", "请选择设计和标签页文件。"}},
+  {{"Design- und Tab-Einstellungen aus der Datei uebernehmen? Die aktuellen Design- und Tab-Einstellungen werden ersetzt.", "Import design and tab settings from the file? The current design and tab settings will be replaced.", "Importer les réglages de design et d'onglets depuis le fichier ? Les réglages actuels seront remplacés.", "¿Importar los ajustes de diseño y pestañas del archivo? Los ajustes actuales serán reemplazados.", "Importare le impostazioni di design e schede dal file? Le impostazioni attuali verranno sostituite.", "Импортировать настройки дизайна и вкладок из файла? Текущие настройки будут заменены.", "फ़ाइल से डिज़ाइन और टैब सेटिंग्स आयात करें? वर्तमान सेटिंग्स बदल दी जाएँगी।", "从文件导入设计和标签页设置？当前设置将被替换。"}},
+  // --- Design tab sections + RSS feed export/import (1.0.11) ---
+  {{"Anzeige", "Display", "Affichage", "Pantalla", "Schermo", "Дисплей", "डिस्प्ले", "显示"}},
+  {{"Farben", "Colors", "Couleurs", "Colores", "Colori", "Цвета", "रंग", "颜色"}},
+  {{"RSS-Feeds exportieren", "Export RSS feeds", "Exporter les flux RSS", "Exportar fuentes RSS", "Esporta feed RSS", "Экспорт RSS-лент", "RSS फ़ीड निर्यात करें", "导出 RSS 源"}},
+  {{"RSS-Feeds importieren", "Import RSS feeds", "Importer les flux RSS", "Importar fuentes RSS", "Importa feed RSS", "Импорт RSS-лент", "RSS फ़ीड आयात करें", "导入 RSS 源"}},
+  {{"Die Feed-Liste als JSON-Datei exportieren oder aus einer Datei übernehmen. Welcher Tab welchen Feed anzeigt, ist Teil des Design-&-Tabs-Exports.", "Export the feed list as a JSON file or import it from a file. Which tab shows which feed is part of the design & tabs export.", "Exporter la liste des flux en fichier JSON ou l'importer depuis un fichier. L'affectation des flux aux onglets fait partie de l'export design & onglets.", "Exportar la lista de fuentes como archivo JSON o importarla desde un archivo. Qué pestaña muestra qué fuente forma parte de la exportación de diseño y pestañas.", "Esporta l'elenco dei feed come file JSON o importalo da un file. Quale scheda mostra quale feed fa parte dell'esportazione design e schede.", "Экспорт списка лент в JSON-файл или импорт из файла. Какая вкладка показывает какую ленту — часть экспорта дизайна и вкладок.", "फ़ीड सूची को JSON फ़ाइल के रूप में निर्यात करें या फ़ाइल से आयात करें। कौन-सा टैब कौन-सा फ़ीड दिखाता है, यह डिज़ाइन और टैब निर्यात का हिस्सा है।", "将源列表导出为 JSON 文件或从文件导入。哪个标签页显示哪个源属于设计和标签页导出。"}},
+  {{"Bitte eine RSS-Feeds-Datei auswaehlen.", "Please select an RSS feeds file.", "Veuillez choisir un fichier de flux RSS.", "Selecciona un archivo de fuentes RSS.", "Seleziona un file di feed RSS.", "Выберите файл RSS-лент.", "कृपया RSS फ़ीड फ़ाइल चुनें।", "请选择 RSS 源文件。"}},
+  {{"RSS-Feeds aus der Datei uebernehmen? Die gespeicherte Feed-Liste wird ersetzt.", "Import RSS feeds from the file? The stored feed list will be replaced.", "Importer les flux RSS depuis le fichier ? La liste enregistrée sera remplacée.", "¿Importar fuentes RSS del archivo? La lista guardada será reemplazada.", "Importare i feed RSS dal file? L'elenco salvato verrà sostituito.", "Импортировать RSS-ленты из файла? Сохранённый список будет заменён.", "फ़ाइल से RSS फ़ीड आयात करें? सहेजी गई सूची बदल दी जाएगी।", "从文件导入 RSS 源？已保存的列表将被替换。"}},
 };
 
 static_assert(sizeof(LANGUAGE_TABLE) / sizeof(LANGUAGE_TABLE[0]) == L_COUNT,

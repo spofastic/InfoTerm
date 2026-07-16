@@ -171,3 +171,15 @@ The sprite based widget rendering helpers were moved from `src/InfoTerm.ino` int
 ## 0.6.5 WebGUI Migration
 
 The WebGUI runtime was moved to `src/webgui/WebGuiRuntime.inc`. This includes root/settings rendering, DataPoint diagnostics, MQTT row actions, save handling, route registration and LittleFS static/template helpers. The implementation remains include-based for this release so the existing global state and persistence behavior are preserved.
+
+
+## 1.0.11 RSS-Text-Pipeline nach InfoTermLogic.h (Issue #5, Inkrement)
+
+Die komplette RSS-Text-Aufbereitung (Entity-Decode, Tag-Strip inkl. CDATA,
+UTF-8-nach-ASCII-Transliteration, Tag-Extraktion, cleanText-Pipeline) wurde
+aus `src/rss/RssRuntime.inc` in `include/InfoTermLogic.h` verschoben
+(`infoterm::rsstext`, Template ueber den String-Typ wie `htmlEscaped`).
+Die Firmware ruft ueber duenne Wrapper exakt den Code auf, den die
+Host-Tests in `test/test_logic/` abdecken (12 neue Tests: Entities
+benannt/numerisch/unbekannt, Transliteration, Tag-Strip, Tag-Grenzen,
+Self-Closing, fehlende Schliesser, Pipeline, Truncation).

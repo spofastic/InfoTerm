@@ -4,6 +4,72 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.11] — Stable
+
+### Added
+
+- **Export/Import von Design- und Tab-Einstellungen (Issue #8).** Auf dem
+  Design-Tab gibt es einen neuen Block „Design & Tabs exportieren /
+  importieren": exportiert werden ausschließlich die Design-Einstellungen
+  (alle Farben, Nachtmodus/Erzwingen/Nacht-Helligkeit, Widget-Rahmen,
+  Widget-Schriftgröße, Rotation), die Widget-Belegung der Startseite und
+  die Konfiguration der Custom-Tabs
+  (Name, Aktiv, Inhalt, Feed-Auswahl, Widget-Belegung) — z. B. um mehrere
+  InfoTerms gleich aussehen zu lassen. DataPoints, RSS-Feed-URLs und alles
+  auf dem Einstellungen-Tab (Netzwerk, MQTT, Standort, …) sind bewusst
+  nicht enthalten; Verweise auf nicht vorhandene DataPoints/Feeds fallen
+  auf dem Zielgerät sauber zurück. Eigener Dateityp-Marker
+  (`infoterm-design-tabs`), sodass ein Voll-Backup oder eine
+  DataPoints-Datei beim Import abgelehnt wird (Muster des
+  MQTT-DataPoints-Exports: `GET /design/export`, `POST /design/import` mit
+  Login + CSRF und 16-KB-Limit). Der Import wirkt sofort (Farben,
+  Rotation, Nachtmodus), wird persistiert und in allen 8 Sprachen
+  beschriftet.
+
+### Added
+
+- **RSS-Feed-Liste exportieren/importieren.** Neues „Backup"-Panel auf dem
+  RSS-Tab, analog zum DataPoints-Export: `GET /rss/export` liefert die
+  Feed-URLs als JSON (`InfoTerm_rss_<Zeitstempel>.json`, eigener
+  Dateityp-Marker `infoterm-rss-feeds`), `POST /rss/import` (Login + CSRF,
+  16-KB-Limit) ersetzt die gespeicherte Liste, setzt den Abruf-Status
+  zurück und klemmt Tab-Verweise auf die neue Liste; fremde Dateien
+  (Voll-Backup, DataPoints, Design) werden abgelehnt. Welcher Tab welchen
+  Feed zeigt, bleibt Teil des Design-&-Tabs-Exports.
+
+### Changed
+
+- **Design-Tab neu gegliedert.** Die Einstellungen stehen jetzt unter vier
+  fetten Gruppen-Überschriften — Anzeige (Drehung), Nachtmodus
+  (Automatik/Erzwingen/Helligkeit), Widgets (Rahmen/Schriftgröße), Farben
+  (Paletten) — statt einzelner Labels pro Schalter; der
+  Design-&-Tabs-Export sitzt in einem eigenen aufklappbaren
+  „Backup"-Panel unter dem Design-Panel.
+- **MQTT-Tab: DataPoints-Export in eigenes „Backup"-Panel** unter der
+  DataPoints-Tabelle verschoben (gleiche Darstellung wie auf dem
+  Design-Tab), statt als Block in der Tabelle zu hängen.
+- **MQTT-Verbindungstest blockiert die Oberfläche nicht mehr (Issue #3).**
+  Der Verbindungsversuch läuft jetzt in einem eigenen FreeRTOS-Task (Muster
+  des VPN-Connect-Pfads) statt im WebGUI-Handler — Display, Touch und
+  WebGUI bleiben während der bis zu ~5 s dauernden Prüfung bedienbar. Die
+  Seite pollt `GET /mqtt/test/status` (202 solange der Test läuft, 200 mit
+  der gewohnten lokalisierten Meldung danach); Optik und Meldungstexte
+  sind unverändert.
+- **RSS-Text-Aufbereitung in host-testbare Einheit extrahiert (Issue #5,
+  Inkrement).** Entity-Decode, Tag-Strip, UTF-8-Transliteration,
+  Tag-Extraktion und die cleanText-Pipeline liegen jetzt als
+  `infoterm::rsstext` in `include/InfoTermLogic.h`; die Firmware ruft über
+  dünne Wrapper exakt den Code auf, den 12 neue native Unit-Tests
+  (`test/test_logic/`) abdecken. Verhalten unverändert; Details in
+  `docs/MODULARIZATION.md`.
+- **„Aktiv"-Haken der Custom-Tabs in die Kopfzeile verschoben.** Die
+  Checkbox sitzt jetzt oben neben der Tab-Überschrift statt unten im
+  Formular-Raster neben der Feed-Auswahl; ein Klick auf den Haken klappt
+  das Panel nicht ein.
+- **WebGUI-Tab „RSS Feed" heißt jetzt „RSS"** und ist im Menü nach links
+  vor MQTT gerückt (Reihenfolge: Home, Custom-Tabs, RSS, MQTT,
+  DataPoints, Design, Einstellungen).
+
 ## [1.0.10] — Stable
 
 ### Added
