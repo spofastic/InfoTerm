@@ -36,13 +36,9 @@ static String rssExtractTag(const String& xml, const char* tag) {
 String rssFeedOptionLabel(int idx) {
   if (idx < 0 || idx >= RSS_FEED_COUNT) return "";
   if (rssChannelTitle[idx].length() > 0) return rssChannelTitle[idx];
-  String url = rssFeedUrls[idx];
-  int scheme = url.indexOf("://");
-  if (scheme >= 0) url = url.substring(scheme + 3);
-  int slash = url.indexOf('/');
-  if (slash > 0) url = url.substring(0, slash);
-  if (url.length() == 0) url = String("Feed ") + String(idx + 1);
-  return url;
+  String host = infoterm::urlHost<String>(rssFeedUrls[idx].c_str());
+  if (host.length() == 0) host = String("Feed ") + String(idx + 1);
+  return host;
 }
 
 void rssResetFeedState(int idx) {
@@ -372,10 +368,7 @@ void updateRssTabDynamic(int tabIndex) {
 // wraps back to the top.
 void serviceRssScroll() {
   if (portalActive || sleepDimmed || sleepOff || pageDirty) return;
-  int tabIndex = -1;
-  if (currentPage == PAGE_TAB1) tabIndex = 0;
-  else if (currentPage == PAGE_TAB2) tabIndex = 1;
-  else if (currentPage == PAGE_TAB3) tabIndex = 2;
+  int tabIndex = customTabIndexFromPage(currentPage);
   if (tabIndex < 0 || customTabContent[tabIndex] != "rss") return;
   if (lastDrawnPage != currentPage) return;  // full draw still pending
 

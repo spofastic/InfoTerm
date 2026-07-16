@@ -64,6 +64,50 @@ inline TString htmlEscaped(const char* raw) {
   return out;
 }
 
+// Pure tab-rotation step for the burn-in cycle (1.0.12, issue #5 increment;
+// extracted from nextCyclePage() while issue #9 raised the page count).
+// `pages[0..count)` is the visible nav order; `skipPage` (the Info page) is
+// never part of the rotation. Returns the page id after `current`; if
+// `current` is not in the rotation (e.g. it IS the Info page), the cycle
+// resumes at the first rotatable page. Fewer than two rotatable pages ->
+// `current` unchanged (nothing to cycle).
+inline int nextCyclePageId(const int* pages, int count, int skipPage, int current) {
+  int cycleCount = 0;
+  for (int i = 0; i < count; i++) {
+    if (pages[i] != skipPage) cycleCount++;
+  }
+  if (cycleCount < 2) return current;
+
+  int idx = -1;
+  int pos = 0;
+  for (int i = 0; i < count; i++) {
+    if (pages[i] == skipPage) continue;
+    if (pages[i] == current) { idx = pos; break; }
+    pos++;
+  }
+  int target = (idx + 1) % cycleCount;
+  pos = 0;
+  for (int i = 0; i < count; i++) {
+    if (pages[i] == skipPage) continue;
+    if (pos == target) return pages[i];
+    pos++;
+  }
+  return current;
+}
+
+// Host part of the URL: text between "scheme://" (optional) and the first
+// '/'. Extracted from rssFeedOptionLabel() (1.0.12, issue #5 increment).
+template <typename TString>
+inline TString urlHost(const char* url) {
+  const char* h = url;
+  for (const char* q = url; *q; q++) {
+    if (q[0] == ':' && q[1] == '/' && q[2] == '/') { h = q + 3; break; }
+  }
+  TString out;
+  for (const char* q = h; *q && *q != '/'; q++) out += *q;
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 // RSS text pipeline (1.0.11, issue #5 increment): extracted from
 // src/rss/RssRuntime.inc so the parsing/cleanup logic - the newest pure

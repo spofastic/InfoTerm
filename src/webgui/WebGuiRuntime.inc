@@ -1241,9 +1241,9 @@ void handleDesignImportDone() {
     InfoTermEventBusIntegration::publishWidgetChanged("webgui", "design.import");
     resetDataCaches();
     // A tab that got disabled by the import must not stay on screen.
-    if (currentPage == PAGE_TAB1 && !customTabEnabled[0]) currentPage = PAGE_HOME;
-    if (currentPage == PAGE_TAB2 && !customTabEnabled[1]) currentPage = PAGE_HOME;
-    if (currentPage == PAGE_TAB3 && !customTabEnabled[2]) currentPage = PAGE_HOME;
+    for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+      if (currentPage == pageForCustomTab(t) && !customTabEnabled[t]) currentPage = PAGE_HOME;
+    }
   }
   server.sendHeader("Location", ok ? "/?tab=design" : "/?tab=design&designImportError=1");
   server.send(303);
@@ -2103,9 +2103,9 @@ void handleSave() {
     InfoTermEventBusIntegration::publishStorageChanged("webgui", "mqtt");
   }
 
-  if (currentPage == PAGE_TAB1 && !customTabEnabled[0]) currentPage = PAGE_HOME;
-  if (currentPage == PAGE_TAB2 && !customTabEnabled[1]) currentPage = PAGE_HOME;
-  if (currentPage == PAGE_TAB3 && !customTabEnabled[2]) currentPage = PAGE_HOME;
+  for (int t = 0; t < CUSTOM_TAB_COUNT; t++) {
+    if (currentPage == pageForCustomTab(t) && !customTabEnabled[t]) currentPage = PAGE_HOME;
+  }
 
   pageDirty = true;
   dataDirty = true;

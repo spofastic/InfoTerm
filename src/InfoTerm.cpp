@@ -197,7 +197,7 @@ const int HOME_GRID_Y2 = 146;
 const int HOME_GRID_Y3 = 210;
 const int HOME_WIDGET_H = 58;
 
-const int CUSTOM_TAB_COUNT = 3;
+const int CUSTOM_TAB_COUNT = 4;  // 1.0.12 (issue #9): 4th user-configurable tab
 const int TAB_WIDGET_COUNT = 8;
 const int TAB_GRID_Y1 = 6;
 const int TAB_GRID_Y2 = 72;
@@ -244,12 +244,13 @@ HomeWidgetType homeWidgetSlots[HOME_SLOT_COUNT] = {
 String cacheHomeSlots[HOME_SLOT_COUNT];
 String homeWidgetDataPointIds[HOME_SLOT_COUNT] = {"", "", "", "", "", ""};
 
-String customTabNames[CUSTOM_TAB_COUNT] = {"Wetter", "MQTT", "Tab 3"};
-bool customTabEnabled[CUSTOM_TAB_COUNT] = {true, true, false};
+String customTabNames[CUSTOM_TAB_COUNT] = {"Wetter", "MQTT", "Tab 3", "Tab 4"};
+bool customTabEnabled[CUSTOM_TAB_COUNT] = {true, true, false, false};
 HomeWidgetType customTabWidgets[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT] = {
   {HOME_WIDGET_OUTDOOR, HOME_WIDGET_RAIN, HOME_WIDGET_UV, HOME_WIDGET_WIND, HOME_WIDGET_SUN, HOME_WIDGET_KP, HOME_WIDGET_WEEK, HOME_WIDGET_MQTT_1},
   {HOME_WIDGET_MQTT_1, HOME_WIDGET_MQTT_2, HOME_WIDGET_MQTT_3, HOME_WIDGET_MQTT_4, HOME_WIDGET_MQTT_5, HOME_WIDGET_MQTT_6, HOME_WIDGET_MQTT_7, HOME_WIDGET_MQTT_8},
-  {HOME_WIDGET_MQTT_5, HOME_WIDGET_MQTT_6, HOME_WIDGET_MQTT_7, HOME_WIDGET_MQTT_8, HOME_WIDGET_MQTT_9, HOME_WIDGET_MQTT_10, HOME_WIDGET_MQTT_11, HOME_WIDGET_MQTT_12}
+  {HOME_WIDGET_MQTT_5, HOME_WIDGET_MQTT_6, HOME_WIDGET_MQTT_7, HOME_WIDGET_MQTT_8, HOME_WIDGET_MQTT_9, HOME_WIDGET_MQTT_10, HOME_WIDGET_MQTT_11, HOME_WIDGET_MQTT_12},
+  {HOME_WIDGET_WEEK, HOME_WIDGET_RAIN, HOME_WIDGET_OUTDOOR, HOME_WIDGET_WIND, HOME_WIDGET_SUN, HOME_WIDGET_UV, HOME_WIDGET_KP, HOME_WIDGET_MQTT_1}
 };
 String cacheCustomTabSlots[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
 String customTabWidgetDataPointIds[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
@@ -263,8 +264,8 @@ String customTabWidgetDataPointIds[CUSTOM_TAB_COUNT][TAB_WIDGET_COUNT];
 const int RSS_FEED_COUNT = 4;
 int rssFeedCount = 0;
 String rssFeedUrls[RSS_FEED_COUNT];
-String customTabContent[CUSTOM_TAB_COUNT] = {"widgets", "widgets", "widgets"};
-int customTabFeedIndex[CUSTOM_TAB_COUNT] = {0, 0, 0};
+String customTabContent[CUSTOM_TAB_COUNT] = {"widgets", "widgets", "widgets", "widgets"};
+int customTabFeedIndex[CUSTOM_TAB_COUNT] = {0, 0, 0, 0};
 
 // Runtime fetch state per feed (never persisted). rssEntry* hold the already
 // display-sanitized (entity-decoded, tag-stripped, Latin-transliterated)
@@ -1448,7 +1449,8 @@ Page pageForCustomTab(int tabIndex) {
   switch (tabIndex) {
     case 0: return PAGE_TAB1;
     case 1: return PAGE_TAB2;
-    default: return PAGE_TAB3;
+    case 2: return PAGE_TAB3;
+    default: return PAGE_TAB4;
   }
 }
 
@@ -1456,6 +1458,7 @@ int customTabIndexFromPage(Page page) {
   if (page == PAGE_TAB1) return 0;
   if (page == PAGE_TAB2) return 1;
   if (page == PAGE_TAB3) return 2;
+  if (page == PAGE_TAB4) return 3;
   return -1;
 }
 
@@ -1475,22 +1478,13 @@ int visibleNavPages(Page pages[], String labels[], int maxPages) {
 // rotation resumes at the first non-Info tab. Returns `current` unchanged
 // when there are fewer than two rotatable tabs (nothing to cycle).
 Page nextCyclePage(Page current) {
-  Page pages[5];
-  String labels[5];
-  int count = visibleNavPages(pages, labels, 5);
-
-  Page cyclePages[5];
-  int cycleCount = 0;
-  for (int i = 0; i < count; i++) {
-    if (pages[i] != PAGE_INFO) cyclePages[cycleCount++] = pages[i];
-  }
-  if (cycleCount < 2) return current;
-
-  int idx = -1;
-  for (int i = 0; i < cycleCount; i++) {
-    if (cyclePages[i] == current) { idx = i; break; }
-  }
-  return cyclePages[(idx + 1) % cycleCount];
+  Page pages[6];
+  String labels[6];
+  int count = visibleNavPages(pages, labels, 6);
+  int ids[6];
+  for (int i = 0; i < count; i++) ids[i] = (int)pages[i];
+  // Rotation step lives in InfoTermLogic.h (host-tested, issue #5).
+  return (Page)infoterm::nextCyclePageId(ids, count, (int)PAGE_INFO, (int)current);
 }
 
 // Advances to the next tab once tabCycleIntervalSec has elapsed. Only runs
@@ -1535,9 +1529,9 @@ void drawNavBar() {
   const int y = SCREEN_H - NAV_H;
   tft.fillRect(0, y, SCREEN_W, NAV_H, COL_MENU_BG);
 
-  Page pages[5];
-  String labels[5];
-  int count = visibleNavPages(pages, labels, 5);
+  Page pages[6];
+  String labels[6];
+  int count = visibleNavPages(pages, labels, 6);
   if (count <= 0) return;
   const int btnW = SCREEN_W / count;
 
@@ -1562,7 +1556,16 @@ void drawNavBar() {
     } else {
       tft.setTextDatum(MC_DATUM);
       tft.setTextColor(fg, bg);
-      tft.drawString(labels[i], bx + btnW / 2, y + NAV_H / 2, 1);
+      // With all 4 custom tabs enabled the bar holds 6 buttons of 40 px;
+      // a 10-char tab name no longer fits, so labels are truncated to the
+      // button width (issue #9 decision: shorten on the display only, the
+      // WebGUI keeps the full name).
+      String label = labels[i];
+      const int maxLabelW = btnW - 8;
+      while (label.length() > 1 && tft.textWidth(label, 1) > maxLabelW) {
+        label.remove(label.length() - 1);
+      }
+      tft.drawString(label, bx + btnW / 2, y + NAV_H / 2, 1);
     }
   }
 
@@ -1893,6 +1896,7 @@ void drawCurrentPageFull() {
     case PAGE_TAB1: drawCustomTabPageFull(0); break;
     case PAGE_TAB2: drawCustomTabPageFull(1); break;
     case PAGE_TAB3: drawCustomTabPageFull(2); break;
+    case PAGE_TAB4: drawCustomTabPageFull(3); break;
     case PAGE_INFO: drawStatusPageFull(); break;
   }
 
@@ -1906,6 +1910,7 @@ void updateCurrentPageDynamic() {
     case PAGE_TAB1: updateCustomTabDynamic(0); break;
     case PAGE_TAB2: updateCustomTabDynamic(1); break;
     case PAGE_TAB3: updateCustomTabDynamic(2); break;
+    case PAGE_TAB4: updateCustomTabDynamic(3); break;
     case PAGE_INFO: updateStatusDynamic(); break;
   }
 }
@@ -1916,9 +1921,9 @@ void updateCurrentPageDynamic() {
 void handleNavTouch(int x, int y) {
   if (y < SCREEN_H - NAV_H) return;
 
-  Page pages[5];
-  String labels[5];
-  int count = visibleNavPages(pages, labels, 5);
+  Page pages[6];
+  String labels[6];
+  int count = visibleNavPages(pages, labels, 6);
   if (count <= 0) return;
 
   int btnW = SCREEN_W / count;

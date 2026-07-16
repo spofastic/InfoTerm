@@ -2,8 +2,16 @@
 
 ## Aktueller Stand
 
-Aktuelle stabile Basis: **1.0.11**  
-Diese Version: **1.0.11** (stable, vollstaendig hardware-verifiziert)
+Aktuelle stabile Basis: **1.0.12**  
+Diese Version: **1.0.12** (stable, vollstaendig hardware-verifiziert)
+
+1.0.12 Vierter Custom-Tab (Issue #9): "Tab 4" in der WebGUI-Tab-
+Konfiguration (Standard inaktiv), volle Unterstuetzung fuer Widgets/RSS,
+NVS/Backup/Design-Export wachsen mit. Display-Nav-Bar mit bis zu 6
+Buttons; zu lange Tab-Namen werden nur auf dem Display gekuerzt.
+Ausserdem (#5-Inkrement) Tab-Rotation und URL-Host-Logik nach
+InfoTermLogic.h extrahiert (7 neue native Tests). Details siehe
+`CHANGELOG.md`.
 
 1.0.11 Design-&-Tabs-Export (Issue #8) + UI-Feinschliff: Neuer Block auf
 dem Design-Tab exportiert/importiert NUR die Design-Einstellungen

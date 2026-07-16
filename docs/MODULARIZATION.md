@@ -183,3 +183,15 @@ Die Firmware ruft ueber duenne Wrapper exakt den Code auf, den die
 Host-Tests in `test/test_logic/` abdecken (12 neue Tests: Entities
 benannt/numerisch/unbekannt, Transliteration, Tag-Strip, Tag-Grenzen,
 Self-Closing, fehlende Schliesser, Pipeline, Truncation).
+
+
+## 1.0.12 Tab-Rotation + URL-Host nach InfoTermLogic.h (Issue #5, Inkrement)
+
+Der Burn-in-Rotationsschritt (`infoterm::nextCyclePageId`, reiner
+Int-Array-Algorithmus) und die URL-Host-Extraktion (`infoterm::urlHost`,
+Template wie `htmlEscaped`) wurden aus `nextCyclePage()` bzw.
+`rssFeedOptionLabel()` extrahiert - abgesichert durch 7 neue Host-Tests,
+gleichzeitig mit der Erweiterung auf 6 Nav-Seiten (Issue #9, 4. Tab).
+Interne if-Ketten ueber PAGE_TAB1..3 wurden durch Schleifen ueber
+`CUSTOM_TAB_COUNT`/`pageForCustomTab()` ersetzt (RssRuntime, handleSave,
+Design-Import).

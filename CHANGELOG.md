@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an InfoTerm werden in dieser Datei dokumentiert.
 
 Das Projekt orientiert sich am Format „Keep a Changelog“.
 
+## [1.0.12] — Stable
+
+### Added
+
+- **Vierter individueller Tab (Issue #9).** `CUSTOM_TAB_COUNT` von 3 auf 4:
+  „Tab 4" erscheint in der WebGUI-Tab-Konfiguration (Standard: inaktiv)
+  und kann wie die anderen Tabs Widgets oder einen RSS-Feed anzeigen. Die
+  Display-Nav-Bar fasst mit allen vier Tabs sechs Buttons à 40 px; zu
+  lange Tab-Namen werden dafür nur auf dem Display auf die Button-Breite
+  gekürzt — die WebGUI zeigt weiterhin den vollen Namen. NVS-Keys,
+  Backup/Restore, Design-&-Tabs-Export und Tab-Rotation wachsen
+  automatisch mit; alte Backups mit 3 Tabs bleiben importierbar (Tab 4
+  behält dann seine Standardwerte).
+
+### Changed
+
+- **Tab-Rotation und URL-Host-Ermittlung host-testbar (Issue #5,
+  Inkrement).** Der Burn-in-Rotationsschritt (`nextCyclePageId`) und die
+  Host-Extraktion für Feed-Labels (`urlHost`) liegen jetzt in
+  `include/InfoTermLogic.h` mit 7 neuen nativen Unit-Tests — die Rotation
+  ist damit für den Sprung auf 6 Nav-Seiten abgesichert. Interne
+  if-Ketten über die Tab-Seiten wurden durch Schleifen über
+  `CUSTOM_TAB_COUNT` ersetzt.
+
 ## [1.0.11] — Stable
 
 ### Added

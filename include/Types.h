@@ -38,7 +38,8 @@ enum Page {
   PAGE_TAB1 = 1,
   PAGE_TAB2 = 2,
   PAGE_TAB3 = 3,
-  PAGE_INFO = 4,
+  PAGE_TAB4 = 4,  // 1.0.12, issue #9 (numeric values are never persisted)
+  PAGE_INFO = 5,
   // Compatibility aliases for existing internal helper functions.
   PAGE_WEATHER = PAGE_TAB1,
   PAGE_MQTT = PAGE_TAB2,

@@ -147,6 +147,51 @@ void test_rss_cleantext_truncates_with_ellipsis() {
   TEST_ASSERT_EQUAL_STRING("abc", rt::cleanText<string>("abc", 5).c_str());
 }
 
+// --- Tab rotation + URL host (1.0.12 / issues #5+#9) ---
+
+// Page ids as on the device: 0=Home, 1..4=custom tabs, 5=Info.
+void test_cycle_advances_and_wraps() {
+  const int pages[] = {0, 1, 2, 5};  // Home, Tab1, Tab2, Info
+  TEST_ASSERT_EQUAL_INT(1, nextCyclePageId(pages, 4, 5, 0));
+  TEST_ASSERT_EQUAL_INT(2, nextCyclePageId(pages, 4, 5, 1));
+  TEST_ASSERT_EQUAL_INT(0, nextCyclePageId(pages, 4, 5, 2));  // wrap
+}
+
+void test_cycle_skips_info_page() {
+  const int pages[] = {0, 1, 5};
+  TEST_ASSERT_EQUAL_INT(0, nextCyclePageId(pages, 3, 5, 1));  // wraps past Info
+}
+
+void test_cycle_from_info_resumes_at_first_tab() {
+  const int pages[] = {0, 1, 2, 5};
+  TEST_ASSERT_EQUAL_INT(0, nextCyclePageId(pages, 4, 5, 5));
+}
+
+void test_cycle_needs_two_rotatable_pages() {
+  const int onlyHome[] = {0, 5};
+  TEST_ASSERT_EQUAL_INT(0, nextCyclePageId(onlyHome, 2, 5, 0));
+  TEST_ASSERT_EQUAL_INT(5, nextCyclePageId(onlyHome, 2, 5, 5));
+}
+
+void test_cycle_six_pages_full_round() {
+  // All 4 custom tabs enabled (issue #9): Home -> 1 -> 2 -> 3 -> 4 -> Home.
+  const int pages[] = {0, 1, 2, 3, 4, 5};
+  TEST_ASSERT_EQUAL_INT(4, nextCyclePageId(pages, 6, 5, 3));
+  TEST_ASSERT_EQUAL_INT(0, nextCyclePageId(pages, 6, 5, 4));
+}
+
+void test_urlhost_strips_scheme_and_path() {
+  TEST_ASSERT_EQUAL_STRING("abo.wettermail.de",
+                           urlHost<std::string>("https://abo.wettermail.de/wetter/current/x.rss").c_str());
+  TEST_ASSERT_EQUAL_STRING("host.local", urlHost<std::string>("http://host.local").c_str());
+}
+
+void test_urlhost_without_scheme_and_empty() {
+  TEST_ASSERT_EQUAL_STRING("example.org", urlHost<std::string>("example.org/feed").c_str());
+  TEST_ASSERT_EQUAL_STRING("", urlHost<std::string>("https://").c_str());
+  TEST_ASSERT_EQUAL_STRING("", urlHost<std::string>("").c_str());
+}
+
 void setUp() {}
 void tearDown() {}
 
@@ -177,5 +222,12 @@ int main(int, char**) {
   RUN_TEST(test_rss_extract_missing_close_returns_empty);
   RUN_TEST(test_rss_cleantext_full_pipeline);
   RUN_TEST(test_rss_cleantext_truncates_with_ellipsis);
+  RUN_TEST(test_cycle_advances_and_wraps);
+  RUN_TEST(test_cycle_skips_info_page);
+  RUN_TEST(test_cycle_from_info_resumes_at_first_tab);
+  RUN_TEST(test_cycle_needs_two_rotatable_pages);
+  RUN_TEST(test_cycle_six_pages_full_round);
+  RUN_TEST(test_urlhost_strips_scheme_and_path);
+  RUN_TEST(test_urlhost_without_scheme_and_empty);
   return UNITY_END();
 }
